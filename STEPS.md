@@ -425,3 +425,5 @@ component {
 ```
 
 39. Try it again (will probably want a migrate fresh)
+
+TODO: We probably want a WireBox intro somewhere. Just the basics. Breeze past most of it.
