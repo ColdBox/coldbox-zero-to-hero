@@ -214,7 +214,7 @@ function index( event, rc, prc ) {
 // views/Main/index.cfm
 
 <cfoutput>
-    <cfdump var="#prc.users#" />
+    <cfdump var="#prc.users#" label="users" />
 </cfoutput>
 ```
 
@@ -328,7 +328,100 @@ it( "can register a user", function() {
 34. Write the production code
 
 ```js
-query.table("users").insert(event.getOnly(["email", "username", "password"]));
+// config/Routes.cfm
 
-relocate((uri = "/"));
+resources("registration");
 ```
+
+```js
+// handlers/registration.cfc
+component {
+
+    property name="query" inject="provider:QueryBuilder@qb";
+
+    function create( event, rc, prc ) {
+        query.table( "users" ).insert( {
+            "email" = rc.email,
+            "username" = rc.username,
+            "password" = rc.password
+        } );
+
+        relocate( uri = "/" );
+    }
+
+}
+```
+
+35. Create a route to populate this form
+
+```js
+function new( event, rc, prc ) {
+    return event.setView( "registration/new" );
+}
+```
+
+```html
+<!-- views/registration/new.cfm -->
+<cfoutput>
+    <div class="card">
+        <h4 class="card-header">Register for SoapBox</h4>
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "registration" )#">
+            <div class="form-group">
+                <label for="email" class="control-label">Email</label>
+                <input id="email" name="email" type="email" class="form-control" placeholder="Email" />
+            </div>
+            <div class="form-group">
+                <label for="username" class="control-label">Username</label>
+                <input id="username" name="username" type="text" class="form-control" placeholder="Username" />
+            </div>
+            <div class="form-group">
+                <label for="password" class="control-label">Password</label>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Register</button>
+            </div>
+        </form>
+    </div>
+</cfoutput>
+```
+
+36. Add a register link to the navbar
+
+```html
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ml-auto">
+        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
+    </ul>
+</div>
+```
+
+Bonus points for tests first for next part
+
+37. Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
+
+```sh
+install bcyrpt
+```
+
+38. Bcrypt the password
+
+```js
+component {
+
+    property name="query" inject="provider:QueryBuilder@qb";
+    property name="bcrypt" inject="@BCrypt";
+
+    function create( event, rc, prc ) {
+        query.table( "users" ).insert( {
+            "email" = rc.email,
+            "username" = rc.username,
+            "password" = bcrypt.hashPassword( rc.password )
+        } );
+
+        relocate( uri = "/" );
+    }
+}
+```
+
+39. Try it again (will probably want a migrate fresh)
