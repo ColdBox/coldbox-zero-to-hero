@@ -1,31 +1,31 @@
 (All commands assume we are in the `box` shell unless stated otherwise.)
 
-1. Create a folder for your app on your hard drive called `soapbox`.
-2. Scaffold out a new Coldbox application with TestBox included.
+1.  Create a folder for your app on your hard drive called `soapbox`.
+2.  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
 coldbox create app soapbox --installTestBox
 ```
 
-3. Start up a local server
+3.  Start up a local server
 
 ```sh
 start port=42518
 ```
 
-4. Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
+4.  Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
 
-5. Open `/tests` in your browser. You should see the TestBox test browser.
-   This is useful to find a specific test or group of tests to run _before_ running them.
+5.  Open `/tests` in your browser. You should see the TestBox test browser.
+    This is useful to find a specific test or group of tests to run _before_ running them.
 
-6. Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
-   This is running all of our tests by default. We can create our own test runners as needed.
+6.  Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
+    This is running all of our tests by default. We can create our own test runners as needed.
 
 All your tests should be passing at this point. 😉
 
-7. Show routes file. Explain routing by convention.
-8. Show `Main.index`.
-9. Explain `event`, `rc`, and `prc`.
+7.  Show routes file. Explain routing by convention.
+8.  Show `Main.index`.
+9.  Explain `event`, `rc`, and `prc`.
 10. Explain views. Point out view conventions.
 11. Briefly touch on layouts.
 12. Show how `rc` and `prc` are used in the views.
@@ -38,7 +38,7 @@ All your tests should be passing at this point. 😉
 Reinits
 What is cached?
 
-* Singletons
+*   Singletons
 
 14. Copy in simple bootstrap theme and layout
 
@@ -110,6 +110,8 @@ You should see a list of available commands with `migrate ?`.
 
 17. Change the grammar in your box.json to `MySQLGrammar`
 
+(Bonus. Not needed since we are using `queryExecute` directly.)
+
 ```sh
 package set cfmigrations.defaultGrammar=MySQLGrammar
 ```
@@ -138,22 +140,36 @@ migrate create create_users_table
 
 22. Fill in the migration.
 
-```js
+```
 component {
 
     function up( schema ) {
-        schema.create( "users", function( table ) {
-            table.increments( "id" );
-            table.string( "username" ).unique();
-            table.string( "email" ).unique();
-            table.string( "password" );
-            table.timestamp( "createdDate" );
-            table.timestamp( "modifiedDate" );
-        } );
+        queryExecute( "
+            CREATE TABLE `users` (
+                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                `username` VARCHAR(255) NOT NULL UNIQUE,
+                `email` VARCHAR(255) NOT NULL UNIQUE,
+                `password` VARCHAR(255) NOT NULL,
+                `createdDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `modifiedDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT `pk_users_id` PRIMARY KEY (`id`)
+            )
+        " );
+
+        // schema.create( "users", function( table ) {
+        //     table.increments( "id" );
+        //     table.string( "username" ).unique();
+        //     table.string( "email" ).unique();
+        //     table.string( "password" );
+        //     table.timestamp( "createdDate" );
+        //     table.timestamp( "modifiedDate" );
+        // } );
     }
 
     function down( schema ) {
-        schema.drop( "users" );
+        queryExecute( "DROP TABLE `users`" );
+
+        // schema.drop( "users" );
     }
 
 }
@@ -164,6 +180,8 @@ component {
 ```sh
 migrate up
 ```
+
+QB will be optional
 
 24. Install `qb`
 
@@ -199,13 +217,14 @@ this.datasource = "soapbox";
 
 26. Play around grabbing data from the database using `qb`.
 
-```js
+```
 // handlers/Main.cfc
 
-property name="query" inject="provider:QueryBuilder@qb";
+// property name="query" inject="provider:QueryBuilder@qb";
 
 function index( event, rc, prc ) {
-    prc.users = query.from( "users" ).get();
+    // prc.users = query.from( "users" ).get();
+    prc.users = queryExecute( "SELECT * FROM users", {}, { returntype = "array" } );
     event.setView( "main/index" );
 }
 ```
@@ -249,20 +268,24 @@ function onRequestStart() {
 
 31. Create a `tests/resources/BaseIntegrationSpec.cfc`
 
-```js
+```
 component extends="coldbox.system.testing.BaseTestCase" {
 
     property name="migrationService" inject="MigrationService@cfmigrations";
-    property name="query" inject="provider:QueryBuilder@qb";
+
+    this.loadColdBox = true;
+    this.unloadColdBox = false;
 
     function beforeAll() {
         super.beforeAll();
         application.wirebox.autowire( this );
-        migrationService.setMigrationsDirectory( "/root/resources/database/migrations" );
-        migrationService.setDefaultGrammar( "MySQLGrammar" );
-        migrationService.setDatasource( "soapbox" );
-        migrationService.reset();
-        migrationService.runAllMigrations( "up" );
+        if ( ! request.keyExists( "migrationsRan" ) ) {
+            migrationService.setMigrationsDirectory( "/root/resources/database/migrations" );
+            migrationService.setDatasource( "soapbox" );
+            migrationService.runAllMigrations( "down" );
+            migrationService.runAllMigrations( "up" );
+            request.migrationsRan = true;
+        }
     }
 
 
@@ -270,7 +293,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
      * @aroundEach
      */
     function wrapInTransaction( spec ) {
-        var start = getTickCount();
         transaction action="begin" {
             try {
                 spec.body();
@@ -289,7 +311,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 32. Create a `tests/specs/integration/RegistrationSpec.cfc`
 
-```js
+```
 component extends="tests.resources.BaseIntegrationSpec" {
 
     function run() {
@@ -305,9 +327,9 @@ component extends="tests.resources.BaseIntegrationSpec" {
 
 33. Fill in the test
 
-```js
+```
 it( "can register a user", function() {
-    expect( query.from( "users" ).get() ).toBeEmpty();
+    expect( queryExecute( "select * from users", {}, { returntype = "array" } ) ).toBeEmpty();
 
     var event = post( "/registration", {
         "username" = "elpete",
@@ -327,24 +349,25 @@ it( "can register a user", function() {
 
 34. Write the production code
 
-```js
+```
 // config/Routes.cfm
 
 resources("registration");
 ```
 
-```js
+```
 // handlers/registration.cfc
 component {
 
     property name="query" inject="provider:QueryBuilder@qb";
 
     function create( event, rc, prc ) {
-        query.table( "users" ).insert( {
-            "email" = rc.email,
-            "username" = rc.username,
-            "password" = rc.password
-        } );
+        queryExecute( "
+                INSERT INTO `users` ( `email`, `username`, `password` )
+                VALUES ( ?, ?, ? )
+            ",
+            [ rc.email, rc.username, rc.password ]
+        );
 
         relocate( uri = "/" );
     }
@@ -406,18 +429,18 @@ install bcyrpt
 
 38. Bcrypt the password
 
-```js
+```
 component {
 
-    property name="query" inject="provider:QueryBuilder@qb";
     property name="bcrypt" inject="@BCrypt";
 
     function create( event, rc, prc ) {
-        query.table( "users" ).insert( {
-            "email" = rc.email,
-            "username" = rc.username,
-            "password" = bcrypt.hashPassword( rc.password )
-        } );
+        queryExecute( "
+                INSERT INTO `users` ( `email`, `username`, `password` )
+                VALUES ( ?, ?, ? )
+            ",
+            [ rc.email, rc.username, bcrypt.hashPassword( rc.password ) ]
+        );
 
         relocate( uri = "/" );
     }
