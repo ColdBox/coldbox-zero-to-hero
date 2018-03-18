@@ -450,3 +450,186 @@ component {
 39. Try it again (will probably want a migrate fresh)
 
 TODO: We probably want a WireBox intro somewhere. Just the basics. Breeze past most of it.
+
+Add log in link
+
+40. Create rants migrations
+
+```
+migrate create create_rants_table
+```
+
+```
+component {
+
+    function up( schema ) {
+        queryExecute( "
+            CREATE TABLE `rants` (
+                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                `body` TEXT NOT NULL,
+                `createdDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `modifiedDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                `userId` INTEGER UNSIGNED NOT NULL,
+                CONSTRAINT `pk_rants_id` PRIMARY KEY (`id`),
+                CONSTRAINT `fk_rants_userId` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
+            )
+        " );
+    }
+
+    function down( schema ) {
+        queryExecute( "DROP TABLE `rants`" );
+    }
+
+}
+```
+
+41. Create a Rant object
+
+```
+// Rant.cfc
+component accessors="true" {
+
+    property name="UserService" inject="id";
+
+    property name="id";
+    property name="body";
+    property name="createdDate";
+    property name="modifiedDate";
+    property name="userId";
+
+    function getUser() {
+        return userSerivce.retrieveUserById( getUserId() );
+    }
+
+}
+```
+
+42. Create RantService.cfc
+
+```
+component {
+
+    function getAll() {
+        return queryExecute(
+            "SELECT * FROM `rants` ORDER BY `createdDate` DESC",
+            [],
+            { returntype = "array" }
+        ).map( function ( rant ) {
+            return populator.populateFromStruct(
+                wirebox.getInstance( "Rant" ),
+                rant
+            );
+        } );
+    }
+
+    function save( rant ) {
+        rant.setModifiedDate( now() );
+        queryExecute(
+            "
+                INSERT INTO `rants` (`body`, `updatedDate`, `userId`)
+                VALUES (?, ?, ?)
+            ",
+            [
+                rant.getBody(),
+                { value = rant.getModifiedDate(), cfsqltype = "CF_SQL_TIMESTAMP" },
+                rant.getUserId()
+            ],
+            { result = "local.result" }
+        );
+        rant.setId( result.GENERATED_KEY );
+        return rant;
+    }
+
+}
+```
+
+43. Rants CRUD
+
+```
+// config/routes.cfm
+resources( "rants" );
+```
+
+```
+// handlers/rants.cfc
+component {
+
+    property name="RantService" inject="id";
+
+    function index( event, rc, prc ) {
+        prc.rants = rantService.getAll();
+        event.setView( "rants/index" );
+    }
+
+    function new( event, rc, prc ) {
+        event.setView( "rants/new" );
+    }
+
+    function create( event, rc, prc ) {
+        rc.userId = auth().getUserId();
+        var rant = populateModel( getInstance( "Rant" ) );
+        rantService.save( rant );
+        relocate( "rants" );
+    }
+
+}
+```
+
+```
+// views/rants/index.cfm
+<cfoutput>
+    <cfif prc.rants.isEmpty()>
+        <h3>No rants yet</h3>
+        <a href="#event.buildLink( "rants.new" )#">Start one now!</a>
+    <cfelse>
+        <a href="#event.buildLink( "rants.new" )#" class="btn btn-link">Start a new rant!</a>
+        <cfloop array="#prc.rants#" item="rant">
+            <div class="card mb-3">
+                <div class="card-header">
+                    <strong>#rant.getUser().getUsername()#</strong> said at #dateTimeFormat( rant.getCreatedDate(), "h:nn:ss tt" )# on #dateFormat( rant.getCreatedDate(), "mmm d, yyyy")#
+                </div>
+                <div class="panel card-body">
+                    #rant.getBody()#
+                </div>
+            </div>
+        </cfloop>
+    </cfif>
+</cfoutput>
+```
+
+```
+// views/rants/new.cfm
+<cfoutput>
+    <div class="card">
+        <h4 class="card-header">Start a Rant</h4>
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants" )#">
+            <div class="form-group">
+                <textarea name="body" class="form-control" placeholder="What's on your mind?" rows="10"></textarea>
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Rant About It!</button>
+            </div>
+        </form>
+    </div>
+</cfoutput>
+```
+
+```
+// layouts/Main.cfm
+<div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav">
+        <li><a href="#event.buildLink( "rants.new" )#" class="nav-link">Start a Rant</a></li>
+    </ul>
+    <ul class="navbar-nav ml-auto">
+        <cfif auth().isLoggedIn()>
+            <form method="POST" action="#event.buildLink( "logout" )#">
+                <input type="hidden" name="_method" value="DELETE" />
+                <button type="submit" class="btn btn-link nav-link">Log Out</button>
+            </form>
+        <cfelse>
+            <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
+            <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
+        </cfif>
+    </ul>
+</div>
+```
