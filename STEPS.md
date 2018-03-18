@@ -451,7 +451,64 @@ component {
 
 TODO: We probably want a WireBox intro somewhere. Just the basics. Breeze past most of it.
 
-Add log in link
+Add log in
+
+```
+// config/Routes.cfm
+addRoute( "/login", "sessions", { "GET" = "new", "POST" = "create" } );
+addRoute( "/logout", "sessions", { "DELETE" = "delete" } );
+```
+
+```
+// handlers/sessions.cfc
+component {
+
+    property name="messagebox" inject="MessageBox@cbmessagebox";
+
+    function new( event, rc, prc ) {
+        return event.setView( "sessions/new" );
+    }
+
+    function create( event, rc, prc ) {
+        try {
+            auth().authenticate( rc.username, rc.password )
+            return relocate( uri = "/" );
+        }
+        catch ( InvalidCredentials e ) {
+            messagebox.setMessage( type = "warn", message = e.message );
+            return relocate( uri = "/login" );
+        }
+    }
+
+    function delete( event, rc, prc ) {
+        auth().logout();
+        return relocate( uri = "/" );
+    }
+
+}
+```
+
+```
+// views/sessions/new.cfm
+<cfoutput>
+    <div class="card">
+        <h4 class="card-header">Log In</h4>
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "login" )#">
+            <div class="form-group">
+                <label for="username" class="control-label">Username</label>
+                <input id="username" name="username" type="text" class="form-control" placeholder="Username" />
+            </div>
+            <div class="form-group">
+                <label for="password" class="control-label">Password</label>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </div>
+        </form>
+    </div>
+</cfoutput>
+```
 
 40. Create rants migrations
 
@@ -633,3 +690,67 @@ component {
     </ul>
 </div>
 ```
+
+View a user's rants
+
+Create a users profile page
+
+```
+// config/Routes.cfm
+addRoute( "/users/:username", "users", { "GET" = "show" } );
+```
+
+```
+// handlers/users.cfc
+component {
+
+    property name="userService" inject="id";
+
+    function show( event, rc, prc ) {
+        prc.user = userService.retrieveUserByUsername( rc.username );
+        if ( prc.user.getId() == "" ) {
+            relocate( "404" );
+        }
+        event.setView( "users/show" );
+    }
+
+}
+```
+
+```
+// views/404.cfm
+Whoops!  That page doesn't exist.
+```
+
+```
+// views/users/show.cfm
+<cfoutput>
+    <h1>#prc.user.getUsername()#</h1>
+    <h4>Rants</h4>
+    <ul>
+        <cfloop array="#prc.user.getRants()#" item="rant">
+            #renderView( "partials/_rant", { rant = rant } )#
+        </cfloop>
+    </ul>
+</cfoutput>
+```
+
+```
+// views/partials/_rant.cfm
+<cfoutput>
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getId()#" )#">#args.rant.getUser().getUsername()#</a></strong>
+            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
+            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+        </div>
+        <div class="panel card-body">
+            #args.rant.getBody()#
+        </div>
+    </div>
+</cfoutput>
+```
+
+(Also use the partial in `rants/index`)
+
+Link to the user from `rants/index`
