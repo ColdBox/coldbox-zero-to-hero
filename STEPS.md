@@ -753,4 +753,321 @@ Whoops!  That page doesn't exist.
 
 (Also use the partial in `rants/index`)
 
-Link to the user from `rants/index`
+Link to the user from `partials/_rant`
+
+```
+<cfoutput>
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
+            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
+            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+        </div>
+        <div class="panel card-body">
+            #args.rant.getBody()#
+        </div>
+    </div>
+</cfoutput>
+```
+
+Add 👊 and 💩 actions
+
+```
+migrate create create_bumps_table
+```
+
+```
+component {
+
+    function up( schema ) {
+        queryExecute( "
+            CREATE TABLE `bumps` (
+                `userId` INTEGER UNSIGNED NOT NULL,
+                `rantId` INTEGER UNSIGNED NOT NULL,
+                CONSTRAINT `pk_bumps`
+                    PRIMARY KEY (`userId`, `rantId`),
+                CONSTRAINT `fk_bumps_userId`
+                    FOREIGN KEY (`userId`)
+                    REFERENCES `users` (`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE,
+                CONSTRAINT `fk_bumps_rantId`
+                    FOREIGN KEY (`rantId`)
+                    REFERENCES `rants` (`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE
+            )
+        " );
+    }
+
+    function down( schema ) {
+        queryExecute( "DROP TABLE `bumps`" );
+    }
+
+}
+```
+
+```
+migrate create create_poops_table
+```
+
+```
+component {
+
+    function up( schema ) {
+        queryExecute( "
+            CREATE TABLE `poops` (
+                `userId` INTEGER UNSIGNED NOT NULL,
+                `rantId` INTEGER UNSIGNED NOT NULL,
+                CONSTRAINT `pk_poops`
+                    PRIMARY KEY (`userId`, `rantId`),
+                CONSTRAINT `fk_poops_userId`
+                    FOREIGN KEY (`userId`)
+                    REFERENCES `users` (`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE,
+                CONSTRAINT `fk_poops_rantId`
+                    FOREIGN KEY (`rantId`)
+                    REFERENCES `rants` (`id`)
+                    ON UPDATE CASCADE
+                    ON DELETE CASCADE
+            )
+        " );
+    }
+
+    function down( schema ) {
+        queryExecute( "DROP TABLE `poops`" );
+    }
+
+}
+```
+
+Display bumps on the rant partial
+
+```
+// /views/partials/_rant.cfm
+
+<div class="card-footer">
+    <button class="btn btn-outline-dark">
+        #args.rant.getBumps().len()# 👊
+    </button>
+    <button class="btn btn-outline-dark">
+        #args.rant.getPoops().len()# 💩
+    </button>
+</div>
+```
+
+```
+// models/Rant.cfc
+
+property name="reactionService" inject="id";
+
+function getBumps() {
+    return reactionService.getBumpsForRant( this );
+}
+
+function getPoops() {
+    return reactionService.getPoopsForRant( this );
+}
+```
+
+```
+// models/services/ReactionService.cfc
+
+component {
+
+    property name="populator" inject="wirebox:populator";
+    property name="wirebox" inject="wirebox";
+
+    function getBumpsForRant( rant ) {
+        return queryExecute(
+            "SELECT * FROM `bumps` WHERE `rantId` = ?",
+            [ rant.getId() ],
+            { returntype = "array" }
+        ).map( function( bump ) {
+            return populator.populateFromStruct(
+                wirebox.getInstance( "Bump" ),
+                bump
+            )
+        } );
+    }
+
+    function getPoopsForRant( rant ) {
+        return queryExecute(
+            "SELECT * FROM `poops` WHERE `rantId` = ?",
+            [ rant.getId() ],
+            { returntype = "array" }
+        ).map( function( bump ) {
+            return populator.populateFromStruct(
+                wirebox.getInstance( "Poop" ),
+                bump
+            )
+        } );
+    }
+
+}
+```
+
+Make buttons clickable
+
+```
+// views/partials/_rant.cfm
+
+<div class="card-footer">
+    <cfif auth().user().hasBumped( args.rant )>
+        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.bumps" )#" style="display: inline;">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button class="btn btn-dark">
+                #args.rant.getBumps().len()# 👊
+            </button>
+        </form>
+    <cfelse>
+        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.bumps" )#" style="display: inline;">
+            <button class="btn btn-outline-dark">
+                #args.rant.getBumps().len()# 👊
+            </button>
+        </form>
+    </cfif>
+
+    <cfif auth().user().hasPooped( args.rant )>
+        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.poops" )#" style="display: inline;">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button class="btn btn-dark">
+                #args.rant.getPoops().len()# 💩
+            </button>
+        </form>
+    <cfelse>
+        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.poops" )#" style="display: inline;">
+            <button class="btn btn-outline-dark">
+                #args.rant.getPoops().len()# 💩
+            </button>
+        </form>
+    </cfif>
+</div>
+```
+
+```
+// models/User.cfc
+
+property name="reactionService" inject="id";
+
+function hasBumped( rant ) {
+    if ( isNull( variables.bumps ) ) {
+        variables.bumps = reactionService.getBumpsForUser( this );
+    }
+    return ! variables.bumps.filter( function( bump ) {
+        return bump.getRantId() == rant.getId();
+    } ).isEmpty();
+}
+
+function hasPooped( rant ) {
+    if ( isNull( variables.poops ) ) {
+        variables.poops = reactionService.getPoopsForUser( this );
+    }
+    return ! variables.poops.filter( function( poop ) {
+        return poop.getRantId() == rant.getId();
+    } ).isEmpty();
+}
+```
+
+```
+// models/services/ReactionService.cfc
+
+function getBumpsForUser( user ) {
+    return queryExecute(
+        "SELECT * FROM `bumps` WHERE `userId` = ?",
+        [ user.getId() ],
+        { returntype = "array" }
+    ).map( function( bump ) {
+        return populator.populateFromStruct(
+            wirebox.getInstance( "Bump" ),
+            bump
+        )
+    } );
+}
+
+function getPoopsForUser( user ) {
+    return queryExecute(
+        "SELECT * FROM `poops` WHERE `userId` = ?",
+        [ user.getId() ],
+        { returntype = "array" }
+    ).map( function( poop ) {
+        return populator.populateFromStruct(
+            wirebox.getInstance( "Poop" ),
+            poop
+        )
+    } );
+}
+```
+
+```
+// handlers/bumps.cfc
+
+component {
+
+    property name="reactionService" inject="id";
+
+    function create( event, rc, prc ) {
+        reactionService.bump( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+    function delete( event, rc, prc ) {
+        reactionService.unbump( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+}
+```
+
+```
+// handlers/poops.cfc
+
+component {
+
+    property name="reactionService" inject="id";
+
+    function create( event, rc, prc ) {
+        reactionService.poop( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+    function delete( event, rc, prc ) {
+        reactionService.unpoop( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+}
+```
+
+```
+// models/services/ReactionService.cfc
+
+function bump( rantId, userId ) {
+    queryExecute(
+        "INSERT INTO `bumps` VALUES (?, ?)",
+        [ userId, rantId ]
+    );
+}
+
+function unbump( rantId, userId ) {
+    queryExecute(
+        "DELETE FROM `bumps` WHERE `userId` = ? AND `rantId` = ?",
+        [ userId, rantId ]
+    );
+}
+
+function poop( rantId, userId ) {
+    queryExecute(
+        "INSERT INTO `poops` VALUES (?, ?)",
+        [ userId, rantId ]
+    );
+}
+
+function unpoop( rantId, userId ) {
+    queryExecute(
+        "DELETE FROM `poops` WHERE `userId` = ? AND `rantId` = ?",
+        [ userId, rantId ]
+    );
+}
+```
