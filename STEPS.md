@@ -914,7 +914,11 @@ Make buttons clickable
 // views/partials/_rant.cfm
 
 <div class="card-footer">
-    <cfif auth().user().hasBumped( args.rant )>
+    <cfif auth().guest()>
+        <button disabled class="btn btn-outline-dark">
+            #args.rant.getBumps().len()# 👊
+        </button>
+    <cfelseif auth().user().hasBumped( args.rant )>
         <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.bumps" )#" style="display: inline;">
             <input type="hidden" name="_method" value="DELETE" />
             <button class="btn btn-dark">
@@ -929,7 +933,11 @@ Make buttons clickable
         </form>
     </cfif>
 
-    <cfif auth().user().hasPooped( args.rant )>
+    <cfif auth().guest()>
+        <button disabled class="btn btn-outline-dark">
+            #args.rant.getPoops().len()# 💩
+        </button>
+    <cfelseif auth().user().hasPooped( args.rant )>
         <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.poops" )#" style="display: inline;">
             <input type="hidden" name="_method" value="DELETE" />
             <button class="btn btn-dark">
