@@ -691,6 +691,48 @@ component {
 </div>
 ```
 
+cbsecurity
+
+```
+install cbsecurity
+```
+
+Configure
+
+```
+// config/ColdBox.cfc
+
+cbsecurity = {
+    rulesFile = "/config/security.json",
+    rulesSource = "json",
+    validatorModel = "UserService"
+};
+```
+
+```
+// config/security.json
+
+[
+    {
+        "whitelist": "",
+        "securelist": "rants/new",
+        "match": "url",
+        "roles": "",
+        "redirect": "login"
+    }
+]
+```
+
+```
+// models/services/UserService.cfc
+
+property name="authenticationService" inject="AuthenticationService@cbauth";
+
+function userValidator( rule, controller ) {
+    return authenticationService.isLoggedIn();
+}
+```
+
 View a user's rants
 
 Create a users profile page
