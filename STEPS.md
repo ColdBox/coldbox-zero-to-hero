@@ -320,6 +320,8 @@ component extends="coldbox.system.testing.BaseTestCase" {
 ```
 component extends="tests.resources.BaseIntegrationSpec" {
 
+    property name="query" inject="provider:QueryBuilder@qb";
+    
     function run() {
         describe( "registration", function() {
             it( "can register a user", function() {
