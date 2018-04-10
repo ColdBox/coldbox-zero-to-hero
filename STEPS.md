@@ -193,7 +193,7 @@ install qb
 
 25. Configure `qb` 
 
-Add the following settings to your /config/Coldbox.cfc file. You can place this modules setting struct under the settings struct.
+Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 
 ```js
 // config/ColdBox.cfc
@@ -243,9 +243,9 @@ function index( event, rc, prc ) {
 </cfoutput>
 ```
 Insert data directly in to the database and show it returning.
-Notice the return type. This is a Lucee 4.5 syntax. 
+Notice the return type. This is a Lucee 4.5 syntax. CF11+ and Lucee5+ use `returnformat="array"`
 
-27. Start register flow
+27. Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
 
 28. Delete the MainBDDTest
 
