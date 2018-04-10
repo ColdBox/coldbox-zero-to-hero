@@ -321,7 +321,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 component extends="tests.resources.BaseIntegrationSpec" {
 
     property name="query" inject="provider:QueryBuilder@qb";
-    
+
     function run() {
         describe( "registration", function() {
             it( "can register a user", function() {
@@ -435,14 +435,18 @@ Bonus points for tests first for next part
 37. Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
 ```sh
-install bcyrpt
+install bcrypt
 ```
 
 38. Bcrypt the password
 
+Update the registration handler to use BCrypt `/handlers/Registration.cfc`
+We are adding the DI Injection for the BCrypt Module and updating the query to wrap the password in a call to bcrypt to encrypt the password.
+
 ```
 component {
 
+    property name="query" inject="provider:QueryBuilder@qb";
     property name="bcrypt" inject="@BCrypt";
 
     function create( event, rc, prc ) {
