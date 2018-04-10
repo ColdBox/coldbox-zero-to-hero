@@ -667,11 +667,36 @@ function create( event, rc, prc ) {
 }
 ```
 
+Update the main layout to show and hide the register / login / logout buttons.
+
+```
+<ul class="navbar-nav ml-auto">
+    <cfif auth().isLoggedIn()>
+        <form method="POST" action="#event.buildLink( "logout" )#">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button type="submit" class="btn btn-link nav-link">Log Out</button>
+        </form>
+    <cfelse>
+        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
+        <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
+    </cfif>
+</ul>
+```
+
 Test the login.
 
 Auto log the user in after registering.
-Add this `auth().login( user );` before the relocate.
-Update the relocate to `relocate( uri = "/" );`
+Replace the Create function with the following code
+
+```
+function create( event, rc, prc ) {
+    var user = populateModel( getInstance( "User" ) );
+    userService.save( user );
+    auth().login( user );
+    relocate( uri = "/" );
+}
+```
+Now register and you will be automatically logged in.
 
 46 - CBSecurity
 
