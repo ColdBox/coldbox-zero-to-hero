@@ -479,13 +479,6 @@ Install CBMessageBox via Commandbox
 
 `install cbmessagebox`
 
-Install CBAuth 
-
-`install cbauth`
-
-Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
-
-
 Add the following into your existing `/config/Routes.cfm` file
 ```
 // config/Routes.cfm
@@ -502,22 +495,6 @@ component {
 
     function new( event, rc, prc ) {
         return event.setView( "sessions/new" );
-    }
-
-    function create( event, rc, prc ) {
-        try {
-            auth().authenticate( rc.username, rc.password )
-            return relocate( uri = "/" );
-        }
-        catch ( InvalidCredentials e ) {
-            messagebox.setMessage( type = "warn", message = e.message );
-            return relocate( uri = "/login" );
-        }
-    }
-
-    function delete( event, rc, prc ) {
-        auth().logout();
-        return relocate( uri = "/" );
     }
 
 }
@@ -550,8 +527,114 @@ Once all of these changes have been made. Reinit the app to update the routes. (
 
 Hit `http://127.0.0.1:42518/login` in your browser
 
+You can now see the login screen. Let's build the login action next.
+
+41 Install CBAuth and Configure
+
+Install CBAuth 
+
+`install cbauth`
+
+Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+
+```
+cbauth = {
+    userServiceClass = "UserService"
+}
+```
+42 - Create the User Service
+
+We need to create a User Service for CBAuth to function. It requires 3 function.
+Create a new model in `/models/UserService.cfc`
+```
+component {
+
+    property name="authenticationService" inject="AuthenticationService@cbauth";
+    property name="populator" inject="wirebox:populator";
+    property name="wirebox" inject="wirebox";
+    property name="bcrypt" inject="@BCrypt";
+
+    function retrieveUserById( id ) {
+        return populator.populateFromQuery(
+            wirebox.getInstance( "User" ),
+            queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ id ] ),
+            1
+        );
+    }
+
+    function retrieveUserByUsername( username ) {
+        return populator.populateFromQuery(
+            wirebox.getInstance( "User" ),
+            queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ] ),
+            1
+        );
+    }
+
+    function isValidCredentials( username, password ) {
+        var users = queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ], { returntype = "array" } );
+        if ( users.isEmpty() ) {
+            return false;
+        }
+        return bcrypt.checkPassword( password, users[ 1 ].password );
+    }
+
+    
+
+}```
 
 
+43 - Update Sessions.cfc for login and logout actions
+
+Update the Sessions.cfc
+```
+// handlers/sessions.cfc
+    // create / doLogin actLogin
+    function create( event, rc, prc ) {
+        try {
+            auth().authenticate( rc.username, rc.password )
+            return relocate( uri = "/" );
+        }
+        catch ( InvalidCredentials e ) {
+            messagebox.setMessage( type = "warn", message = e.message );
+            return relocate( uri = "/login" );
+        }
+    }
+
+    // delete / logout
+    function delete( event, rc, prc ) {
+        auth().logout();
+        return relocate( uri = "/" );
+    }
+```
+
+44 - Refactor Registration to use the User Service
+
+```
+function save( user ) {
+        queryExecute(
+            "
+                INSERT INTO `users` (`email`, `username`, `password`)
+                VALUES (?, ?, ?)
+            ",
+            [
+                user.getEmail(),
+                user.getUsername(),
+                bcrypt.hashPassword( user.getPassword() )
+            ],
+            { result = "local.result" }
+        );
+        user.setId( result.GENERATED_KEY );
+        return user;
+    }
+```
+
+45 - CBSecurity
+
+```
+function userValidator( rule, controller ) {
+    return authenticationService.isLoggedIn();
+}
+```
 
 
 
