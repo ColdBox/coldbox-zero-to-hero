@@ -23,6 +23,7 @@ start cfengine=lucee@5 port=42518
 
 All your tests should be passing at this point. 😉
 
+## MVC - Routes, Handlers, Views
 7.  Show routes file. Explain routing by convention.
 8.  Show `Main.index`.
 9.  Explain `event`, `rc`, and `prc`.
@@ -39,6 +40,8 @@ Reinits
 What is cached?
 
 *   Singletons
+
+## Layouts
 
 14. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
 
@@ -98,6 +101,8 @@ body {
     box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11), 0 5px 15px 0 rgba(0, 0, 0, 0.08);
 }
 ```
+
+## CBMigrations
 
 15. Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
 
@@ -630,6 +635,22 @@ Update the Sessions.cfc
     }
 ```
 
+Update the main layout to show and hide the register / login / logout buttons.
+
+```
+<ul class="navbar-nav ml-auto">
+    <cfif auth().isLoggedIn()>
+        <form method="POST" action="#event.buildLink( "logout" )#">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button type="submit" class="btn btn-link nav-link">Log Out</button>
+        </form>
+    <cfelse>
+        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
+        <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
+    </cfif>
+</ul>
+```
+
 44 - Refactor Registration to use the User Service
 
 Add save function to User Service.
@@ -655,6 +676,7 @@ function save( user ) {
 45 - Update Registration.cfc handler to use User Service instead of inline queryExecute
 
 Add the DI Injection for the UserService
+
 `property name="userService" inject="UserService";`
 
 Replace the Create function with the following
@@ -667,25 +689,9 @@ function create( event, rc, prc ) {
 }
 ```
 
-Update the main layout to show and hide the register / login / logout buttons.
+Test the login and logout.
 
-```
-<ul class="navbar-nav ml-auto">
-    <cfif auth().isLoggedIn()>
-        <form method="POST" action="#event.buildLink( "logout" )#">
-            <input type="hidden" name="_method" value="DELETE" />
-            <button type="submit" class="btn btn-link nav-link">Log Out</button>
-        </form>
-    <cfelse>
-        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
-        <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
-    </cfif>
-</ul>
-```
-
-Test the login.
-
-Auto log the user in after registering.
+When registering, it might be nice to automatically log the user in. 
 Replace the Create function with the following code
 
 ```
@@ -698,7 +704,49 @@ function create( event, rc, prc ) {
 ```
 Now register and you will be automatically logged in.
 
-46 - CBSecurity
+46 - Login incorrectly and you'll see an error message.
+Use this snippet to make MessageBox prettier.
+
+Add to ColdBox Config as its own struct
+```
+messagebox = {
+    template = "/views/_partials/_messagebox.cfm"
+};
+```
+
+Add `/views/_partials/_messagebox.cfm`
+```
+<cfscript>
+    switch( msgStruct.type ){
+        case "info" : {
+            local.cssType = " alert-info";
+            local.iconType = "fas fa-info-circle";
+            break;
+        }
+        case "error" : {
+            local.cssType = " alert-danger";
+            local.iconType = "far fa-frown";
+            break;
+        }
+        default : {
+            local.cssType = " alert-warning";
+            local.iconType = "fas fa-exclamation-triangle";
+        }
+    }
+</cfscript>
+<cfoutput>
+<div class="alert#local.cssType#" style="min-height: 38px">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <div class="row">
+        <i class="#local.iconType# fa-2x pull-left"></i>
+        <p class="col-10">#msgStruct.message#</p>
+    </div>
+</div>
+</cfoutput>
+```
+Reinit the framework, and test it out.
+
+47 - CBSecurity
 
 ```
 function userValidator( rule, controller ) {
