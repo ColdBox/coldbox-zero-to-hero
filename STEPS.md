@@ -355,12 +355,14 @@ it( "can register a user", function() {
 
 34. Write the production code
 
+Update the `/config/Routes.cfm` file - insert a resources definition.
 ```
 // config/Routes.cfm
 
 resources("registration");
 ```
 
+Create a new Handler
 ```
 // handlers/Registration.cfc
 component {
@@ -424,6 +426,7 @@ function new( event, rc, prc ) {
     </ul>
 </div>
 ```
+The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code above, into the `<nav>` tag, before the closing `</nav>` .
 
 Bonus points for tests first for next part
 
