@@ -10,7 +10,7 @@ coldbox create app soapbox --installTestBox
 3.  Start up a local server
 
 ```sh
-start port=42518
+start cfengine=lucee@5 port=42518
 ```
 
 4.  Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
@@ -232,7 +232,7 @@ Discuss WireBox and Dependency Injection.
 
 function index( event, rc, prc ) {
     // prc.users = query.from( "users" ).get();
-    prc.users = queryExecute( "SELECT * FROM users", {}, { returntype = "array-of-entities" } );
+    prc.users = queryExecute( "SELECT * FROM users", {}, { returntype = "array" } );
     event.setView( "main/index" );
 }
 ```
@@ -341,7 +341,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 
 ```
 it( "can register a user", function() {
-    expect( queryExecute( "select * from users", {}, { returntype = "array-of-entities" } ) ).toBeEmpty();
+    expect( queryExecute( "select * from users", {}, { returntype = "array" } ) ).toBeEmpty();
 
     var event = post( "/registration", {
         "username" = "elpete",
@@ -493,6 +493,7 @@ component {
 
     property name="messagebox" inject="MessageBox@cbmessagebox";
 
+    //new / login page
     function new( event, rc, prc ) {
         return event.setView( "sessions/new" );
     }
@@ -542,7 +543,29 @@ cbauth = {
     userServiceClass = "UserService"
 }
 ```
-42 - Create the User Service
+
+42 - Create a User Object
+
+```Specify a userServiceClass in your config/ColdBox.cfc inside moduleSettings.cbauth.userServiceClass. This component needs to have three methods:
+    isValidCredentials( username, password )
+    retrieveUserByUsername( username )
+    retrieveUserById( id )
+Additionally, the user component returned by the retrieve methods needs to respond to getId().
+```
+
+https://www.forgebox.io/view/cbauth
+
+Create a new Model `/models/User.cfc` 
+```
+component accessors="true" {
+    property name="id";
+    property name="username";
+    property name="email";
+    property name="password";
+}
+```
+
+43 - Create the User Service
 
 We need to create a User Service for CBAuth to function. It requires 3 function.
 Create a new model in `/models/UserService.cfc`
@@ -609,26 +632,48 @@ Update the Sessions.cfc
 
 44 - Refactor Registration to use the User Service
 
+Add save function to User Service.
 ```
 function save( user ) {
-        queryExecute(
-            "
-                INSERT INTO `users` (`email`, `username`, `password`)
-                VALUES (?, ?, ?)
-            ",
-            [
-                user.getEmail(),
-                user.getUsername(),
-                bcrypt.hashPassword( user.getPassword() )
-            ],
-            { result = "local.result" }
-        );
-        user.setId( result.GENERATED_KEY );
-        return user;
-    }
+    queryExecute(
+        "
+            INSERT INTO `users` (`email`, `username`, `password`)
+            VALUES (?, ?, ?)
+        ",
+        [
+            user.getEmail(),
+            user.getUsername(),
+            bcrypt.hashPassword( user.getPassword() )
+        ],
+        { result = "local.result" }
+    );
+    user.setId( result.GENERATED_KEY );
+    return user;
+}
 ```
 
-45 - CBSecurity
+45 - Update Registration.cfc handler to use User Service instead of inline queryExecute
+
+Add the DI Injection for the UserService
+`property name="userService" inject="UserService";`
+
+Replace the Create function with the following
+```
+// create / save User
+function create( event, rc, prc ) {
+    var user = populateModel( getInstance( "User" ) );
+    userService.save( user );
+    relocate( uri = "/login" );
+}
+```
+
+Test the login.
+
+Auto log the user in after registering.
+Add this `auth().login( user );` before the relocate.
+Update the relocate to `relocate( uri = "/" );`
+
+46 - CBSecurity
 
 ```
 function userValidator( rule, controller ) {
