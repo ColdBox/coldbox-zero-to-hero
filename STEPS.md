@@ -31,8 +31,8 @@ All your tests should be passing at this point. 😉
 12. Show how `rc` and `prc` are used in the views.
 
 13. Add an about page
-    a. Add an `views/about/index.cfm`. It works!
-    b. Add an `about` handler. Now it breaks! Talk about reinits.
+    a. Add an `views/about/index.cfm`. Hit the url /about/index and it works!
+    b. Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
     c. Add an `index` action. Back to working!
 
 Reinits
@@ -40,7 +40,7 @@ What is cached?
 
 *   Singletons
 
-14. Copy in simple bootstrap theme and layout
+14. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
 
 ```html
 <cfoutput>
@@ -82,8 +82,9 @@ What is cached?
 </cfoutput>
 ```
 
+Insert the following CSS into a new file: /includes/css/app.css
 ```css
-/* includes/app.css */
+/* includes/css/app.css */
 
 /* For fixed navbar */
 body {
@@ -118,7 +119,7 @@ package set cfmigrations.defaultGrammar=MySQLGrammar
 
 17. Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
-18. Create a `.env` file. Fill it in appropraitely. (We'll fill it in with our
+18. Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
     Docker credentials from before.)
 
 ```
@@ -128,7 +129,7 @@ DB_USER=root
 DB_PASSWORD=soapbox
 ```
 
-19. Reload your shell in your project root. (`reload`)
+19. Reload your shell in your project root. (`reload` or `r`)
 
 20. Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
@@ -138,7 +139,8 @@ DB_PASSWORD=soapbox
 migrate create create_users_table
 ```
 
-22. Fill in the migration.
+22. Fill in the migration. 
+The migration file was created by the last command, and the file location was output by commandbox.
 
 ```
 component {
@@ -189,7 +191,9 @@ QB will be optional
 install qb
 ```
 
-25. Configure `qb`.
+25. Configure `qb` 
+
+Add the following settings to your /config/Coldbox.cfc file. You can place this modules setting struct under the settings struct.
 
 ```js
 // config/ColdBox.cfc
@@ -199,6 +203,8 @@ moduleSettings = {
     }
 };
 ```
+
+Next add the following settings into your `/Application.cfc` file.
 
 ```js
 // Application.cfc
@@ -215,7 +221,7 @@ this.datasources = {
 this.datasource = "soapbox";
 ```
 
-26. Play around grabbing data from the database using `qb`.
+26. Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
 ```
 // handlers/Main.cfc
@@ -224,7 +230,7 @@ this.datasource = "soapbox";
 
 function index( event, rc, prc ) {
     // prc.users = query.from( "users" ).get();
-    prc.users = queryExecute( "SELECT * FROM users", {}, { returntype = "array" } );
+    prc.users = queryExecute( "SELECT * FROM users", {}, { returntype = "array-of-entities" } );
     event.setView( "main/index" );
 }
 ```
@@ -236,8 +242,8 @@ function index( event, rc, prc ) {
     <cfdump var="#prc.users#" label="users" />
 </cfoutput>
 ```
-
 Insert data directly in to the database and show it returning.
+Notice the return type. This is a Lucee 4.5 syntax. 
 
 27. Start register flow
 
