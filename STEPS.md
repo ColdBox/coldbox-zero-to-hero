@@ -223,6 +223,8 @@ this.datasource = "soapbox";
 
 26. Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
+Discuss WireBox and Dependency Injection.
+
 ```
 // handlers/Main.cfc
 
@@ -430,6 +432,9 @@ function new( event, rc, prc ) {
 ```
 The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code above, into the `<nav>` tag, before the closing `</nav>` .
 
+Refresh your page, click Registration and fill out the form. Your new user will be listed in your dump.
+This isn't very secure, to have your password un-encrypted, so lets use BCrypt.
+
 Bonus points for tests first for next part
 
 37. Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
@@ -462,11 +467,11 @@ component {
 }
 ```
 
-39. Try it again (will probably want a migrate fresh)
+39. Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following: 
 
-TODO: We probably want a WireBox intro somewhere. Just the basics. Breeze past most of it.
+`$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
-Add log in
+40. Add log in
 
 ```
 // config/Routes.cfm
@@ -525,7 +530,7 @@ component {
 </cfoutput>
 ```
 
-40. Create rants migrations
+41. Create rants migrations
 
 ```
 migrate create create_rants_table
@@ -555,7 +560,7 @@ component {
 }
 ```
 
-41. Create a Rant object
+42. Create a Rant object
 
 ```
 // Rant.cfc
@@ -576,7 +581,7 @@ component accessors="true" {
 }
 ```
 
-42. Create RantService.cfc
+43. Create RantService.cfc
 
 ```
 component {
@@ -615,7 +620,7 @@ component {
 }
 ```
 
-43. Rants CRUD
+44. Rants CRUD
 
 ```
 // config/routes.cfm
