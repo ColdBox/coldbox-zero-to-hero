@@ -331,11 +331,11 @@ component extends="tests.resources.BaseIntegrationSpec" {
 }
 ```
 
-33. Fill in the test
+33. Replace the `can register a user` test with the following
 
 ```
 it( "can register a user", function() {
-    expect( queryExecute( "select * from users", {}, { returntype = "array" } ) ).toBeEmpty();
+    expect( queryExecute( "select * from users", {}, { returntype = "array-of-entities" } ) ).toBeEmpty();
 
     var event = post( "/registration", {
         "username" = "elpete",
@@ -362,7 +362,7 @@ resources("registration");
 ```
 
 ```
-// handlers/registration.cfc
+// handlers/Registration.cfc
 component {
 
     property name="query" inject="provider:QueryBuilder@qb";
