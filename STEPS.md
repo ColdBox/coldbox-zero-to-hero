@@ -473,12 +473,18 @@ component {
 
 40. Add log in
 
+Install CBMessageBox via Commandbox
+
+`install cbmessagebox`
+
+Add the following into your existing `/config/Routes.cfm` file
 ```
 // config/Routes.cfm
 addRoute( "/login", "sessions", { "GET" = "new", "POST" = "create" } );
 addRoute( "/logout", "sessions", { "DELETE" = "delete" } );
 ```
 
+Create a new `/handler/Sessions.cfc` handler
 ```
 // handlers/sessions.cfc
 component {
@@ -508,6 +514,7 @@ component {
 }
 ```
 
+Create a new view `/views/sesions/new.cfm`
 ```
 // views/sessions/new.cfm
 <cfoutput>
@@ -529,6 +536,10 @@ component {
     </div>
 </cfoutput>
 ```
+
+Once all of these changes have been made. Reinit the app to update the routes. ( 'http://127.0.0.1:42518/login?fwreinit=1' )
+
+Hit `http://127.0.0.1:42518/login` in your browser
 
 41. Create rants migrations
 
