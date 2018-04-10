@@ -247,6 +247,8 @@ function index( event, rc, prc ) {
 Insert data directly in to the database and show it returning.
 Notice the return type. This is a Lucee 4.5 syntax. CF11+ and Lucee5+ use `returnformat="array"`
 
+## Register Flow
+
 27. Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
 
 28. Delete the MainBDDTest
@@ -477,6 +479,13 @@ Install CBMessageBox via Commandbox
 
 `install cbmessagebox`
 
+Install CBAuth 
+
+`install cbauth`
+
+Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+
+
 Add the following into your existing `/config/Routes.cfm` file
 ```
 // config/Routes.cfm
@@ -540,6 +549,18 @@ Create a new view `/views/sesions/new.cfm`
 Once all of these changes have been made. Reinit the app to update the routes. ( 'http://127.0.0.1:42518/login?fwreinit=1' )
 
 Hit `http://127.0.0.1:42518/login` in your browser
+
+
+
+
+
+
+
+
+
+## Rants
+
+
 
 41. Create rants migrations
 
