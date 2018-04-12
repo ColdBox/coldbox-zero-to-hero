@@ -748,7 +748,7 @@ messagebox = {
 </div>
 </cfoutput>
 ```
-6.15.4 Instead of
+6.15.4 Let's update our main layout, Instead of
 ```
 <main role="main" class="container">
         #renderView()#
@@ -764,13 +764,19 @@ we need to add a line and make it
 </main>
 ```
 
-Update the layout in /layouts/Main.cfm        
+Update the layout in `/layouts/Main.cfm`        
 
 6.15.5 Reinit the framework, and test it out.
 
 ## TODO: Update CBSecurity piece
 
 6.16 - CBSecurity
+
+cbsecurity
+
+```
+install cbsecurity
+```
 
 ```
 function userValidator( rule, controller ) {
@@ -782,12 +788,13 @@ function userValidator( rule, controller ) {
 
 
 
-41. Create rants migrations
+7.01 Create rants migrations
 
 ```
 migrate create create_rants_table
 ```
 
+In the file that was created by the previous command, put this piece in there
 ```
 component {
 
@@ -812,7 +819,7 @@ component {
 }
 ```
 
-42. Create a Rant object
+7.02. Create a Rant object in the models folder
 
 ```
 // Rant.cfc
@@ -833,7 +840,7 @@ component accessors="true" {
 }
 ```
 
-43. Create RantService.cfc
+7.03 Create RantService.cfc
 
 ```
 component {
@@ -872,12 +879,16 @@ component {
 }
 ```
 
-44. Rants CRUD
+7.04 Rants CRUD
+
+7.04.1 Add the rants resources in the `routes.cfm` file
 
 ```
 // config/routes.cfm
 resources( "rants" );
 ```
+
+7.04.2 Create a rants handler
 
 ```
 // handlers/rants.cfc
@@ -904,6 +915,8 @@ component {
 }
 ```
 
+7.04.3 Create an index view 
+
 ```
 // views/rants/index.cfm
 <cfoutput>
@@ -925,6 +938,7 @@ component {
     </cfif>
 </cfoutput>
 ```
+7.04.4 Create a new view 
 
 ```
 // views/rants/new.cfm
@@ -942,6 +956,8 @@ component {
     </div>
 </cfoutput>
 ```
+
+7.04.5 Update the main layout
 
 ```
 // layouts/Main.cfm
@@ -963,13 +979,7 @@ component {
 </div>
 ```
 
-cbsecurity
-
-```
-install cbsecurity
-```
-
-Configure
+7.05 Configure cbsecurity
 
 ```
 // config/ColdBox.cfc
@@ -981,6 +991,7 @@ cbsecurity = {
 };
 ```
 
+7.06 Create a `security.json` file inside the config folder
 ```
 // config/security.json
 
@@ -995,6 +1006,8 @@ cbsecurity = {
 ]
 ```
 
+7.07 Create the userValidator function into the `UserService.cfc`
+
 ```
 // models/services/UserService.cfc
 
@@ -1005,9 +1018,9 @@ function userValidator( rule, controller ) {
 }
 ```
 
-View a user's rants
+7.08 View a user's rants
 
-Create a users profile page
+7.08.1 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
 
 ```
 // config/Routes.cfm
