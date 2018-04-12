@@ -1,6 +1,11 @@
+
+### Steps to go from ColdBox Zero to Hero
+
 (All commands assume we are in the `box` shell unless stated otherwise.)
 
-1.  Create a folder for your app on your hard drive called `soapbox`.
+## 1 - Create the base app
+
+1.1.  Create a folder for your app on your hard drive called `soapbox`.
 2.  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
@@ -23,7 +28,7 @@ start cfengine=lucee@5 port=42518
 
 All your tests should be passing at this point. 😉
 
-## MVC - Routes, Handlers, Views
+## 2 - MVC - Routes, Handlers, Views
 7.  Show routes file. Explain routing by convention.
 8.  Show `Main.index`.
 9.  Explain `event`, `rc`, and `prc`.
@@ -41,7 +46,7 @@ What is cached?
 
 *   Singletons
 
-## Layouts
+## 3 - Layouts
 
 14. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
 
@@ -102,7 +107,7 @@ body {
 }
 ```
 
-## CBMigrations
+## 4 - Database and CBMigrations
 
 15. Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
 
@@ -252,9 +257,9 @@ function index( event, rc, prc ) {
 Insert data directly in to the database and show it returning.
 Notice the return type. This is a Lucee 4.5 syntax. CF11+ and Lucee5+ use `returnformat="array"`
 
-## Register Flow
+## 5 - Building the Registration Flow
 
-27. Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
+Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
 
 28. Delete the MainBDDTest
 
@@ -478,20 +483,20 @@ component {
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
-40. Add log in
+## 6 - Build the Login & Logout Flow
 
-Install CBMessageBox via Commandbox
+6.1 - Install CBMessageBox via Commandbox
 
 `install cbmessagebox`
 
-Add the following into your existing `/config/Routes.cfm` file
+6.2 - Add the following into your existing `/config/Routes.cfm` file
 ```
 // config/Routes.cfm
 addRoute( "/login", "sessions", { "GET" = "new", "POST" = "create" } );
 addRoute( "/logout", "sessions", { "DELETE" = "delete" } );
 ```
 
-Create a new `/handler/Sessions.cfc` handler
+6.3 Create a new `/handler/Sessions.cfc` handler
 ```
 // handlers/sessions.cfc
 component {
@@ -506,7 +511,7 @@ component {
 }
 ```
 
-Create a new view `/views/sesions/new.cfm`
+6.4 Create a new view `/views/sesions/new.cfm`
 ```
 // views/sessions/new.cfm
 <cfoutput>
@@ -529,19 +534,18 @@ Create a new view `/views/sesions/new.cfm`
 </cfoutput>
 ```
 
-Once all of these changes have been made. Reinit the app to update the routes. ( 'http://127.0.0.1:42518/login?fwreinit=1' )
+6.5 Once all of these changes have been made. Reinit the app to update the routes. ( 'http://127.0.0.1:42518/login?fwreinit=1' )
 
-Hit `http://127.0.0.1:42518/login` in your browser
-
+6.6 Hit `http://127.0.0.1:42518/login` in your browser
 You can now see the login screen. Let's build the login action next.
 
-41 Install CBAuth and Configure
+6.7 Install CBAuth and Configure
 
-Install CBAuth 
+6.7.1 Install CBAuth 
 
 `install cbauth`
 
-Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+6.7.2 Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
 
 ```
 cbauth = {
@@ -549,14 +553,13 @@ cbauth = {
 }
 ```
 
-42 - Create a User Object
+6.8 - Create a User Object
 
-```Specify a userServiceClass in your config/ColdBox.cfc inside moduleSettings.cbauth.userServiceClass. This component needs to have three methods:
+Specify a userServiceClass in your config/ColdBox.cfc inside moduleSettings.cbauth.userServiceClass. This component needs to have three methods:
     isValidCredentials( username, password )
     retrieveUserByUsername( username )
     retrieveUserById( id )
 Additionally, the user component returned by the retrieve methods needs to respond to getId().
-```
 
 https://www.forgebox.io/view/cbauth
 
@@ -570,7 +573,7 @@ component accessors="true" {
 }
 ```
 
-43 - Create the User Service
+6.09 - Create the User Service
 
 We need to create a User Service for CBAuth to function. It requires 3 function.
 Create a new model in `/models/UserService.cfc`
@@ -611,7 +614,7 @@ component {
 }
 ```
 
-43 - Update Sessions.cfc for login and logout actions
+6.10 - Update Sessions.cfc for login and logout actions
 
 Update the Sessions.cfc
 ```
@@ -635,6 +638,7 @@ Update the Sessions.cfc
     }
 ```
 
+6.11
 Update the main layout to show and hide the register / login / logout buttons.
 
 ```
@@ -651,7 +655,7 @@ Update the main layout to show and hide the register / login / logout buttons.
 </ul>
 ```
 
-44 - Refactor Registration to use the User Service
+6.12 - Refactor Registration to use the User Service
 
 Add save function to User Service.
 ```
@@ -673,7 +677,7 @@ function save( user ) {
 }
 ```
 
-45 - Update Registration.cfc handler to use User Service instead of inline queryExecute
+6.13 - Update Registration.cfc handler to use User Service instead of inline queryExecute
 
 Add the DI Injection for the UserService
 
@@ -689,7 +693,7 @@ function create( event, rc, prc ) {
 }
 ```
 
-Test the login and logout.
+6.14 - Test the login and logout.
 
 When registering, it might be nice to automatically log the user in. 
 Replace the Create function with the following code
@@ -704,17 +708,17 @@ function create( event, rc, prc ) {
 ```
 Now register and you will be automatically logged in.
 
-46 - Login incorrectly and you'll see an error message.
+6.15 - Login incorrectly and you'll see an error message.
 Use this snippet to make MessageBox prettier.
 
-Add to ColdBox Config as its own struct
+6.15.1 - Add to ColdBox Config as its own struct
 ```
 messagebox = {
     template = "/views/_partials/_messagebox.cfm"
 };
 ```
 
-Add `/views/_partials/_messagebox.cfm`
+6.15.2 - Add `/views/_partials/_messagebox.cfm`
 ```
 <cfscript>
     switch( msgStruct.type ){
@@ -744,9 +748,11 @@ Add `/views/_partials/_messagebox.cfm`
 </div>
 </cfoutput>
 ```
-Reinit the framework, and test it out.
+6.15.3 Reinit the framework, and test it out.
 
-47 - CBSecurity
+## TODO: Update CBSecurity piece
+
+6.16 - CBSecurity
 
 ```
 function userValidator( rule, controller ) {
@@ -754,12 +760,7 @@ function userValidator( rule, controller ) {
 }
 ```
 
-
-
-
-
-
-## Rants
+## 7 - Rants
 
 
 
