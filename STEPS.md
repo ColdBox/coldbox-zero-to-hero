@@ -768,21 +768,6 @@ Update the layout in `/layouts/Main.cfm`
 
 6.15.5 Reinit the framework, and test it out.
 
-## TODO: Update CBSecurity piece
-
-6.16 - CBSecurity
-
-cbsecurity
-
-```
-install cbsecurity
-```
-
-```
-function userValidator( rule, controller ) {
-    return authenticationService.isLoggedIn();
-}
-```
 
 ## 7 - Rants
 
@@ -794,7 +779,7 @@ function userValidator( rule, controller ) {
 migrate create create_rants_table
 ```
 
-In the file that was created by the previous command, put this piece in there
+7.01.1 In the file that was created by the previous command, put this piece of code in there
 ```
 component {
 
@@ -818,6 +803,12 @@ component {
 
 }
 ```
+7.01.2 Now, migrate your rants
+
+```
+migrate up
+```
+
 
 7.02. Create a Rant object in the models folder
 
@@ -834,7 +825,7 @@ component accessors="true" {
     property name="userId";
 
     function getUser() {
-        return userSerivce.retrieveUserById( getUserId() );
+        return UserService.retrieveUserById( getUserId() );
     }
 
 }
@@ -844,6 +835,9 @@ component accessors="true" {
 
 ```
 component {
+
+    property name="populator" inject="wirebox:populator";
+    property name="wirebox"   inject="wirebox";
 
     function getAll() {
         return queryExecute(
@@ -862,7 +856,7 @@ component {
         rant.setModifiedDate( now() );
         queryExecute(
             "
-                INSERT INTO `rants` (`body`, `updatedDate`, `userId`)
+                INSERT INTO `rants` (`body`, `modifiedDate`, `userId`)
                 VALUES (?, ?, ?)
             ",
             [
@@ -979,7 +973,13 @@ component {
 </div>
 ```
 
-7.05 Configure cbsecurity
+7.05 Install cbsecurity by running the following command
+
+```
+install cbsecurity
+```
+
+7.05.1 Configure cbsecurity
 
 ```
 // config/ColdBox.cfc
@@ -1018,14 +1018,22 @@ function userValidator( rule, controller ) {
 }
 ```
 
-7.08 View a user's rants
+7.08 Reinit the framework
 
-7.08.1 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
+7.09 Hit the page while logged out if you hit start a rant you should redirect to the login page
+
+7.10 Once you are logged in, make sure you see the rant page.
+
+## 8 - View a user's rants
+
+8.01 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
 
 ```
 // config/Routes.cfm
 addRoute( "/users/:username", "users", { "GET" = "show" } );
 ```
+
+8.02 Create a `users` handler
 
 ```
 // handlers/users.cfc
@@ -1043,12 +1051,14 @@ component {
 
 }
 ```
+8.03 Create a `404.cfm` view
 
 ```
 // views/404.cfm
 Whoops!  That page doesn't exist.
 ```
 
+8.04 Create a `show.cfm` view
 ```
 // views/users/show.cfm
 <cfoutput>
@@ -1056,12 +1066,13 @@ Whoops!  That page doesn't exist.
     <h4>Rants</h4>
     <ul>
         <cfloop array="#prc.user.getRants()#" item="rant">
-            #renderView( "partials/_rant", { rant = rant } )#
+            #renderView( "_partials/_rant", { rant = rant } )#
         </cfloop>
     </ul>
 </cfoutput>
 ```
 
+8.05 Create a `_rant.cfm` view
 ```
 // views/partials/_rant.cfm
 <cfoutput>
@@ -1078,9 +1089,13 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-(Also use the partial in `rants/index`)
+8.06 Edit the `rants/index` file and replace the content of the loop with the render view command found in the `partials/_rant` view
 
-Link to the user from `partials/_rant`
+```
+<cfloop array="#prc.rants#" item="rant">
+            #renderView( "partials/_rant", { rant = rant } )#
+</cfloop>
+```
 
 ```
 <cfoutput>
