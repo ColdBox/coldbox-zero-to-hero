@@ -748,6 +748,21 @@ messagebox = {
 </div>
 </cfoutput>
 ```
+Instead of
+
+```<main role="main" class="container">
+            #renderView()#
+        </main>```
+
+we need to add a line and make it
+
+```<main role="main" class="container">
+            #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
+            #renderView()#
+        </main>```
+
+Update the layout in /layouts/Main.cfm        
+
 6.15.3 Reinit the framework, and test it out.
 
 ## TODO: Update CBSecurity piece
