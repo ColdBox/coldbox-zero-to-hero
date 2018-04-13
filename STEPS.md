@@ -6,49 +6,50 @@
 ## 1 - Create the base app
 
 1.1.  Create a folder for your app on your hard drive called `soapbox`.
-2.  Scaffold out a new Coldbox application with TestBox included.
+1.2  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
 coldbox create app soapbox --installTestBox
 ```
 
-3.  Start up a local server
+1.3  Start up a local server
 
 ```sh
 start cfengine=lucee@5 port=42518
 ```
 
-4.  Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
+1.4 Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
 
-5.  Open `/tests` in your browser. You should see the TestBox test browser.
+1.5 Open `/tests` in your browser. You should see the TestBox test browser.
     This is useful to find a specific test or group of tests to run _before_ running them.
 
-6.  Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
+1.6 Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
     This is running all of our tests by default. We can create our own test runners as needed.
 
 All your tests should be passing at this point. 😉
 
 ## 2 - MVC - Routes, Handlers, Views
-7.  Show routes file. Explain routing by convention.
-8.  Show `Main.index`.
-9.  Explain `event`, `rc`, and `prc`.
-10. Explain views. Point out view conventions.
-11. Briefly touch on layouts.
-12. Show how `rc` and `prc` are used in the views.
+2.1 Show routes file. Explain routing by convention.
+2.2 Show `Main.index`.
+2.3 Explain `event`, `rc`, and `prc`.
+2.4 Explain views. Point out view conventions.
+2.5 Briefly touch on layouts.
+2.6 Show how `rc` and `prc` are used in the views.
 
-13. Add an about page
-    a. Add an `views/about/index.cfm`. Hit the url /about/index and it works!
-    b. Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
-    c. Add an `index` action. Back to working!
+2.7 Add an about page<br>
 
-Reinits
-What is cached?
+* 2.7.1 Add an `views/about/index.cfm`. Hit the url /about/index and it works!
+* 2.7.2 Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
+* 2.7.3 Add an `index` action. Back to working!
+
+2.8 Reinit the framework
+* What is cached?
 
 *   Singletons
 
 ## 3 - Layouts
 
-14. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
+3.1. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
 
 ```html
 <cfoutput>
@@ -90,7 +91,7 @@ What is cached?
 </cfoutput>
 ```
 
-Insert the following CSS into a new file: /includes/css/app.css
+3.2 Insert the following CSS into a new file: `/includes/css/app.css`
 ```css
 /* includes/css/app.css */
 
@@ -109,7 +110,7 @@ body {
 
 ## 4 - Database and CBMigrations
 
-15. Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
+4.1. Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
 
 ```sh
 install commandbox-migrations
@@ -117,9 +118,9 @@ install commandbox-migrations
 
 You should see a list of available commands with `migrate ?`.
 
-16. Initalize migrations using `migrate init`
+4.2 Initalize migrations using `migrate init`
 
-17. Change the grammar in your box.json to `MySQLGrammar`
+4.3 Change the grammar in your box.json to `MySQLGrammar`
 
 (Bonus. Not needed since we are using `queryExecute` directly.)
 
@@ -127,9 +128,9 @@ You should see a list of available commands with `migrate ?`.
 package set cfmigrations.defaultGrammar=MySQLGrammar
 ```
 
-17. Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
+4.4 Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
-18. Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
+4.5 Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
     Docker credentials from before.)
 
 ```
@@ -139,17 +140,17 @@ DB_USER=root
 DB_PASSWORD=soapbox
 ```
 
-19. Reload your shell in your project root. (`reload` or `r`)
+4.6 Reload your shell in your project root. (`reload` or `r`)
 
-20. Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
+4.7 Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
-21. Create a users migration
+4.8 Create a users migration
 
 ```sh
 migrate create create_users_table
 ```
 
-22. Fill in the migration. 
+4.9 Fill in the migration. 
 The migration file was created by the last command, and the file location was output by commandbox.
 
 ```
@@ -187,7 +188,7 @@ component {
 }
 ```
 
-23. Run the migration up.
+4.10 Run the migration up.
 
 ```sh
 migrate up
@@ -195,15 +196,15 @@ migrate up
 
 QB will be optional
 
-24. Install `qb`
+4.11 Install `qb`
 
 ```sh
 install qb
 ```
 
-25. Configure `qb` 
+4.12 Configure `qb` 
 
-Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
+4.12.1 Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 
 ```js
 // config/ColdBox.cfc
@@ -214,7 +215,7 @@ moduleSettings = {
 };
 ```
 
-Next add the following settings into your `/Application.cfc` file.
+4.12.2 Next add the following settings into your `/Application.cfc` file.
 
 ```js
 // Application.cfc
@@ -231,7 +232,7 @@ this.datasources = {
 this.datasource = "soapbox";
 ```
 
-26. Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
+4.12.3 Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
 Discuss WireBox and Dependency Injection.
 
@@ -261,11 +262,11 @@ Notice the return type. This is a Lucee 4.5 syntax. CF11+ and Lucee5+ use `retur
 
 Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
 
-28. Delete the MainBDDTest
+5.1 Delete the MainBDDTest
 
-29. Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev`
+5.2 Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev`
 
-30. Configure `tests/Application.cfc`
+5.3 Configure `tests/Application.cfc`
 
 ```js
 // tests/Application.cfc
@@ -286,7 +287,7 @@ function onRequestStart() {
 }
 ```
 
-31. Create a `tests/resources/BaseIntegrationSpec.cfc`
+5.4 Create a `tests/resources/BaseIntegrationSpec.cfc`
 
 ```
 component extends="coldbox.system.testing.BaseTestCase" {
@@ -329,7 +330,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 }
 ```
 
-32. Create a `tests/specs/integration/RegistrationSpec.cfc`
+5.5 Create a `tests/specs/integration/RegistrationSpec.cfc`
 
 ```
 component extends="tests.resources.BaseIntegrationSpec" {
@@ -347,7 +348,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 }
 ```
 
-33. Replace the `can register a user` test with the following
+5.6 Replace the `can register a user` test with the following
 
 ```
 it( "can register a user", function() {
@@ -369,7 +370,7 @@ it( "can register a user", function() {
 } );
 ```
 
-34. Write the production code
+5.7 Write the production code
 
 Update the `/config/Routes.cfm` file - insert a resources definition.
 ```
@@ -399,7 +400,7 @@ component {
 }
 ```
 
-35. Create a route to populate this form
+5.8 Create a route to populate this form
 
 ```js
 function new( event, rc, prc ) {
@@ -433,7 +434,7 @@ function new( event, rc, prc ) {
 </cfoutput>
 ```
 
-36. Add a register link to the navbar
+5.9 Add a register link to the navbar
 
 ```html
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -449,13 +450,13 @@ This isn't very secure, to have your password un-encrypted, so lets use BCrypt.
 
 Bonus points for tests first for next part
 
-37. Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
+5.10 Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
 ```sh
 install bcrypt
 ```
 
-38. Bcrypt the password
+5.11 Bcrypt the password
 
 Update the registration handler to use BCrypt `/handlers/Registration.cfc`
 We are adding the DI Injection for the BCrypt Module and updating the query to wrap the password in a call to bcrypt to encrypt the password.
@@ -479,7 +480,7 @@ component {
 }
 ```
 
-39. Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following: 
+5.12 Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following: 
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
@@ -573,7 +574,7 @@ component accessors="true" {
 }
 ```
 
-6.09 - Create the User Service
+6.9 - Create the User Service
 
 We need to create a User Service for CBAuth to function. It requires 3 function.
 Create a new model in `/models/UserService.cfc`
@@ -773,13 +774,13 @@ Update the layout in `/layouts/Main.cfm`
 
 
 
-7.01 Create rants migrations
+7.1 Create rants migrations
 
 ```
 migrate create create_rants_table
 ```
 
-7.01.1 In the file that was created by the previous command, put this piece of code in there
+7.1.1 In the file that was created by the previous command, put this piece of code in there
 ```
 component {
 
@@ -803,14 +804,14 @@ component {
 
 }
 ```
-7.01.2 Now, migrate your rants
+7.1.2 Now, migrate your rants
 
 ```
 migrate up
 ```
 
 
-7.02. Create a Rant object in the models folder
+7.2 Create a Rant object in the models folder
 
 ```
 // Rant.cfc
@@ -831,7 +832,7 @@ component accessors="true" {
 }
 ```
 
-7.03 Create RantService.cfc
+7.3 Create RantService.cfc
 
 ```
 component {
@@ -873,16 +874,16 @@ component {
 }
 ```
 
-7.04 Rants CRUD
+7.4 Rants CRUD
 
-7.04.1 Add the rants resources in the `routes.cfm` file
+7.4.1 Add the rants resources in the `routes.cfm` file
 
 ```
 // config/routes.cfm
 resources( "rants" );
 ```
 
-7.04.2 Create a rants handler
+7.4.2 Create a rants handler
 
 ```
 // handlers/rants.cfc
@@ -909,7 +910,7 @@ component {
 }
 ```
 
-7.04.3 Create an index view 
+7.4.3 Create an index view 
 
 ```
 // views/rants/index.cfm
@@ -932,7 +933,7 @@ component {
     </cfif>
 </cfoutput>
 ```
-7.04.4 Create a new view 
+7.4.4 Create a new view 
 
 ```
 // views/rants/new.cfm
@@ -951,7 +952,7 @@ component {
 </cfoutput>
 ```
 
-7.04.5 Update the main layout
+7.4.5 Update the main layout
 
 ```
 // layouts/Main.cfm
@@ -973,13 +974,13 @@ component {
 </div>
 ```
 
-7.05 Install cbsecurity by running the following command
+7.5 Install cbsecurity by running the following command
 
 ```
 install cbsecurity
 ```
 
-7.05.1 Configure cbsecurity
+7.5.1 Configure cbsecurity, add the settings in your `ColdBox.cfc`
 
 ```
 // config/ColdBox.cfc
@@ -991,7 +992,7 @@ cbsecurity = {
 };
 ```
 
-7.06 Create a `security.json` file inside the config folder
+7.6 Create a `security.json` file inside the config folder
 ```
 // config/security.json
 
@@ -1006,7 +1007,7 @@ cbsecurity = {
 ]
 ```
 
-7.07 Create the userValidator function into the `UserService.cfc`
+7.7 Create the userValidator function in `UserService.cfc`
 
 ```
 // models/services/UserService.cfc
@@ -1018,22 +1019,22 @@ function userValidator( rule, controller ) {
 }
 ```
 
-7.08 Reinit the framework
+7.8 Reinit the framework
 
-7.09 Hit the page while logged out if you hit start a rant you should redirect to the login page
+7.9 Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
-7.10 Once you are logged in, make sure you see the rant page.
+7.10 Now log in and make sure you see the rant page.
 
 ## 8 - View a user's rants
 
-8.01 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
+8.1 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
 
 ```
 // config/Routes.cfm
 addRoute( "/users/:username", "users", { "GET" = "show" } );
 ```
 
-8.02 Create a `users` handler
+8.2 Create a `users` handler
 
 ```
 // handlers/users.cfc
@@ -1051,14 +1052,14 @@ component {
 
 }
 ```
-8.03 Create a `404.cfm` view
+8.3 Create a `404.cfm` view
 
 ```
 // views/404.cfm
 Whoops!  That page doesn't exist.
 ```
 
-8.04 Create a `show.cfm` view
+8.4 Create a `show.cfm` view
 ```
 // views/users/show.cfm
 <cfoutput>
@@ -1072,7 +1073,7 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.05 Create a `_rant.cfm` view
+8.5 Create a `_rant.cfm` view
 ```
 // views/partials/_rant.cfm
 <cfoutput>
@@ -1089,11 +1090,11 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.06 Edit the `rants/index` file and replace the content of the loop with the render view command found in the `partials/_rant` view
+8.6 Edit the `rants/index` file and replace the content of the loop to render the `_partials/_rant` view
 
 ```
 <cfloop array="#prc.rants#" item="rant">
-            #renderView( "partials/_rant", { rant = rant } )#
+            #renderView( "_partials/_rant", { rant = rant } )#
 </cfloop>
 ```
 
