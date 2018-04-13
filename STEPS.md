@@ -1097,15 +1097,27 @@ Whoops!  That page doesn't exist.
 </cfloop>
 ```
 
-8.7 Add 👊 and 💩 actions
+8.7 Update your `User.cfc`
+8.7.1 Inject the rantService
+```
+property name="rantService" inject="id";
+```
+8.7.2 Create a getRants function
+```
+function getRants() {
+        return rantService.getForUserId( getId() );
+    }
+```
 
-8.7.1 Migrate `bumps` table
+8.8 Add 👊 and 💩 actions
+
+8.8.1 Migrate `bumps` table
 
 ```
 migrate create create_bumps_table
 ```
 
-8.7.2 Fill the file you just create with the following functions
+8.8.2 Fill the file you just create with the following functions
 
 ```
 component {
@@ -1138,12 +1150,13 @@ component {
 }
 ```
 
-8.7.3 Now run the function `up`
+8.8.3 Now run the function `up`
 
 ```
 migrate up
 ```
 
+8.9.1 Migrate `poops` table
 ```
 migrate create create_poops_table
 ```
