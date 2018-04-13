@@ -1109,6 +1109,23 @@ function getRants() {
     }
 ```
 
+8.7.2 Create a `getForUserId` function in `RantService`
+
+```
+function getForUserId( id ) {
+        return queryExecute(
+            "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
+            [ id ],
+            { returntype = "array" }
+        ).map( function ( rant ) {
+            return populator.populateFromStruct(
+                wirebox.getInstance( "Rant" ),
+                rant
+            );
+        } );
+    }
+```
+
 8.8 Add 👊 and 💩 actions
 
 8.8.1 Migrate `bumps` table
@@ -1192,10 +1209,10 @@ component {
 }
 ```
 
-Display bumps on the rant partial
+8.9.2 Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
 
 ```
-// /views/partials/_rant.cfm
+// /views/_partials/_rant.cfm
 
 <div class="card-footer">
     <button class="btn btn-outline-dark">
