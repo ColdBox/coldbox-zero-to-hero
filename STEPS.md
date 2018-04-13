@@ -150,7 +150,7 @@ DB_PASSWORD=soapbox
 migrate create create_users_table
 ```
 
-4.9 Fill in the migration. 
+4.9 Fill in the migration.
 The migration file was created by the last command, and the file location was output by commandbox.
 
 ```
@@ -202,7 +202,7 @@ QB will be optional
 install qb
 ```
 
-4.12 Configure `qb` 
+4.12 Configure `qb`
 
 4.12.1 Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 
@@ -480,7 +480,7 @@ component {
 }
 ```
 
-5.12 Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following: 
+5.12 Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following:
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
@@ -542,7 +542,7 @@ You can now see the login screen. Let's build the login action next.
 
 6.7 Install CBAuth and Configure
 
-6.7.1 Install CBAuth 
+6.7.1 Install CBAuth
 
 `install cbauth`
 
@@ -564,7 +564,7 @@ Additionally, the user component returned by the retrieve methods needs to respo
 
 https://www.forgebox.io/view/cbauth
 
-Create a new Model `/models/User.cfc` 
+Create a new Model `/models/User.cfc`
 ```
 component accessors="true" {
     property name="id";
@@ -610,7 +610,7 @@ component {
         return bcrypt.checkPassword( password, users[ 1 ].password );
     }
 
-    
+
 
 }
 ```
@@ -696,7 +696,7 @@ function create( event, rc, prc ) {
 
 6.14 - Test the login and logout.
 
-When registering, it might be nice to automatically log the user in. 
+When registering, it might be nice to automatically log the user in.
 Replace the Create function with the following code
 
 ```
@@ -765,7 +765,7 @@ we need to add a line and make it
 </main>
 ```
 
-Update the layout in `/layouts/Main.cfm`        
+Update the layout in `/layouts/Main.cfm`
 
 6.15.5 Reinit the framework, and test it out.
 
@@ -910,7 +910,7 @@ component {
 }
 ```
 
-7.4.3 Create an index view 
+7.4.3 Create an index view
 
 ```
 // views/rants/index.cfm
@@ -933,7 +933,15 @@ component {
     </cfif>
 </cfoutput>
 ```
-7.4.4 Create a new view 
+
+7.4.4 Set the default event to `rants.index`
+```
+coldbox = {
+    defaultEvent = "rants.index"
+};
+```
+
+7.4.5 Create a new view
 
 ```
 // views/rants/new.cfm
@@ -952,7 +960,7 @@ component {
 </cfoutput>
 ```
 
-7.4.5 Update the main layout
+7.4.6 Update the main layout
 
 ```
 // layouts/Main.cfm
@@ -1224,6 +1232,10 @@ component {
 </div>
 ```
 
+8.10 Update `Rant.cfc`
+
+8.10.1 Inject reactionService and create the following functions
+
 ```
 // models/Rant.cfc
 
@@ -1237,6 +1249,8 @@ function getPoops() {
     return reactionService.getPoopsForRant( this );
 }
 ```
+
+8.10.2 Create `ReactionService.cfc` in `models/services/`
 
 ```
 // models/services/ReactionService.cfc
@@ -1275,10 +1289,57 @@ component {
 }
 ```
 
-Make buttons clickable
+8.11 Reinitialize the framework
+
+8.12 Try the site, and realize its broken, but why?
 
 ```
-// views/partials/_rant.cfm
+Event: rants.index
+Routed URL: rants/
+Layout: N/A (Module: )
+View: N/A
+Timestamp: 04/13/2018 09:54:07 AM
+Type: Builder.DSLDependencyNotFoundException
+Messages: The DSL Definition {REF={null}, REQUIRED={true}, ARGNAME={}, DSL={id}, JAVACAST={null}, NAME={reactionService}, TYPE={any}, VALUE={null}, SCOPE={variables}} did not produce any resulting dependency The target requesting the dependency is: 'Rant'
+```
+
+This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the
+
+## 9 - Wirebox Conventions vs Configuration
+
+Dependency Injection is Magic - Not really
+
+Did you notice anything different when we create my Service??
+We created a services folder inside of Models, to organize our Models better.
+
+Wirebox is very powerful, but it is not magic, it runs by conventions, and you can configure it to run differently if you have differing opinions on the conventions.
+
+So you have to tell it what you want it to do if you want to do something more. In this case, instead of just using model paths (automatic convention), we can tell Wirebox to map models and all of its subfolders.
+
+9.1 Open the WireBox.cfc
+
+9.2 Scroll to the bottom of the file and insert the following
+
+```
+// Map Bindings below
+mapDirectory( "models" );
+```
+
+This will make the models folder recursively, now allowing you to organize your folders however you see fit.
+
+9.3 Reinitialize the framework
+
+9.4 Test out the site... no errors now.
+
+
+## 10 - Make Rant Reactions Functional
+
+10.1 Make buttons clickable
+
+10.1.1 Update your `_rant.cfm`
+
+```
+// views/_partials/_rant.cfm
 
 <div class="card-footer">
     <cfif auth().guest()>
@@ -1321,6 +1382,8 @@ Make buttons clickable
 </div>
 ```
 
+10.2 Update your `User.cfc`, inject the reactionService and add the following functions
+
 ```
 // models/User.cfc
 
@@ -1344,6 +1407,8 @@ function hasPooped( rant ) {
     } ).isEmpty();
 }
 ```
+
+10.3 Update your `ReactionService.cfc`, add the following functions
 
 ```
 // models/services/ReactionService.cfc
@@ -1375,6 +1440,17 @@ function getPoopsForUser( user ) {
 }
 ```
 
+10.4 Create new handlers
+
+10.4.1 Add the routes before the resources
+
+```
+addRoute( "rants/:id/bumps", "bumps", { "POST" = "create", "DELETE" = "delete" } );
+addRoute( "rants/:id/poops", "poops", { "POST" = "create", "DELETE" = "delete" } );
+```
+
+10.4.2 Create `bumps` handler
+
 ```
 // handlers/bumps.cfc
 
@@ -1395,6 +1471,8 @@ component {
 }
 ```
 
+10.4.3 Create `poops` handler
+
 ```
 // handlers/poops.cfc
 
@@ -1414,6 +1492,8 @@ component {
 
 }
 ```
+
+10.5 Update your `ReactionService.cfc` with the following functions
 
 ```
 // models/services/ReactionService.cfc
@@ -1446,3 +1526,39 @@ function unpoop( rantId, userId ) {
     );
 }
 ```
+
+10.9 Add the Bump Model
+
+```
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+10.10 Add the Poop Model
+
+```
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+10.11 Reinialize the Framework and Test the Site
+
+10.12 - You're done!!
+
+11 - Extra Credit
+
++ Don't let a user poop and bump the same rant
++ CSRF tokens for login, register, and new rant
++ Move `queryExecute` to `qb`
+
+Other Ideas:
++ Environments in ColdBox.cfc
++ Domain Names in CommandBox
