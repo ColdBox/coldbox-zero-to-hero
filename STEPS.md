@@ -1075,11 +1075,10 @@ Whoops!  That page doesn't exist.
 
 8.5 Create a `_rant.cfm` view
 ```
-// views/partials/_rant.cfm
 <cfoutput>
     <div class="card mb-3">
         <div class="card-header">
-            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getId()#" )#">#args.rant.getUser().getUsername()#</a></strong>
+            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
             said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
             on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
         </div>
@@ -1098,26 +1097,15 @@ Whoops!  That page doesn't exist.
 </cfloop>
 ```
 
-```
-<cfoutput>
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
-            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
-            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
-        </div>
-        <div class="panel card-body">
-            #args.rant.getBody()#
-        </div>
-    </div>
-</cfoutput>
-```
+8.7 Add 👊 and 💩 actions
 
-Add 👊 and 💩 actions
+8.7.1 Migrate `bumps` table
 
 ```
 migrate create create_bumps_table
 ```
+
+8.7.2 Fill the file you just create with the following functions
 
 ```
 component {
@@ -1148,6 +1136,12 @@ component {
     }
 
 }
+```
+
+8.7.3 Now run the function `up`
+
+```
+migrate up
 ```
 
 ```
