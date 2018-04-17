@@ -9,7 +9,7 @@
 1.2  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
-coldbox create app soapbox --installTestBox
+coldbox create app soapbox --installTestBox --installColdBoxBE
 ```
 
 1.3  Start up a local server
@@ -39,6 +39,11 @@ All your tests should be passing at this point. 😉
 2.7 Add an about page<br>
 
 * 2.7.1 Add an `views/about/index.cfm`. Hit the url /about/index and it works!
+```html
+<cfoutput>
+    <h1>About us!</h1>
+</cfoutput>
+```
 * 2.7.2 Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
 * 2.7.3 Add an `index` action. Back to working!
 
@@ -120,37 +125,29 @@ You should see a list of available commands with `migrate ?`.
 
 4.2 Initalize migrations using `migrate init`
 
-4.3 Change the grammar in your box.json to `MySQLGrammar`
+4.3 Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
-(Bonus. Not needed since we are using `queryExecute` directly.)
-
-```sh
-package set cfmigrations.defaultGrammar=MySQLGrammar
-```
-
-4.4 Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
-
-4.5 Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
+4.4 Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
     Docker credentials from before.)
 
 ```
 DB_CLASS=org.gjt.mm.mysql.Driver
-DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&characterEncoding=UTF-8\&useLegacyDatetimeCode=true
+DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&characterEncoding=UTF-8\&useLegacyDatetimeCode=true\&useSSL=false
 DB_USER=root
 DB_PASSWORD=soapbox
 ```
 
-4.6 Reload your shell in your project root. (`reload` or `r`)
+4.5 Reload your shell in your project root. (`reload` or `r`)
 
-4.7 Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
+4.6 Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
-4.8 Create a users migration
+4.7 Create a users migration
 
 ```sh
 migrate create create_users_table
 ```
 
-4.9 Fill in the migration.
+4.8 Fill in the migration.
 The migration file was created by the last command, and the file location was output by commandbox.
 
 ```
@@ -188,34 +185,13 @@ component {
 }
 ```
 
-4.10 Run the migration up.
+4.9 Run the migration up.
 
 ```sh
 migrate up
 ```
 
-QB will be optional
-
-4.11 Install `qb`
-
-```sh
-install qb
-```
-
-4.12 Configure `qb`
-
-4.12.1 Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
-
-```js
-// config/ColdBox.cfc
-moduleSettings = {
-    qb = {
-        defaultGrammar = "MySQLGrammar"
-    }
-};
-```
-
-4.12.2 Next add the following settings into your `/Application.cfc` file.
+4.11.2 Next add the following settings into your `/Application.cfc` file.
 
 ```js
 // Application.cfc
@@ -232,7 +208,7 @@ this.datasources = {
 this.datasource = "soapbox";
 ```
 
-4.12.3 Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
+4.11.3 Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
 Discuss WireBox and Dependency Injection.
 
@@ -384,8 +360,6 @@ Create a new Handler
 // handlers/Registration.cfc
 component {
 
-    property name="query" inject="provider:QueryBuilder@qb";
-
     function create( event, rc, prc ) {
         queryExecute( "
                 INSERT INTO `users` ( `email`, `username`, `password` )
@@ -464,7 +438,6 @@ We are adding the DI Injection for the BCrypt Module and updating the query to w
 ```
 component {
 
-    property name="query" inject="provider:QueryBuilder@qb";
     property name="bcrypt" inject="@BCrypt";
 
     function create( event, rc, prc ) {
@@ -493,8 +466,8 @@ component {
 6.2 - Add the following into your existing `/config/Routes.cfm` file
 ```
 // config/Routes.cfm
-addRoute( "/login", "sessions", { "GET" = "new", "POST" = "create" } );
-addRoute( "/logout", "sessions", { "DELETE" = "delete" } );
+addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
+delete( "/logout" ).to( "sessions.delete" );
 ```
 
 6.3 Create a new `/handler/Sessions.cfc` handler
@@ -504,7 +477,7 @@ component {
 
     property name="messagebox" inject="MessageBox@cbmessagebox";
 
-    //new / login page
+    // new / login form page
     function new( event, rc, prc ) {
         return event.setView( "sessions/new" );
     }
@@ -549,12 +522,14 @@ You can now see the login screen. Let's build the login action next.
 6.7.2 Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
 
 ```
-cbauth = {
-    userServiceClass = "UserService"
-}
+moduleSettings = {
+    cbauth = {
+        userServiceClass = "UserService"
+    }
+};
 ```
 
-6.8 - Create a User Object
+6.8 - Create a User Service and User Object
 
 Specify a userServiceClass in your config/ColdBox.cfc inside moduleSettings.cbauth.userServiceClass. This component needs to have three methods:
     isValidCredentials( username, password )
@@ -567,10 +542,12 @@ https://www.forgebox.io/view/cbauth
 Create a new Model `/models/User.cfc`
 ```
 component accessors="true" {
+
     property name="id";
     property name="username";
     property name="email";
     property name="password";
+
 }
 ```
 
@@ -578,10 +555,10 @@ component accessors="true" {
 
 We need to create a User Service for CBAuth to function. It requires 3 function.
 Create a new model in `/models/UserService.cfc`
+Explain `wirebox.getInstance` and `populator`
 ```
 component {
 
-    property name="authenticationService" inject="AuthenticationService@cbauth";
     property name="populator" inject="wirebox:populator";
     property name="wirebox" inject="wirebox";
     property name="bcrypt" inject="@BCrypt";
@@ -610,8 +587,6 @@ component {
         return bcrypt.checkPassword( password, users[ 1 ].password );
     }
 
-
-
 }
 ```
 
@@ -620,10 +595,12 @@ component {
 Update the Sessions.cfc
 ```
 // handlers/sessions.cfc
+    property name="auth" inject="authenticationService@cbauth";
+
     // create / doLogin actLogin
     function create( event, rc, prc ) {
         try {
-            auth().authenticate( rc.username, rc.password )
+            auth.authenticate( rc.username, rc.password )
             return relocate( uri = "/" );
         }
         catch ( InvalidCredentials e ) {
@@ -634,7 +611,7 @@ Update the Sessions.cfc
 
     // delete / logout
     function delete( event, rc, prc ) {
-        auth().logout();
+        auth.logout();
         return relocate( uri = "/" );
     }
 ```
@@ -694,16 +671,22 @@ function create( event, rc, prc ) {
 }
 ```
 
+**References**
+* [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
+* [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
+
 6.14 - Test the login and logout.
 
 When registering, it might be nice to automatically log the user in.
 Replace the Create function with the following code
 
 ```
+property name="auth" inject="authenticationService@cbauth";
+
 function create( event, rc, prc ) {
     var user = populateModel( getInstance( "User" ) );
     userService.save( user );
-    auth().login( user );
+    auth.login( user );
     relocate( uri = "/" );
 }
 ```
@@ -752,7 +735,7 @@ messagebox = {
 6.15.4 Let's update our main layout, Instead of
 ```
 <main role="main" class="container">
-        #renderView()#
+    #renderView()#
 </main>
 ```
 
@@ -760,19 +743,14 @@ we need to add a line and make it
 
 ```
 <main role="main" class="container">
-        #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
-        #renderView()#
+    #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
+    #renderView()#
 </main>
 ```
 
-Update the layout in `/layouts/Main.cfm`
-
 6.15.5 Reinit the framework, and test it out.
 
-
 ## 7 - Rants
-
-
 
 7.1 Create rants migrations
 
@@ -817,7 +795,7 @@ migrate up
 // Rant.cfc
 component accessors="true" {
 
-    property name="UserService" inject="id";
+    property name="userService" inject="id";
 
     property name="id";
     property name="body";
@@ -988,7 +966,7 @@ coldbox = {
 install cbsecurity
 ```
 
-7.5.1 Configure cbsecurity, add the settings in your `ColdBox.cfc`
+7.5.1 Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
 
 ```
 // config/ColdBox.cfc
@@ -1039,7 +1017,7 @@ function userValidator( rule, controller ) {
 
 ```
 // config/Routes.cfm
-addRoute( "/users/:username", "users", { "GET" = "show" } );
+get( "/users/:username" ).to( "users.show" );
 ```
 
 8.2 Create a `users` handler
@@ -1081,7 +1059,7 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.5 Create a `_rant.cfm` view
+8.5 Create a `views/_partials/_rant.cfm` view
 ```
 <cfoutput>
     <div class="card mb-3">
@@ -1097,11 +1075,11 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.6 Edit the `rants/index` file and replace the content of the loop to render the `_partials/_rant` view
+8.6 Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
 
 ```
 <cfloop array="#prc.rants#" item="rant">
-            #renderView( "_partials/_rant", { rant = rant } )#
+    #renderView( "_partials/_rant", { rant = rant } )#
 </cfloop>
 ```
 
@@ -1113,36 +1091,40 @@ property name="rantService" inject="id";
 8.7.2 Create a getRants function
 ```
 function getRants() {
-        return rantService.getForUserId( getId() );
-    }
+    return rantService.getForUserId( getId() );
+}
 ```
 
 8.7.2 Create a `getForUserId` function in `RantService`
 
 ```
 function getForUserId( id ) {
-        return queryExecute(
-            "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
-            [ id ],
-            { returntype = "array" }
-        ).map( function ( rant ) {
-            return populator.populateFromStruct(
-                wirebox.getInstance( "Rant" ),
-                rant
-            );
-        } );
-    }
+    return queryExecute(
+        "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
+        [ id ],
+        { returntype = "array" }
+    ).map( function ( rant ) {
+        return populator.populateFromStruct(
+            wirebox.getInstance( "Rant" ),
+            rant
+        );
+    } );
+}
 ```
 
-8.8 Add 👊 and 💩 actions
+8.8 Reinitialize the application
 
-8.8.1 Migrate `bumps` table
+8.9 Test it out in the browser
+
+## 9. Add 👊 and 💩 actions
+
+9.1.1 Migrate `bumps` table
 
 ```
 migrate create create_bumps_table
 ```
 
-8.8.2 Fill the file you just create with the following functions
+9.1.2 Fill the file you just create with the following functions
 
 ```
 component {
@@ -1175,16 +1157,12 @@ component {
 }
 ```
 
-8.8.3 Now run the function `up`
-
-```
-migrate up
-```
-
-8.9.1 Migrate `poops` table
+9.2.1 Migrate `poops` table
 ```
 migrate create create_poops_table
 ```
+
+9.2.2 Fill the file you just create with the following functions
 
 ```
 component {
@@ -1217,7 +1195,13 @@ component {
 }
 ```
 
-8.9.2 Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+9.3 Now run the function `up`
+
+```
+migrate up
+```
+
+9.4 Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
 
 ```
 // /views/_partials/_rant.cfm
@@ -1232,29 +1216,12 @@ component {
 </div>
 ```
 
-8.10 Update `Rant.cfc`
+9.5 Update `Rant.cfc`
 
-8.10.1 Inject reactionService and create the following functions
-
-```
-// models/Rant.cfc
-
-property name="reactionService" inject="id";
-
-function getBumps() {
-    return reactionService.getBumpsForRant( this );
-}
-
-function getPoops() {
-    return reactionService.getPoopsForRant( this );
-}
-```
-
-8.10.2 Create `ReactionService.cfc` in `models/services/`
+9.5.1 Create `ReactionService.cfc` in `models/services/`
 
 ```
 // models/services/ReactionService.cfc
-
 component {
 
     property name="populator" inject="wirebox:populator";
@@ -1289,9 +1256,25 @@ component {
 }
 ```
 
-8.11 Reinitialize the framework
+9.5.2 Inject reactionService and create the following functions
 
-8.12 Try the site, and realize its broken, but why?
+```
+// models/Rant.cfc
+
+property name="reactionService" inject="id";
+
+function getBumps() {
+    return reactionService.getBumpsForRant( this );
+}
+
+function getPoops() {
+    return reactionService.getPoopsForRant( this );
+}
+```
+
+9.6 Reinitialize the framework
+
+9.7 Try the site, and realize its broken, but why?
 
 ```
 Event: rants.index
@@ -1305,7 +1288,7 @@ Messages: The DSL Definition {REF={null}, REQUIRED={true}, ARGNAME={}, DSL={id},
 
 This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the
 
-## 9 - Wirebox Conventions vs Configuration
+## 10 - Wirebox Conventions vs Configuration
 
 Dependency Injection is Magic - Not really
 
@@ -1316,9 +1299,9 @@ Wirebox is very powerful, but it is not magic, it runs by conventions, and you c
 
 So you have to tell it what you want it to do if you want to do something more. In this case, instead of just using model paths (automatic convention), we can tell Wirebox to map models and all of its subfolders.
 
-9.1 Open the WireBox.cfc
+10.1 Open the WireBox.cfc
 
-9.2 Scroll to the bottom of the file and insert the following
+10.2 Scroll to the bottom of the file and insert the following
 
 ```
 // Map Bindings below
@@ -1327,20 +1310,18 @@ mapDirectory( "models" );
 
 This will make the models folder recursively, now allowing you to organize your folders however you see fit.
 
-9.3 Reinitialize the framework
+10.3 Reinitialize the framework
 
-9.4 Test out the site... no errors now.
+10.4 Test out the site... no errors now.
 
+## 11 - Make Rant Reactions Functional
 
-## 10 - Make Rant Reactions Functional
+11.1 Make buttons clickable
 
-10.1 Make buttons clickable
-
-10.1.1 Update your `_rant.cfm`
+11.1.1 Update your `_rant.cfm`
 
 ```
 // views/_partials/_rant.cfm
-
 <div class="card-footer">
     <cfif auth().guest()>
         <button disabled class="btn btn-outline-dark">
@@ -1382,7 +1363,7 @@ This will make the models folder recursively, now allowing you to organize your 
 </div>
 ```
 
-10.2 Update your `User.cfc`, inject the reactionService and add the following functions
+11.2 Update your `User.cfc`, inject the reactionService and add the following functions
 
 ```
 // models/User.cfc
@@ -1408,7 +1389,7 @@ function hasPooped( rant ) {
 }
 ```
 
-10.3 Update your `ReactionService.cfc`, add the following functions
+11.3 Update your `ReactionService.cfc`, add the following functions
 
 ```
 // models/services/ReactionService.cfc
@@ -1440,20 +1421,19 @@ function getPoopsForUser( user ) {
 }
 ```
 
-10.4 Create new handlers
+11.4 Create new handlers
 
-10.4.1 Add the routes before the resources
+11.4.1 Add the routes before the resources
 
 ```
-addRoute( "rants/:id/bumps", "bumps", { "POST" = "create", "DELETE" = "delete" } );
-addRoute( "rants/:id/poops", "poops", { "POST" = "create", "DELETE" = "delete" } );
+addRoute( "rants/:id/bumps", "Bumps", { "POST" = "create", "DELETE" = "delete" } );
+addRoute( "rants/:id/poops", "Poops", { "POST" = "create", "DELETE" = "delete" } );
 ```
 
-10.4.2 Create `bumps` handler
+11.4.2 Create `bumps` handler
 
 ```
 // handlers/bumps.cfc
-
 component {
 
     property name="reactionService" inject="id";
@@ -1471,11 +1451,10 @@ component {
 }
 ```
 
-10.4.3 Create `poops` handler
+11.4.3 Create `poops` handler
 
 ```
 // handlers/poops.cfc
-
 component {
 
     property name="reactionService" inject="id";
@@ -1493,11 +1472,10 @@ component {
 }
 ```
 
-10.5 Update your `ReactionService.cfc` with the following functions
+11.5 Update your `ReactionService.cfc` with the following functions
 
 ```
 // models/services/ReactionService.cfc
-
 function bump( rantId, userId ) {
     queryExecute(
         "INSERT INTO `bumps` VALUES (?, ?)",
@@ -1527,9 +1505,10 @@ function unpoop( rantId, userId ) {
 }
 ```
 
-10.9 Add the Bump Model
+11.9 Add the Bump Model
 
 ```
+// models/Bump.cfc
 component accessors="true" {
 
     property name="userId";
@@ -1538,9 +1517,10 @@ component accessors="true" {
 }
 ```
 
-10.10 Add the Poop Model
+11.10 Add the Poop Model
 
 ```
+// models/Poop.cfc
 component accessors="true" {
 
     property name="userId";
@@ -1549,11 +1529,11 @@ component accessors="true" {
 }
 ```
 
-10.11 Reinialize the Framework and Test the Site
+11.11 Reinialize the Framework and Test the Site
 
-10.12 - You're done!!
+11.12 - You're done!!
 
-11 - Extra Credit
+12 - Extra Credit
 
 + Don't let a user poop and bump the same rant
 + CSRF tokens for login, register, and new rant
@@ -1562,3 +1542,22 @@ component accessors="true" {
 Other Ideas:
 + Environments in ColdBox.cfc
 + Domain Names in CommandBox
+
+11.1 Install `qb`
+
+```sh
+install qb
+```
+
+11.2 Configure `qb`
+
+11.2.1 Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
+
+```js
+// config/ColdBox.cfc
+moduleSettings = {
+    qb = {
+        defaultGrammar = "MySQLGrammar"
+    }
+};
+```
