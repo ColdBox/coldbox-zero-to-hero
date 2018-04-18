@@ -8,7 +8,7 @@ Please have the following software on your computer before the workshop.
 
 This can be downloaded bundled with CommandBox.
 
-## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 3.9.\* or later)
+## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 3.9.\*)
 
 ## MySQL Server
 
@@ -28,6 +28,8 @@ After you have created the container, you can start and stop it using the follow
 docker start soapbox
 docker stop soapbox
 ```
+
+Note: Without a volume, your data will only last as long as your container does. 
 
 ## MySQL Client
 
