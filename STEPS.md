@@ -232,7 +232,7 @@ function index( event, rc, prc ) {
 </cfoutput>
 ```
 Insert data directly in to the database and show it returning.
-Notice the return type. This is a Lucee 4.5 syntax. CF11+ and Lucee5+ use `returnformat="array"`
+Notice the return type. This is a Lucee 5 syntax.
 
 ## 5 - Building the Registration Flow
 
@@ -419,7 +419,7 @@ function new( event, rc, prc ) {
 ```
 The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code above, into the `<nav>` tag, before the closing `</nav>` .
 
-Refresh your page, click Registration and fill out the form. Your new user will be listed in your dump.
+Refresh your page, click Register and fill out the form. Your new user will be listed in your dump.
 This isn't very secure, to have your password un-encrypted, so lets use BCrypt.
 
 Bonus points for tests first for next part
@@ -485,7 +485,7 @@ component {
 }
 ```
 
-6.4 Create a new view `/views/sesions/new.cfm`
+6.4 Create a new view `/views/sessions/new.cfm`
 ```
 // views/sessions/new.cfm
 <cfoutput>
@@ -531,7 +531,7 @@ moduleSettings = {
 
 6.8 - Create a User Service and User Object
 
-Specify a userServiceClass in your config/ColdBox.cfc inside moduleSettings.cbauth.userServiceClass. This component needs to have three methods:
+Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
     isValidCredentials( username, password )
     retrieveUserByUsername( username )
     retrieveUserById( id )
@@ -692,8 +692,8 @@ function create( event, rc, prc ) {
 ```
 Now register and you will be automatically logged in.
 
-6.15 - Login incorrectly and you'll see an error message.
-Use this snippet to make MessageBox prettier.
+6.15 - Login incorrectly and you'll see that the page is redirecting but not showing an error message.
+Let's use this snippet to create an error message using MessageBox.
 
 6.15.1 - Add to ColdBox Config as its own struct
 ```
@@ -926,7 +926,7 @@ coldbox = {
 <cfoutput>
     <div class="card">
         <h4 class="card-header">Start a Rant</h4>
-        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants" )#">
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants.create" )#">
             <div class="form-group">
                 <textarea name="body" class="form-control" placeholder="What's on your mind?" rows="10"></textarea>
             </div>
@@ -1286,7 +1286,7 @@ Type: Builder.DSLDependencyNotFoundException
 Messages: The DSL Definition {REF={null}, REQUIRED={true}, ARGNAME={}, DSL={id}, JAVACAST={null}, NAME={reactionService}, TYPE={any}, VALUE={null}, SCOPE={variables}} did not produce any resulting dependency The target requesting the dependency is: 'Rant'
 ```
 
-This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the
+This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the reactionService
 
 ## 10 - Wirebox Conventions vs Configuration
 
@@ -1318,7 +1318,7 @@ This will make the models folder recursively, now allowing you to organize your 
 
 11.1 Make buttons clickable
 
-11.1.1 Update your `_rant.cfm`
+11.1.1 Update your the footer of `_rant.cfm`
 
 ```
 // views/_partials/_rant.cfm
