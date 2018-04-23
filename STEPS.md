@@ -61,6 +61,8 @@ All your tests should be passing at this point. 😉
 
 * Singletons
 
+#### 2.9 Add a Links page
+
 ## 3 - Layouts
 
 ### 3.1 -  Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
@@ -1008,10 +1010,16 @@ component {
 #### 7.4.4 - Set the default event to `rants.index`
 
 ```js
+// inside the coldbox struct 
 coldbox = {
-    defaultEvent = "rants.index"
+    defaultEvent = "rants.index",
+    ...
 };
 ```
+
+Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox settings require a framework reinit.
+
+Reinit the framework, then you'll see the Rant index. 
 
 #### 7.4.5 - Create a new view
 
@@ -1053,6 +1061,9 @@ coldbox = {
     </ul>
 </div>
 ```
+
+Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
+Log out and try, and you can still see the form. We need to secure the form, to ensure the user is logged in before they can send a rant.
 
 ### 7.5 - Install cbsecurity by running the following command
 
@@ -1634,9 +1645,13 @@ component accessors="true" {
 
 ### 11.12 - You're done!!
 
-12 - Extra Credit
+
+
+## 12 - Extra Credit
 
 + Don't let a user poop and bump the same rant
++ When you bump or poop from the user profile page - take the user back to that page, not the main rant page. Ie - return them to where they started
++ Convert the bump and poop to AJAX calls
 + CSRF tokens for login, register, and new rant
 + Move `queryExecute` to `qb`
 
@@ -1644,15 +1659,16 @@ Other Ideas:
 + Environments in ColdBox.cfc
 + Domain Names in CommandBox
 
-11.1 Install `qb`
+
+### 13.1 - Install `qb`
 
 ```sh
 install qb
 ```
 
-11.2 Configure `qb`
+### 13.2 - Configure `qb`
 
-11.2.1 Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
+#### 13.2.1 - Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 
 ```js
 // config/ColdBox.cfc
@@ -1662,3 +1678,4 @@ moduleSettings = {
     }
 };
 ```
+
