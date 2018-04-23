@@ -1,60 +1,69 @@
 
-### Steps to go from ColdBox Zero to Hero
+# Steps to go from ColdBox Zero to Hero
 
 (All commands assume we are in the `box` shell unless stated otherwise.)
 
 ## 1 - Create the base app
 
-1.1.  Create a folder for your app on your hard drive called `soapbox`.
-1.2  Scaffold out a new Coldbox application with TestBox included.
+### 1.1 - Create a folder for your app on your hard drive called `soapbox`.
+
+### 1.2  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
 coldbox create app soapbox --installTestBox --installColdBoxBE
 ```
 
-1.3  Start up a local server
+### 1.3 - Start up a local server
 
 ```sh
 start cfengine=lucee@5 port=42518
 ```
 
-1.4 Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
+### 1.4 - Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
 
-1.5 Open `/tests` in your browser. You should see the TestBox test browser.
+### 1.5 - Open `/tests` in your browser. You should see the TestBox test browser.
     This is useful to find a specific test or group of tests to run _before_ running them.
 
-1.6 Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
+### 1.6 - Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
     This is running all of our tests by default. We can create our own test runners as needed.
 
 All your tests should be passing at this point. 😉
 
 ## 2 - MVC - Routes, Handlers, Views
-2.1 Show routes file. Explain routing by convention.
-2.2 Show `Main.index`.
-2.3 Explain `event`, `rc`, and `prc`.
-2.4 Explain views. Point out view conventions.
-2.5 Briefly touch on layouts.
-2.6 Show how `rc` and `prc` are used in the views.
 
-2.7 Add an about page<br>
+### 2.1 - Show routes file. Explain routing by convention.
 
-* 2.7.1 Add an `views/about/index.cfm`. Hit the url /about/index and it works!
+### 2.2 - Show `Main.index`.
+
+### 2.3 - Explain `event`, `rc`, and `prc`.
+
+### 2.4 - Explain views. Point out view conventions.
+
+### 2.5 - Briefly touch on layouts.
+
+### 2.6 - Show how `rc` and `prc` are used in the views.
+
+### 2.7 - Add an about page<br>
+
+#### 2.7.1 - Add an `views/about/index.cfm`. Hit the url /about/index and it works!
 ```html
 <cfoutput>
     <h1>About us!</h1>
 </cfoutput>
 ```
-* 2.7.2 Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
-* 2.7.3 Add an `index` action. Back to working!
+#### 2.7.2 - Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
 
-2.8 Reinit the framework
+#### 2.7.3 - Add an `index` action. Back to working!
+
+#### 2.8 - Reinit the framework
+
 * What is cached?
 
-*   Singletons
+* Singletons
 
 ## 3 - Layouts
 
-3.1. Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
+### 3.1 -  Copy in simple bootstrap theme / layout to replace the existing main.cfm layout.
 
 ```html
 <cfoutput>
@@ -96,7 +105,7 @@ All your tests should be passing at this point. 😉
 </cfoutput>
 ```
 
-3.2 Insert the following CSS into a new file: `/includes/css/app.css`
+### 3.2 - Insert the following CSS into a new file: `/includes/css/app.css`
 ```css
 /* includes/css/app.css */
 
@@ -115,7 +124,7 @@ body {
 
 ## 4 - Database and CBMigrations
 
-4.1. Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
+### 4.1 - Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
 
 ```sh
 install commandbox-migrations
@@ -123,34 +132,38 @@ install commandbox-migrations
 
 You should see a list of available commands with `migrate ?`.
 
-4.2 Initalize migrations using `migrate init`
+### 4.2 - Initalize migrations using `migrate init`
 
-4.3 Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
+### 4.3 - Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
-4.4 Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
+```sh
+install commandbox-dotenv
+```
+
+### 4.4 - Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
     Docker credentials from before.)
 
-```
+```sh
 DB_CLASS=org.gjt.mm.mysql.Driver
 DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&characterEncoding=UTF-8\&useLegacyDatetimeCode=true\&useSSL=false
 DB_USER=root
 DB_PASSWORD=soapbox
 ```
 
-4.5 Reload your shell in your project root. (`reload` or `r`)
+### 4.5 - Reload your shell in your project root. (`reload` or `r`)
 
-4.6 Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
+### 4.6 - Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
-4.7 Create a users migration
+### 4.7 - Create a users migration
 
 ```sh
 migrate create create_users_table
 ```
 
-4.8 Fill in the migration.
+### 4.8 - Fill in the migration.
 The migration file was created by the last command, and the file location was output by commandbox.
 
-```
+```js
 component {
 
     function up( schema ) {
@@ -185,13 +198,13 @@ component {
 }
 ```
 
-4.9 Run the migration up.
+### 4.9 - Run the migration up.
 
 ```sh
 migrate up
 ```
 
-4.11.2 Next add the following settings into your `/Application.cfc` file.
+### 4.10 - Next add the following settings into your `/Application.cfc` file.
 
 ```js
 // Application.cfc
@@ -208,7 +221,17 @@ this.datasources = {
 this.datasource = "soapbox";
 ```
 
-4.11.3 Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
+### 4.11 - Refresh your app, and you will see an error. 
+
+`Could not find a Java System property or Env setting with key [DB_CLASS].`
+
+This is because although we reloaded the CLI so migrations is able to read those values... we did not restart our server, so java does not have those variables.
+
+`server restart` 
+
+Now when you restart, java is passed all of those variables, and now this will work.
+
+### 4.12 -  Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
 Discuss WireBox and Dependency Injection.
 
@@ -238,11 +261,13 @@ Notice the return type. This is a Lucee 5 syntax.
 
 Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
 
-5.1 Delete the MainBDDTest
+### 5.1 - Delete the MainBDDTest
 
-5.2 Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev`
+### 5.2 - Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev` 
 
-5.3 Configure `tests/Application.cfc`
+This is not the same as commandbox-migrations. 
+
+### 5.3 - Configure `tests/Application.cfc`
 
 ```js
 // tests/Application.cfc
@@ -263,9 +288,9 @@ function onRequestStart() {
 }
 ```
 
-5.4 Create a `tests/resources/BaseIntegrationSpec.cfc`
+### 5.4 - Create a `tests/resources/BaseIntegrationSpec.cfc`
 
-```
+```js
 component extends="coldbox.system.testing.BaseTestCase" {
 
     property name="migrationService" inject="MigrationService@cfmigrations";
@@ -306,9 +331,9 @@ component extends="coldbox.system.testing.BaseTestCase" {
 }
 ```
 
-5.5 Create a `tests/specs/integration/RegistrationSpec.cfc`
+### 5.5 - Create a `tests/specs/integration/RegistrationSpec.cfc`
 
-```
+```js
 component extends="tests.resources.BaseIntegrationSpec" {
 
     property name="query" inject="provider:QueryBuilder@qb";
@@ -324,9 +349,11 @@ component extends="tests.resources.BaseIntegrationSpec" {
 }
 ```
 
-5.6 Replace the `can register a user` test with the following
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. Next we'll write the real test.
 
-```
+### 5.6 - Replace the `can register a user` test with the following
+
+```js
 it( "can register a user", function() {
     expect( queryExecute( "select * from users", {}, { returntype = "array" } ) ).toBeEmpty();
 
@@ -346,41 +373,40 @@ it( "can register a user", function() {
 } );
 ```
 
-5.7 Write the production code
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and error as expected. Next we'll write the production code to make this test pass.
+
+### 5.7 - Write the production code
 
 Update the `/config/Routes.cfm` file - insert a resources definition.
-```
+
+```js
 // config/Routes.cfm
 
 resources("registration");
 ```
 
 Create a new Handler
-```
+```js
 // handlers/Registration.cfc
 component {
-
-    function create( event, rc, prc ) {
-        queryExecute( "
-                INSERT INTO `users` ( `email`, `username`, `password` )
-                VALUES ( ?, ?, ? )
-            ",
-            [ rc.email, rc.username, rc.password ]
-        );
-
-        relocate( uri = "/" );
-    }
 
 }
 ```
 
-5.8 Create a route to populate this form
+#### 5.7.1 - Add the action into the Registration Handler `handlers/Registration.cfc`
 
 ```js
 function new( event, rc, prc ) {
     return event.setView( "registration/new" );
 }
 ```
+
+http://127.0.0.1:42518/registration/new?fwreinit=1
+You will see an error `Messages: Page /views/registration/new.cfm [C:\www\soapbox\app\registration\new.cfm] not found`
+
+#### 5.7.2 - Create the new view. 
+
+Add the following into a new file `views/registration/new.cfm`
 
 ```html
 <!-- views/registration/new.cfm -->
@@ -408,7 +434,10 @@ function new( event, rc, prc ) {
 </cfoutput>
 ```
 
-5.9 Add a register link to the navbar
+Hit http://127.0.0.1:42518/registration/new?fwreinit=1 
+Now you will see the form.
+
+#### 5.7.3 - Add a register link to the navbar
 
 ```html
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -419,23 +448,43 @@ function new( event, rc, prc ) {
 ```
 The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code above, into the `<nav>` tag, before the closing `</nav>` .
 
-Refresh your page, click Register and fill out the form. Your new user will be listed in your dump.
+Refresh your page, click Register and fill out the form. Submit the form and you will see an error
+`Messages: The event: Registration.create is not a valid registered event.`
+
+Next we'll create the saving action.
+
+#### 5.7.4 - Add `create` action in the Registration.cfc handler
+
+```js
+function create( event, rc, prc ) {
+    queryExecute( "
+            INSERT INTO `users` ( `email`, `username`, `password` )
+            VALUES ( ?, ?, ? )
+        ",
+        [ rc.email, rc.username, rc.password ]
+    );
+
+    relocate( uri = "/" );
+}
+```
+
+Your new user will be listed in your dump.
 This isn't very secure, to have your password un-encrypted, so lets use BCrypt.
 
 Bonus points for tests first for next part
 
-5.10 Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
+### 5.8 - Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
 ```sh
 install bcrypt
 ```
 
-5.11 Bcrypt the password
+### 5.9 - Bcrypt the password
 
 Update the registration handler to use BCrypt `/handlers/Registration.cfc`
 We are adding the DI Injection for the BCrypt Module and updating the query to wrap the password in a call to bcrypt to encrypt the password.
 
-```
+```js
 component {
 
     property name="bcrypt" inject="@BCrypt";
@@ -453,25 +502,44 @@ component {
 }
 ```
 
-5.12 Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following:
+### 5.10 - Add a new user
+
+Hit the url: http://127.0.0.1:42518//registration/new and add a new user.
+You will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init. 
+
+Now hit the url with frame reinit: http://127.0.0.1:42518//registration/new?fwreinit=1
+
+Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following:
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
 ## 6 - Build the Login & Logout Flow
 
-6.1 - Install CBMessageBox via Commandbox
+### 6.1 - Build the Login Form
+
+#### 6.1.1 - Install CBMessageBox via Commandbox
 
 `install cbmessagebox`
 
-6.2 - Add the following into your existing `/config/Routes.cfm` file
-```
+#### 6.1.2 - Add the following into your existing `/config/Routes.cfm` file
+
+```js
 // config/Routes.cfm
 addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
 delete( "/logout" ).to( "sessions.delete" );
 ```
 
-6.3 Create a new `/handler/Sessions.cfc` handler
-```
+Hit the url: http://127.0.0.1:42518/login
+You will see an error `Messages: The event: login is not a valid registered event.` 
+Changes to Routes require a framework reinit.
+
+Hit the url: http://127.0.0.1:42518/login?fwreinit=1
+You will now see an error `Messages: The event: Sessions.new is not a valid registered event.`
+
+Now we'll build the sessions handler, and the new action.
+
+#### 6.1.3 - Create a new `/handler/Sessions.cfc` handler
+```js
 // handlers/sessions.cfc
 component {
 
@@ -485,8 +553,15 @@ component {
 }
 ```
 
-6.4 Create a new view `/views/sessions/new.cfm`
-```
+Hit the url: http://127.0.0.1:42518/login
+You will see an error `Messages: The event: sessions.new is not a valid registered event.` 
+New Handlers require a framework reinit.
+
+Hit the url: http://127.0.0.1:42518/login?fwreinit=1
+You will see an error `Messages: Page /views/sessions/new.cfm [C:\www\soapbox\app\views\sessions\new.cfm] not found`
+
+#### 6.1.4 - Create a new view `/views/sessions/new.cfm`
+```html
 // views/sessions/new.cfm
 <cfoutput>
     <div class="card">
@@ -508,20 +583,20 @@ component {
 </cfoutput>
 ```
 
-6.5 Once all of these changes have been made. Reinit the app to update the routes. ( 'http://127.0.0.1:42518/login?fwreinit=1' )
-
-6.6 Hit `http://127.0.0.1:42518/login` in your browser
+#### 6.1.5 - Hit `http://127.0.0.1:42518/login` in your browser
 You can now see the login screen. Let's build the login action next.
 
-6.7 Install CBAuth and Configure
+### 6.2 - Build the Login Action
 
-6.7.1 Install CBAuth
+#### 6.2.1 - Install CBAuth and Configure
+
+#### 6.2.2 - Install CBAuth
 
 `install cbauth`
 
-6.7.2 Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+#### 6.2.3 - Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
 
-```
+```js
 moduleSettings = {
     cbauth = {
         userServiceClass = "UserService"
@@ -529,7 +604,7 @@ moduleSettings = {
 };
 ```
 
-6.8 - Create a User Service and User Object
+#### 6.2.4 - Create a User Service and User Object
 
 Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
     isValidCredentials( username, password )
@@ -540,7 +615,8 @@ Additionally, the user component returned by the retrieve methods needs to respo
 https://www.forgebox.io/view/cbauth
 
 Create a new Model `/models/User.cfc`
-```
+
+```js
 component accessors="true" {
 
     property name="id";
@@ -551,12 +627,13 @@ component accessors="true" {
 }
 ```
 
-6.9 - Create the User Service
+#### 6.2.5 - Create the User Service
 
 We need to create a User Service for CBAuth to function. It requires 3 function.
 Create a new model in `/models/UserService.cfc`
 Explain `wirebox.getInstance` and `populator`
-```
+
+```js
 component {
 
     property name="populator" inject="wirebox:populator";
@@ -590,10 +667,11 @@ component {
 }
 ```
 
-6.10 - Update Sessions.cfc for login and logout actions
+#### 6.2.6 - Update Sessions.cfc for login and logout actions
 
 Update the Sessions.cfc
-```
+
+```js
 // handlers/sessions.cfc
     property name="auth" inject="authenticationService@cbauth";
 
@@ -616,10 +694,9 @@ Update the Sessions.cfc
     }
 ```
 
-6.11
-Update the main layout to show and hide the register / login / logout buttons.
+#### 6.2.7 - Update the main layout to show and hide the register / login / logout buttons.
 
-```
+```html
 <ul class="navbar-nav ml-auto">
     <cfif auth().isLoggedIn()>
         <form method="POST" action="#event.buildLink( "logout" )#">
@@ -633,10 +710,11 @@ Update the main layout to show and hide the register / login / logout buttons.
 </ul>
 ```
 
-6.12 - Refactor Registration to use the User Service
+### 6.3 - Refactor Registration to use the User Service
 
-Add save function to User Service.
-```
+#### 6.3.1 - Add save function to User Service.
+
+```js
 function save( user ) {
     queryExecute(
         "
@@ -655,14 +733,15 @@ function save( user ) {
 }
 ```
 
-6.13 - Update Registration.cfc handler to use User Service instead of inline queryExecute
+#### 6.3.2 - Update Registration.cfc handler to use User Service instead of inline queryExecute
 
 Add the DI Injection for the UserService
 
 `property name="userService" inject="UserService";`
 
 Replace the Create function with the following
-```
+
+```js
 // create / save User
 function create( event, rc, prc ) {
     var user = populateModel( getInstance( "User" ) );
@@ -675,12 +754,18 @@ function create( event, rc, prc ) {
 * [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
 * [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
 
-6.14 - Test the login and logout.
+### 6.4 - Test the login and logout.
+
+#### 6.4.1 - Test login and login
+
+Hit the url: http://127.0.0.1:42518/?fwreinit=1
+
+#### 6.4.2 - Auto login user when registering
 
 When registering, it might be nice to automatically log the user in.
 Replace the Create function with the following code
 
-```
+```js
 property name="auth" inject="authenticationService@cbauth";
 
 function create( event, rc, prc ) {
@@ -690,20 +775,25 @@ function create( event, rc, prc ) {
     relocate( uri = "/" );
 }
 ```
+
 Now register and you will be automatically logged in.
 
-6.15 - Login incorrectly and you'll see that the page is redirecting but not showing an error message.
+#### 6.4.3 - Login incorrectly and you'll see that the page is redirecting but not showing an error message.
 Let's use this snippet to create an error message using MessageBox.
 
-6.15.1 - Add to ColdBox Config as its own struct
-```
+### 6.5 - Install and Config Messgaebox
+
+#### 6.5.1 - Add to ColdBox Config as its own struct
+
+```js
 messagebox = {
     template = "/views/_partials/_messagebox.cfm"
 };
 ```
 
-6.15.2 - Add `/views/_partials/_messagebox.cfm`
-```
+#### 6.5.2 - Add `/views/_partials/_messagebox.cfm`
+
+```html
 <cfscript>
     switch( msgStruct.type ){
         case "info" : {
@@ -732,34 +822,37 @@ messagebox = {
 </div>
 </cfoutput>
 ```
-6.15.4 Let's update our main layout, Instead of
-```
+
+#### 6.15.4 - Let's update our main layout, Instead of
+
+```html
 <main role="main" class="container">
     #renderView()#
 </main>
 ```
 
-we need to add a line and make it
+we need to add a line and make it look like below
 
-```
+```html
 <main role="main" class="container">
     #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
     #renderView()#
 </main>
 ```
 
-6.15.5 Reinit the framework, and test it out.
+#### 6.15.5 - Reinit the framework, and test it out.
 
 ## 7 - Rants
 
-7.1 Create rants migrations
+### 7.1 - Create rants migrations
 
-```
+```sh
 migrate create create_rants_table
 ```
 
-7.1.1 In the file that was created by the previous command, put this piece of code in there
-```
+#### 7.1.1 - In the file that was created by the previous command, put this piece of code in there
+
+```js
 component {
 
     function up( schema ) {
@@ -782,16 +875,16 @@ component {
 
 }
 ```
-7.1.2 Now, migrate your rants
+
+#### 7.1.2 - Now, migrate your rants
 
 ```
 migrate up
 ```
 
+### 7.2 - Create a Rant object in the models folder
 
-7.2 Create a Rant object in the models folder
-
-```
+```js
 // Rant.cfc
 component accessors="true" {
 
@@ -810,9 +903,9 @@ component accessors="true" {
 }
 ```
 
-7.3 Create RantService.cfc
+### 7.3 - Create RantService.cfc
 
-```
+```js
 component {
 
     property name="populator" inject="wirebox:populator";
@@ -852,18 +945,18 @@ component {
 }
 ```
 
-7.4 Rants CRUD
+### 7.4 - Rants CRUD
 
-7.4.1 Add the rants resources in the `routes.cfm` file
+#### 7.4.1 - Add the rants resources in the `routes.cfm` file
 
-```
+```js
 // config/routes.cfm
 resources( "rants" );
 ```
 
-7.4.2 Create a rants handler
+#### 7.4.2 - Create a rants handler
 
-```
+```js
 // handlers/rants.cfc
 component {
 
@@ -888,9 +981,9 @@ component {
 }
 ```
 
-7.4.3 Create an index view
+#### 7.4.3 - Create an index view
 
-```
+```html
 // views/rants/index.cfm
 <cfoutput>
     <cfif prc.rants.isEmpty()>
@@ -912,16 +1005,17 @@ component {
 </cfoutput>
 ```
 
-7.4.4 Set the default event to `rants.index`
-```
+#### 7.4.4 - Set the default event to `rants.index`
+
+```js
 coldbox = {
     defaultEvent = "rants.index"
 };
 ```
 
-7.4.5 Create a new view
+#### 7.4.5 - Create a new view
 
-```
+```html
 // views/rants/new.cfm
 <cfoutput>
     <div class="card">
@@ -938,9 +1032,9 @@ coldbox = {
 </cfoutput>
 ```
 
-7.4.6 Update the main layout
+#### 7.4.6 - Update the main layout
 
-```
+```html
 // layouts/Main.cfm
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav">
@@ -960,15 +1054,15 @@ coldbox = {
 </div>
 ```
 
-7.5 Install cbsecurity by running the following command
+### 7.5 - Install cbsecurity by running the following command
 
-```
+```sh
 install cbsecurity
 ```
 
-7.5.1 Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
+#### 7.5.1 - Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
 
-```
+```js
 // config/ColdBox.cfc
 
 cbsecurity = {
@@ -978,8 +1072,8 @@ cbsecurity = {
 };
 ```
 
-7.6 Create a `security.json` file inside the config folder
-```
+### 7.6 - Create a `security.json` file inside the config folder
+```js
 // config/security.json
 
 [
@@ -993,9 +1087,9 @@ cbsecurity = {
 ]
 ```
 
-7.7 Create the userValidator function in `UserService.cfc`
+### 7.7 - Create the userValidator function in `UserService.cfc`
 
-```
+```js
 // models/services/UserService.cfc
 
 property name="authenticationService" inject="AuthenticationService@cbauth";
@@ -1005,24 +1099,24 @@ function userValidator( rule, controller ) {
 }
 ```
 
-7.8 Reinit the framework
+### 7.8 - Reinit the framework
 
-7.9 Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
+### 7.9 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
-7.10 Now log in and make sure you see the rant page.
+### 7.10 - Now log in and make sure you see the rant page.
 
 ## 8 - View a user's rants
 
-8.1 Create a users profile page, for that we need to create a route in our `Routes.cfm` file
+### 8.1 - Create a users profile page, for that we need to create a route in our `Routes.cfm` file
 
-```
+```js
 // config/Routes.cfm
 get( "/users/:username" ).to( "users.show" );
 ```
 
-8.2 Create a `users` handler
+### 8.2 - Create a `users` handler
 
-```
+```js
 // handlers/users.cfc
 component {
 
@@ -1038,15 +1132,17 @@ component {
 
 }
 ```
-8.3 Create a `404.cfm` view
 
-```
+### 8.3 - Create a `404.cfm` view
+
+```sh
 // views/404.cfm
 Whoops!  That page doesn't exist.
 ```
 
-8.4 Create a `show.cfm` view
-```
+### 8.4 - Create a `show.cfm` view
+
+```html
 // views/users/show.cfm
 <cfoutput>
     <h1>#prc.user.getUsername()#</h1>
@@ -1059,8 +1155,9 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.5 Create a `views/_partials/_rant.cfm` view
-```
+### 8.5 - Create a `views/_partials/_rant.cfm` view
+
+```html
 <cfoutput>
     <div class="card mb-3">
         <div class="card-header">
@@ -1075,29 +1172,33 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-8.6 Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
+### 8.6 - Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
 
-```
+```html
 <cfloop array="#prc.rants#" item="rant">
     #renderView( "_partials/_rant", { rant = rant } )#
 </cfloop>
 ```
 
-8.7 Update your `User.cfc`
-8.7.1 Inject the rantService
+### 8.7 - Update your `User.cfc`
+
+#### 8.7.1 - Inject the rantService
+
 ```
 property name="rantService" inject="id";
 ```
-8.7.2 Create a getRants function
-```
+
+#### 8.7.2 - Create a getRants function
+
+```js
 function getRants() {
     return rantService.getForUserId( getId() );
 }
 ```
 
-8.7.2 Create a `getForUserId` function in `RantService`
+#### 8.7.3 - Create a `getForUserId` function in `RantService`
 
-```
+```js
 function getForUserId( id ) {
     return queryExecute(
         "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
@@ -1112,21 +1213,21 @@ function getForUserId( id ) {
 }
 ```
 
-8.8 Reinitialize the application
+### 8.8 - Reinitialize the application
 
-8.9 Test it out in the browser
+### 8.9 - Test it out in the browser
 
 ## 9. Add 👊 and 💩 actions
 
-9.1.1 Migrate `bumps` table
+#### 9.1.1 - Migrate `bumps` table
 
 ```
 migrate create create_bumps_table
 ```
 
-9.1.2 Fill the file you just create with the following functions
+#### 9.1.2 - Fill the file you just create with the following functions
 
-```
+```js
 component {
 
     function up( schema ) {
@@ -1157,14 +1258,14 @@ component {
 }
 ```
 
-9.2.1 Migrate `poops` table
+#### 9.2.1 - Migrate `poops` table
 ```
 migrate create create_poops_table
 ```
 
-9.2.2 Fill the file you just create with the following functions
+#### 9.2.2 - Fill the file you just create with the following functions
 
-```
+```js
 component {
 
     function up( schema ) {
@@ -1195,13 +1296,13 @@ component {
 }
 ```
 
-9.3 Now run the function `up`
+### 9.3 - Now run the function `up`
 
 ```
 migrate up
 ```
 
-9.4 Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+### 9.4 - Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
 
 ```
 // /views/_partials/_rant.cfm
@@ -1216,11 +1317,11 @@ migrate up
 </div>
 ```
 
-9.5 Update `Rant.cfc`
+### 9.5 - Update `Rant.cfc`
 
-9.5.1 Create `ReactionService.cfc` in `models/services/`
+#### 9.5.1 - Create `ReactionService.cfc` in `models/services/`
 
-```
+```js
 // models/services/ReactionService.cfc
 component {
 
@@ -1256,9 +1357,9 @@ component {
 }
 ```
 
-9.5.2 Inject reactionService and create the following functions
+#### 9.5.2 - Inject reactionService and create the following functions
 
-```
+```js
 // models/Rant.cfc
 
 property name="reactionService" inject="id";
@@ -1272,11 +1373,11 @@ function getPoops() {
 }
 ```
 
-9.6 Reinitialize the framework
+### 9.6 - Reinitialize the framework
 
-9.7 Try the site, and realize its broken, but why?
+### 9.7 - Try the site, and realize its broken, but why?
 
-```
+```js
 Event: rants.index
 Routed URL: rants/
 Layout: N/A (Module: )
@@ -1299,28 +1400,28 @@ Wirebox is very powerful, but it is not magic, it runs by conventions, and you c
 
 So you have to tell it what you want it to do if you want to do something more. In this case, instead of just using model paths (automatic convention), we can tell Wirebox to map models and all of its subfolders.
 
-10.1 Open the WireBox.cfc
+### 10.1 - Open the WireBox.cfc
 
-10.2 Scroll to the bottom of the file and insert the following
+### 10.2 - Scroll to the bottom of the file and insert the following
 
-```
+```js
 // Map Bindings below
 mapDirectory( "models" );
 ```
 
 This will make the models folder recursively, now allowing you to organize your folders however you see fit.
 
-10.3 Reinitialize the framework
+### 10.3 - Reinitialize the framework
 
-10.4 Test out the site... no errors now.
+### 10.4 - Test out the site... no errors now.
 
 ## 11 - Make Rant Reactions Functional
 
-11.1 Make buttons clickable
+### 11.1 - Make buttons clickable
 
-11.1.1 Update your the footer of `_rant.cfm`
+#### 11.1.1 - Update your the footer of `_rant.cfm`
 
-```
+```html
 // views/_partials/_rant.cfm
 <div class="card-footer">
     <cfif auth().guest()>
@@ -1363,9 +1464,9 @@ This will make the models folder recursively, now allowing you to organize your 
 </div>
 ```
 
-11.2 Update your `User.cfc`, inject the reactionService and add the following functions
+### 11.2 - Update your `User.cfc`, inject the reactionService and add the following functions
 
-```
+```js
 // models/User.cfc
 
 property name="reactionService" inject="id";
@@ -1389,9 +1490,9 @@ function hasPooped( rant ) {
 }
 ```
 
-11.3 Update your `ReactionService.cfc`, add the following functions
+### 11.3 - Update your `ReactionService.cfc`, add the following functions
 
-```
+```js
 // models/services/ReactionService.cfc
 
 function getBumpsForUser( user ) {
@@ -1421,18 +1522,18 @@ function getPoopsForUser( user ) {
 }
 ```
 
-11.4 Create new handlers
+### 11.4 - Create new handlers
 
-11.4.1 Add the routes before the resources
+#### 11.4.1 - Add the routes before the resources
 
-```
+```js
 addRoute( "rants/:id/bumps", "Bumps", { "POST" = "create", "DELETE" = "delete" } );
 addRoute( "rants/:id/poops", "Poops", { "POST" = "create", "DELETE" = "delete" } );
 ```
 
-11.4.2 Create `bumps` handler
+#### 11.4.2 - Create `bumps` handler
 
-```
+```js
 // handlers/bumps.cfc
 component {
 
@@ -1451,9 +1552,9 @@ component {
 }
 ```
 
-11.4.3 Create `poops` handler
+#### 11.4.3 - Create `poops` handler
 
-```
+```js
 // handlers/poops.cfc
 component {
 
@@ -1472,9 +1573,9 @@ component {
 }
 ```
 
-11.5 Update your `ReactionService.cfc` with the following functions
+### 11.5 - Update your `ReactionService.cfc` with the following functions
 
-```
+```js
 // models/services/ReactionService.cfc
 function bump( rantId, userId ) {
     queryExecute(
@@ -1505,9 +1606,9 @@ function unpoop( rantId, userId ) {
 }
 ```
 
-11.9 Add the Bump Model
+### 11.9 - Add the Bump Model
 
-```
+```js
 // models/Bump.cfc
 component accessors="true" {
 
@@ -1517,9 +1618,9 @@ component accessors="true" {
 }
 ```
 
-11.10 Add the Poop Model
+### 11.10 - Add the Poop Model
 
-```
+```js
 // models/Poop.cfc
 component accessors="true" {
 
@@ -1529,9 +1630,9 @@ component accessors="true" {
 }
 ```
 
-11.11 Reinialize the Framework and Test the Site
+### 11.11 - Reinialize the Framework and Test the Site
 
-11.12 - You're done!!
+### 11.12 - You're done!!
 
 12 - Extra Credit
 
