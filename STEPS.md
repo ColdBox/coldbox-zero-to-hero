@@ -6,7 +6,7 @@
 ## 1 - Create the base app
 
 ### 1.1 - Create a folder for your app on your hard drive called `soapbox`.
-
+`
 ### 1.2  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
@@ -223,15 +223,16 @@ this.datasources = {
 this.datasource = "soapbox";
 ```
 
-### 4.11 - Refresh your app, and you will see an error. 
+### 4.11 - Refresh your app, and you will see an error.
 
 `Could not find a Java System property or Env setting with key [DB_CLASS].`
 
-This is because although we reloaded the CLI so migrations is able to read those values... we did not restart our server, so java does not have those variables.
+This is because although we reloaded the CLI so migrations is able to read those values... we did not restart our server, so Java does not have those variables.
 
-`server restart` 
+`server restart`
 
-Now when you restart, java is passed all of those variables, and now this will work.
+Now when you restart, Java is passed all of those variables, and now this will work.
+You will need to restart your server whenever you add, remove, or change environment variables.
 
 ### 4.12 -  Play around grabbing data from the database using queryExecute and  `qb` for bonus points.
 
@@ -265,9 +266,9 @@ Start Register flow. The next series of steps will build the Register flow, incl
 
 ### 5.1 - Delete the MainBDDTest
 
-### 5.2 - Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev` 
+### 5.2 - Install `cfmigrations` as a dev dependency. `install cfmigrations --saveDev`
 
-This is not the same as commandbox-migrations. 
+This is not the same as commandbox-migrations.
 
 ### 5.3 - Configure `tests/Application.cfc`
 
@@ -406,7 +407,7 @@ function new( event, rc, prc ) {
 http://127.0.0.1:42518/registration/new?fwreinit=1
 You will see an error `Messages: Page /views/registration/new.cfm [C:\www\soapbox\app\registration\new.cfm] not found`
 
-#### 5.7.2 - Create the new view. 
+#### 5.7.2 - Create the new view.
 
 Add the following into a new file `views/registration/new.cfm`
 
@@ -436,7 +437,7 @@ Add the following into a new file `views/registration/new.cfm`
 </cfoutput>
 ```
 
-Hit http://127.0.0.1:42518/registration/new?fwreinit=1 
+Hit http://127.0.0.1:42518/registration/new?fwreinit=1
 Now you will see the form.
 
 #### 5.7.3 - Add a register link to the navbar
@@ -507,7 +508,7 @@ component {
 ### 5.10 - Add a new user
 
 Hit the url: http://127.0.0.1:42518//registration/new and add a new user.
-You will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init. 
+You will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init.
 
 Now hit the url with frame reinit: http://127.0.0.1:42518//registration/new?fwreinit=1
 
@@ -532,7 +533,7 @@ delete( "/logout" ).to( "sessions.delete" );
 ```
 
 Hit the url: http://127.0.0.1:42518/login
-You will see an error `Messages: The event: login is not a valid registered event.` 
+You will see an error `Messages: The event: login is not a valid registered event.`
 Changes to Routes require a framework reinit.
 
 Hit the url: http://127.0.0.1:42518/login?fwreinit=1
@@ -556,7 +557,7 @@ component {
 ```
 
 Hit the url: http://127.0.0.1:42518/login
-You will see an error `Messages: The event: sessions.new is not a valid registered event.` 
+You will see an error `Messages: The event: sessions.new is not a valid registered event.`
 New Handlers require a framework reinit.
 
 Hit the url: http://127.0.0.1:42518/login?fwreinit=1
@@ -1010,7 +1011,7 @@ component {
 #### 7.4.4 - Set the default event to `rants.index`
 
 ```js
-// inside the coldbox struct 
+// inside the coldbox struct
 coldbox = {
     defaultEvent = "rants.index",
     ...
@@ -1019,7 +1020,7 @@ coldbox = {
 
 Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox settings require a framework reinit.
 
-Reinit the framework, then you'll see the Rant index. 
+Reinit the framework, then you'll see the Rant index.
 
 #### 7.4.5 - Create a new view
 
@@ -1063,7 +1064,8 @@ Reinit the framework, then you'll see the Rant index.
 ```
 
 Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
-Log out and try, and you can still see the form. We need to secure the form, to ensure the user is logged in before they can send a rant.
+Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
+We need to secure the form, to ensure the user is logged in before they can send a rant.
 
 ### 7.5 - Install cbsecurity by running the following command
 
@@ -1678,4 +1680,3 @@ moduleSettings = {
     }
 };
 ```
-
