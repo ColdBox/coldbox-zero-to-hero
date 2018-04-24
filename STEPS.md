@@ -783,7 +783,7 @@ Now register and you will be automatically logged in.
 #### 6.4.3 - Login incorrectly and you'll see that the page is redirecting but not showing an error message.
 Let's use this snippet to create an error message using MessageBox.
 
-### 6.5 - Install and Config Messgaebox
+### 6.5 - Install and Config Messagebox
 
 #### 6.5.1 - Add to ColdBox Config as its own struct
 
@@ -825,7 +825,7 @@ messagebox = {
 </cfoutput>
 ```
 
-#### 6.15.4 - Let's update our main layout, Instead of
+#### 6.5.3 - Let's update our main layout, Instead of
 
 ```html
 <main role="main" class="container">
@@ -842,7 +842,7 @@ we need to add a line and make it look like below
 </main>
 ```
 
-#### 6.15.5 - Reinit the framework, and test it out.
+#### 6.5.4 - Reinit the framework, and test it out.
 
 ## 7 - Rants
 
