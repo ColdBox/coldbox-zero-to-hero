@@ -306,6 +306,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
         application.wirebox.autowire( this );
         if ( ! request.keyExists( "migrationsRan" ) ) {
             migrationService.setMigrationsDirectory( "/root/resources/database/migrations" );
+	    migrationService.setDefaultGrammar( "MySQLGrammar" );
             migrationService.setDatasource( "soapbox" );
             migrationService.runAllMigrations( "down" );
             migrationService.runAllMigrations( "up" );
