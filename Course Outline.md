@@ -82,18 +82,6 @@ Steps: 4,5
 
 Steps: 6,7
 
-
-
-
-
-
-
-
-
-
-
-
-
 ### 7. Building the Registration Flow
 
 What we will do:
@@ -105,7 +93,6 @@ What we will do:
 Steps: 8
 
 Concepts & Tools:
-
 
 
 ### 8. Login & Logout Flow
@@ -128,6 +115,7 @@ What we will do:
 - Customize Messagebox
 - Leverage Messagebox for messages
 
+Steps: 9
 
 ### 9. Rants
 
@@ -143,12 +131,16 @@ What we will do:
 - Change application default event to the rants
 - Update the main layout for adding a rant
 
+Steps: 10
+
 ### 10. Security
 
 - Installing cbsecurity
 - Create the security rules
 - Update the User Service for user validation
 - Confirm security
+
+Steps: 11
 
 ### 11. View User Rants
 
@@ -157,6 +149,21 @@ What we will do:
 - Update the rant service to get rants per user
 - Create the handler
 - Create a reusable viewlet for our rants
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ### 12. Add Rant Actions
 

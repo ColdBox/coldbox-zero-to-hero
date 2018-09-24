@@ -502,16 +502,16 @@ Run the tests, and the test should pass.
 Add the injection into your `/handlers/Main.cfc` 
 
 ```js
-property name="UserService"		inject="UserService";
+property name="userService"		inject="UserService";
 ```
 
-### 7.2 Use the `UserService.list()` call to retrieve the user list
+### 7.2 Use the `serService.list()` call to retrieve the user list
 
-Call the UserService.list() function and store it in a prc variable.
+Call the userService.list() function and store it in a prc variable.
 
 ```js
 function index(event,rc,prc){
-    prc.userList = UserService.list();
+    prc.userList = userService.list();
     prc.welcomeMessage = "Welcome to ColdBox!";
     event.setView("main/index");
 }
@@ -557,44 +557,6 @@ Add the following into the `/views/main/index.cfm` file, replacing the contents 
 Reload your `/` page, and you'll see the layout ( which wasn't present in the handler dump ) and the dump of an empty array.
 
 Now we can build our registration flow.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-########################## OLD VERSION ############################
 
 ## 8 - Building the Registration Flow
 
@@ -642,16 +604,24 @@ it( "can register a user", function() {
 } );
 ```
 
-Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and error as expected. Next we'll write the production code to make this test pass.
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and error as expected. `The event: registration is not a valid registered event.`
+
+Next we'll write the production code to make this test pass.
 
 ### 8.3 - Write the production code
 
-Update the `/config/Routes.cfm` file - insert a resources definition.
+**SHOW RESOURCES ROUTING TABLE. EXPLAIN WHY RESOURCES.**
+https://coldbox.ortusbooks.com/the-basics/routing/routing-dsl/resourceful-routes
+
+Update the `/config/Router.cfc` file - insert a resources definition.
 
 ```js
-// config/Routes.cfm
-
-resources("registration");
+// config/Router.cfc
+function configure(){
+    setFullRewrites( true );
+    resources("registration");
+    route( ":handler/:action?" ).end();
+}
 ```
 
 Create a new Handler
@@ -703,7 +673,7 @@ Add the following into a new file `views/registration/new.cfm`
 </cfoutput>
 ```
 
-Hit http://127.0.0.1:42518/registration/new?fwreinit=1
+Hit http://127.0.0.1:42518/registration/new
 Now you will see the form.
 
 #### 8.3.3 - Add a register link to the navbar
@@ -720,61 +690,82 @@ The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code a
 Refresh your page, click Register and fill out the form. Submit the form and you will see an error
 `Messages: The event: Registration.create is not a valid registered event.`
 
-Next we'll create the saving action.
+Next we'll create the saving action. Which is what our test was written for.
 
-#### 8.3.4 - Add `create` action in the Registration.cfc handler
+### 8.4 - Add `create` action in the Registration.cfc handler
 
+#### 8.4.1 - Suedo Code our Create action
 ```js
 function create( event, rc, prc ) {
-    queryExecute( "
-            INSERT INTO `users` ( `email`, `username`, `password` )
-            VALUES ( ?, ?, ? )
-        ",
-        [ rc.email, rc.username, rc.password ]
-    );
+    //insert the user
 
     relocate( uri = "/" );
 }
 ```
 
-Your new user will be listed in your dump.
-This isn't very secure, to have your password un-encrypted, so lets use BCrypt.
+#### 8.4.2 - To actually insert the User lets use the UserService
 
-Bonus points for tests first for next part
+We need to inject the UserService into the handler. Add the following code to the top of the Registration.cfc handler.
 
-### 8.4 - Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
+```js
+//handlers/Registration.cfc
+property name="userService"		inject="UserService";
+```
+
+Reinit the framework so the injection is used.
+
+#### 8.4.3 - Replace Psuedo Code with Real Code
+
+Remove `//insert the user` and replace with
+
+```js
+userService.save( rc.email, rc.username, rc.password );
+```
+
+### 8.5 - Update UserService with a Create Method
+
+Do not ever use a password that is un-encrypted, it is not secure, so lets use BCrypt. On ForgeBox, there is a module for that and easily installable with CommandBox.
+
+#### 8.5.1 - Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
 ```sh
 install bcrypt
 ```
 
-### 8.4.1 - Bcrypt the password
+### 8.5.2 - Inject Bcrypt into the UserService
 
-Update the registration handler to use BCrypt `/handlers/Registration.cfc`
-We are adding the DI Injection for the BCrypt Module and updating the query to wrap the password in a call to bcrypt to encrypt the password.
+Update the UserService to use BCrypt `/models/UserService.cfc`
+We are adding the DI Injection for the BCrypt Module.
 
 ```js
 component {
 
     property name="bcrypt" inject="@BCrypt";
+```
 
-    function create( event, rc, prc ) {
-        queryExecute( "
-                INSERT INTO `users` ( `email`, `username`, `password` )
-                VALUES ( ?, ?, ? )
-            ",
-            [ rc.email, rc.username, bcrypt.hashPassword( rc.password ) ]
-        );
+#### 8.5.3 - Let's create the `create` method in the UserService
 
-        relocate( uri = "/" );
-    }
+Create the `create` function, that has 3 arguments, and write the query, including wrapping the password in a call to bcrypt to encrypt the password.
+
+```js
+function create(
+    required string email,
+    required string username, 
+    required string password
+    ){
+    return queryExecute( "
+        INSERT INTO `users` ( `email`, `username`, `password` )
+        VALUES ( ?, ?, ? )
+    ",
+        [ arguments.email, arguments.username, bcrypt.hashPassword( arguments.password ) ]
+    );
 }
 ```
 
-### 8.5 - Add a new user
+#### 8.5.4
 
 Hit the url: http://127.0.0.1:42518//registration/new and add a new user.
-You will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init.
+If you didn't reinit the framework, you will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init.
 
 Now hit the url with frame reinit: http://127.0.0.1:42518//registration/new?fwreinit=1
 
@@ -782,23 +773,27 @@ Add a new user, and see that the password is now encrypted. Bcrypt encrypted pas
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
+#### 8.5.5
+
+Check your tests, they should all pass again.
+
+### 8.6 Complete the steps and Register yourself 
+
+**SELF DIRECTED** (20 minutes)
 
 
+## 9 - Build the Login & Logout Flow
 
-STEP 9
+### 9.1 - Build the Login Form
 
-## 6 - Build the Login & Logout Flow
-
-### 6.1 - Build the Login Form
-
-#### 6.1.1 - Install CBMessageBox via Commandbox
+#### 9.1.1 - Install CBMessageBox via Commandbox
 
 `install cbmessagebox`
 
-#### 6.1.2 - Add the following into your existing `/config/Routes.cfm` file
+#### 9.1.2 - Add the following into your existing `/config/Router.cfc` file
 
 ```js
-// config/Routes.cfm
+// config/Router.cfc
 addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
 delete( "/logout" ).to( "sessions.delete" );
 ```
@@ -812,9 +807,9 @@ You will now see an error `Messages: The event: Sessions.new is not a valid regi
 
 Now we'll build the sessions handler, and the new action.
 
-#### 6.1.3 - Create a new `/handler/Sessions.cfc` handler
+#### 9.1.3 - Create a new `/handler/Sessions.cfc` handler
 ```js
-// handlers/sessions.cfc
+// handlers/Sessions.cfc
 component {
 
     property name="messagebox" inject="MessageBox@cbmessagebox";
@@ -828,13 +823,11 @@ component {
 ```
 
 Hit the url: http://127.0.0.1:42518/login
-You will see an error `Messages: The event: sessions.new is not a valid registered event.`
-New Handlers require a framework reinit.
+You will see an error `Messages: Page /views/sessions/new.cfm [YourAppPath\views\sessions\new.cfm] not found`
 
-Hit the url: http://127.0.0.1:42518/login?fwreinit=1
-You will see an error `Messages: Page /views/sessions/new.cfm [C:\www\soapbox\app\views\sessions\new.cfm] not found`
 
-#### 6.1.4 - Create a new view `/views/sessions/new.cfm`
+#### 9.1.4 - Create a new view `/views/sessions/new.cfm`
+
 ```html
 // views/sessions/new.cfm
 <cfoutput>
@@ -857,18 +850,26 @@ You will see an error `Messages: Page /views/sessions/new.cfm [C:\www\soapbox\ap
 </cfoutput>
 ```
 
-#### 6.1.5 - Hit `http://127.0.0.1:42518/login` in your browser
+#### 9.1.5 - Hit `http://127.0.0.1:42518/login` in your browser
 You can now see the login screen. Let's build the login action next.
 
-### 6.2 - Build the Login Action
+### 9.2 - Build the Login Action
 
-#### 6.2.1 - Install CBAuth and Configure
+#### 9.2.1 - Install CBAuth and Configure
 
-#### 6.2.2 - Install CBAuth
+#### 9.2.2 - Install CBAuth
 
 `install cbauth`
 
-#### 6.2.3 - Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+#### 9.2.3 - Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
+
+Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
+    isValidCredentials( username, password )
+    retrieveUserByUsername( username )
+    retrieveUserById( id )
+Additionally, the user component returned by the retrieve methods needs to respond to getId().
+
+https://www.forgebox.io/view/cbauth
 
 ```js
 moduleSettings = {
@@ -878,15 +879,7 @@ moduleSettings = {
 };
 ```
 
-#### 6.2.4 - Create a User Service and User Object
-
-Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
-    isValidCredentials( username, password )
-    retrieveUserByUsername( username )
-    retrieveUserById( id )
-Additionally, the user component returned by the retrieve methods needs to respond to getId().
-
-https://www.forgebox.io/view/cbauth
+#### 9.2.4 - Create a User Object
 
 Create a new Model `/models/User.cfc`
 
@@ -901,11 +894,13 @@ component accessors="true" {
 }
 ```
 
-#### 6.2.5 - Update the User Service
+#### 9.2.5 - Update the User Service
 
-We need to create a User Service for CBAuth to function. It requires 3 function.
-Create a new model in `/models/UserService.cfc`
-Explain `wirebox.getInstance` and `populator`
+We need to update our User Service for CBAuth to function. It requires 3 function.
+
+**Explain `wirebox.getInstance` and `populator`**
+
+Inject the new wirebox items into `/models/UserService.cfc`
 
 ```js
 component {
@@ -913,7 +908,11 @@ component {
     property name="populator" inject="wirebox:populator";
     property name="wirebox" inject="wirebox";
     property name="bcrypt" inject="@BCrypt";
+```
 
+Add the new methods to the `/models/UserService.cfc`
+
+```js
     function retrieveUserById( id ) {
         return populator.populateFromQuery(
             wirebox.getInstance( "User" ),
@@ -937,18 +936,20 @@ component {
         }
         return bcrypt.checkPassword( password, users[ 1 ].password );
     }
-
-}
 ```
 
-#### 6.2.6 - Update Sessions.cfc for login and logout actions
+#### 9.2.6 - Update Sessions.cfc for login and logout actions
 
-Update the Sessions.cfc
+Update the `/handlers/Sessions.cfc` by injection cbauth
 
 ```js
 // handlers/sessions.cfc
     property name="auth" inject="authenticationService@cbauth";
+```
 
+Update the `/handlers/Sessions.cfc` by adding new methods
+
+```js
     // create / doLogin actLogin
     function create( event, rc, prc ) {
         try {
@@ -968,7 +969,8 @@ Update the Sessions.cfc
     }
 ```
 
-#### 6.2.7 - Update the main layout to show and hide the register / login / logout buttons.
+
+#### 9.2.7 - Update the main layout to show and hide the register / login / logout buttons.
 
 ```html
 <ul class="navbar-nav ml-auto">
@@ -984,12 +986,16 @@ Update the Sessions.cfc
 </ul>
 ```
 
-### 6.3 - Refactor Registration to use the User Service
+Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework. 
 
-#### 6.3.1 - Add save function to User Service.
+**Explain Interceptors via Modules**
+
+### 9.3 - Refactor Registration to use the User Object
+
+#### 9.3.1 - Update UserService `create` function to use User object
 
 ```js
-function save( user ) {
+function create( required user ){
     queryExecute(
         "
             INSERT INTO `users` (`email`, `username`, `password`)
@@ -1007,11 +1013,7 @@ function save( user ) {
 }
 ```
 
-#### 6.3.2 - Update Registration.cfc handler to use User Service instead of inline queryExecute
-
-Add the DI Injection for the UserService
-
-`property name="userService" inject="UserService";`
+#### 9.3.2 - Update Registration.cfc handler to use User Object
 
 Replace the Create function with the following
 
@@ -1028,13 +1030,13 @@ function create( event, rc, prc ) {
 * [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
 * [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
 
-### 6.4 - Test the login and logout.
+### 9.4 - Test the login and logout.
 
-#### 6.4.1 - Test login and login
+#### 9.4.1 - Test login and login
 
 Hit the url: http://127.0.0.1:42518/?fwreinit=1
 
-#### 6.4.2 - Auto login user when registering
+#### 9.4.2 - Auto login user when registering
 
 When registering, it might be nice to automatically log the user in.
 Replace the Create function with the following code
@@ -1052,12 +1054,37 @@ function create( event, rc, prc ) {
 
 Now register and you will be automatically logged in.
 
-#### 6.4.3 - Login incorrectly and you'll see that the page is redirecting but not showing an error message.
-Let's use this snippet to create an error message using MessageBox.
+#### 9.4.3 - Incorrect Logins are not user friendly
 
-### 6.5 - Install and Config Messagebox
+Login incorrectly and you'll see that the page is redirecting back tot he login page, but not showing an error message.
 
-#### 6.5.1 - Add to ColdBox Config as its own struct
+Let's use MessageBox to display messages where appropriate.
+
+
+### 9.5 - Using and Configuring Messagebox
+
+#### 9.5.1 - Let's update our main layout, Instead of
+
+```html
+<main role="main" class="container">
+    #renderView()#
+</main>
+```
+
+We need to add a line and make it look like below
+
+```html
+<main role="main" class="container">
+    #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
+    #renderView()#
+</main>
+```
+
+#### 9.5.2 - Reinit the framework, and test it out.
+
+You should see an error message, but it is not the prettiest message ever. Next, we'll learn how to customize it.
+
+#### 9.5.3 - Add to ColdBox Config as its own struct
 
 ```js
 messagebox = {
@@ -1065,7 +1092,7 @@ messagebox = {
 };
 ```
 
-#### 6.5.2 - Add `/views/_partials/_messagebox.cfm`
+#### 9.5.2 - Add `/views/_partials/_messagebox.cfm`
 
 ```html
 <cfscript>
@@ -1097,34 +1124,20 @@ messagebox = {
 </cfoutput>
 ```
 
-#### 6.5.3 - Let's update our main layout, Instead of
+#### 9.5.3 - Reinit Framework and test the output
 
-```html
-<main role="main" class="container">
-    #renderView()#
-</main>
-```
+Since the change was in the ColdBox.cfc in the config folder, we need to re-init to see the change.
+When you login with incorrect username/details, you should see the style of the messagebox error has now changed.
 
-we need to add a line and make it look like below
+## 10 - Rants
 
-```html
-<main role="main" class="container">
-    #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
-    #renderView()#
-</main>
-```
-
-#### 6.5.4 - Reinit the framework, and test it out.
-
-## 7 - Rants
-
-### 7.1 - Create rants migrations
+### 10.1 - Create rants migrations
 
 ```sh
 migrate create create_rants_table
 ```
 
-#### 7.1.1 - In the file that was created by the previous command, put this piece of code in there
+#### 10.1.1 - In the file that was created by the previous command, put this piece of code in there
 
 ```js
 component {
@@ -1150,13 +1163,13 @@ component {
 }
 ```
 
-#### 7.1.2 - Now, migrate your rants
+#### 10.1.2 - Now, migrate your rants
 
 ```
 migrate up
 ```
 
-### 7.2 - Create a Rant object in the models folder
+### 10.2 - Create a Rant object in the models folder
 
 ```js
 // Rant.cfc
@@ -1177,7 +1190,7 @@ component accessors="true" {
 }
 ```
 
-### 7.3 - Create RantService.cfc
+### 10.3 - Create RantService.cfc
 
 ```js
 component {
@@ -1219,16 +1232,16 @@ component {
 }
 ```
 
-### 7.4 - Rants CRUD
+### 10.4 - Rants CRUD
 
-#### 7.4.1 - Add the rants resources in the `routes.cfm` file
+#### 10.4.1 - Add the rants resources in the `routes.cfm` file
 
 ```js
-// config/routes.cfm
+// config/Router.cfc
 resources( "rants" );
 ```
 
-#### 7.4.2 - Create a rants handler
+#### 10.4.2 - Create a rants handler
 
 ```js
 // handlers/rants.cfc
@@ -1255,7 +1268,7 @@ component {
 }
 ```
 
-#### 7.4.3 - Create an index view
+#### 10.4.3 - Create an index view
 
 ```html
 // views/rants/index.cfm
@@ -1279,7 +1292,7 @@ component {
 </cfoutput>
 ```
 
-#### 7.4.4 - Set the default event to `rants.index`
+#### 10.4.4 - Set the default event to `rants.index`
 
 ```js
 // inside the coldbox struct
@@ -1293,7 +1306,7 @@ Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox
 
 Reinit the framework, then you'll see the Rant index.
 
-#### 7.4.5 - Create a new view
+#### 10.4.5 - Create a new view
 
 ```html
 // views/rants/new.cfm
@@ -1312,7 +1325,7 @@ Reinit the framework, then you'll see the Rant index.
 </cfoutput>
 ```
 
-#### 7.4.6 - Update the main layout
+#### 10.4.6 - Update the main layout
 
 ```html
 // layouts/Main.cfm
@@ -1338,13 +1351,14 @@ Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
 We need to secure the form, to ensure the user is logged in before they can send a rant.
 
-### 7.5 - Install cbsecurity by running the following command
+
+## 11 - Install cbsecurity by running the following command
 
 ```sh
 install cbsecurity
 ```
 
-#### 7.5.1 - Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
+### 11.1 - Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
 
 ```js
 // config/ColdBox.cfc
@@ -1356,7 +1370,7 @@ cbsecurity = {
 };
 ```
 
-### 7.6 - Create a `security.json` file inside the config folder
+### 11.2 - Create a `security.json` file inside the config folder
 ```js
 // config/security.json
 
@@ -1370,11 +1384,10 @@ cbsecurity = {
     }
 ]
 ```
-
-### 7.7 - Create the userValidator function in `UserService.cfc`
+### 11.3 - Create the userValidator function in `UserService.cfc`
 
 ```js
-// models/services/UserService.cfc
+// models/UserService.cfc
 
 property name="authenticationService" inject="AuthenticationService@cbauth";
 
@@ -1383,22 +1396,30 @@ function userValidator( rule, controller ) {
 }
 ```
 
-### 7.8 - Reinit the framework
+### 11.4 - Reinit the framework
 
-### 7.9 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
+### 11.5 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
-### 7.10 - Now log in and make sure you see the rant page.
+### 11.6 - Now log in and make sure you see the rant page.
 
-## 8 - View a user's rants
 
-### 8.1 - Create a users profile page, for that we need to create a route in our `Routes.cfm` file
+
+
+########################## OLD VERSION ############################
+
+STEP 12
+
+
+## 12 - View a user's rants
+
+### 12.1 - Create a users profile page, for that we need to create a route in our `Routes.cfm` file
 
 ```js
 // config/Routes.cfm
 get( "/users/:username" ).to( "users.show" );
 ```
 
-### 8.2 - Create a `users` handler
+### 12.2 - Create a `users` handler
 
 ```js
 // handlers/users.cfc
