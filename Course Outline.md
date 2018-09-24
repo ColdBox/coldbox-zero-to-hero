@@ -1,6 +1,8 @@
 # ColdBox From Zero to Hero (CBOX-120)
 
-ColdBox from Zero To Hero Description In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 5. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points and much more.
+ColdBox from Zero To Hero Description 
+
+In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 5. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points and much more.
 
 ## Prerequisites
 
@@ -27,6 +29,8 @@ What we will do:
 - Build and configure Test Runners
 - CommandBox Test Watchers
 
+Steps: 1
+
 Concepts & Tools:
 
 
@@ -42,6 +46,8 @@ What we will do:
 - Views/Layouts by convention
 - Reiniting your application
 
+Steps: 2
+
 Concepts & Tools:
 
 ### 4. Layouts
@@ -50,6 +56,7 @@ What we will do:
 
 - Create a bootstrap theme layout for our app
 
+Steps: 3
 
 ### 5. Database Migrations
 
@@ -62,11 +69,28 @@ What we will do:
 - Configure application and test harness for database access
 - Setup Test Harness and Base Spec
 
+Steps: 4,5
+
 ### 6. Intro to Models
 
 - Scaffold a `UserService`
 - Add our list story to our integration test
 - Implement the list() method to retrieve all users
+- Inject our UserService into our Main Handler
+- Call the list() method from our Main Handler and dump the data
+- Access the data returned from your main.index view.
+
+Steps: 6,7
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -78,6 +102,7 @@ What we will do:
 - Install bcrypt
 - Write the registration code as a ColdBox resource with appropriate spec and model methods
 
+Steps: 8
 
 Concepts & Tools:
 

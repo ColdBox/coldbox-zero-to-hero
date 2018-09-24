@@ -8,7 +8,7 @@ Please have the following software on your computer before the workshop.
 
 This can be downloaded bundled with CommandBox.
 
-## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 3.9.\*)
+## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 4.\*)
 
 ## MySQL Server
 
@@ -16,19 +16,26 @@ You need to have a running MySQL Server locally.
 If you don't have one already on your system, you can get started easily with
 [Docker](https://www.docker.com/community-edition#/download).
 
-The following command will start a MySQL Server with docker.
+You can use Docker-compose with from the directory with docker-compose.yml 
+
+```
+docker-compose up
+docker-compose stop
+docker-compose start
+```
+
+You can also use the following command will start a MySQL Server with docker.
 
 ```
 docker run -d --name soapbox -p 3306:3306 -e MYSQL_DATABASE=soapbox -e MYSQL_ROOT_PASSWORD=soapbox mysql
-```
 
+```
 After you have created the container, you can start and stop it using the following commands:
 
 ```
 docker start soapbox
 docker stop soapbox
 ```
-
 Note: Without a volume, your data will only last as long as your container does. 
 
 ## MySQL Client
