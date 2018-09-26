@@ -11,3 +11,5 @@ services:
             MYSQL_DATABASE: soapbox
         volumes:
             - soapbox-mysql57-data:/var/lib/mysql
+volumes:
+    soapbox-mysql57-data:            
