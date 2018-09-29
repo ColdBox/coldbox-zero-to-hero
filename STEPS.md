@@ -1234,7 +1234,7 @@ component {
 
 ### 10.4 - Rants CRUD
 
-#### 10.4.1 - Add the rants resources in the `routes.cfm` file
+#### 10.4.1 - Add the rants resources in the `Router.cfc` file
 
 ```js
 // config/Router.cfc
@@ -1403,21 +1403,14 @@ function userValidator( rule, controller ) {
 ### 11.6 - Now log in and make sure you see the rant page.
 
 
-
-
-########################## OLD VERSION ############################
-
-STEP 12
-
-
 ## 12 - View a user's rants
-
-### 12.1 - Create a users profile page, for that we need to create a route in our `Routes.cfm` file
+### 12.1 - Create a users profile page, for that we need to create a route in our `Router.cfc` file
 
 ```js
-// config/Routes.cfm
+// config/Router.cfc
 get( "/users/:username" ).to( "users.show" );
 ```
+
 
 ### 12.2 - Create a `users` handler
 
@@ -1438,14 +1431,15 @@ component {
 }
 ```
 
-### 8.3 - Create a `404.cfm` view
+
+### 12.3 - Create a `404.cfm` view
 
 ```sh
 // views/404.cfm
 Whoops!  That page doesn't exist.
 ```
 
-### 8.4 - Create a `show.cfm` view
+### 12.4 - Create a `show.cfm` view
 
 ```html
 // views/users/show.cfm
@@ -1460,7 +1454,7 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-### 8.5 - Create a `views/_partials/_rant.cfm` view
+### 12.5 - Create a `views/_partials/_rant.cfm` view
 
 ```html
 <cfoutput>
@@ -1477,7 +1471,7 @@ Whoops!  That page doesn't exist.
 </cfoutput>
 ```
 
-### 8.6 - Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
+### 12.6 - Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
 
 ```html
 <cfloop array="#prc.rants#" item="rant">
@@ -1485,15 +1479,17 @@ Whoops!  That page doesn't exist.
 </cfloop>
 ```
 
-### 8.7 - Update your `User.cfc`
+### 12.7 - Update your `User.cfc` Model
 
-#### 8.7.1 - Inject the rantService
+To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service.
+
+#### 12.7.1 - Inject the rantService
 
 ```
 property name="rantService" inject="id";
 ```
 
-#### 8.7.2 - Create a getRants function
+#### 12.7.2 - Create a getRants function
 
 ```js
 function getRants() {
@@ -1501,7 +1497,7 @@ function getRants() {
 }
 ```
 
-#### 8.7.3 - Create a `getForUserId` function in `RantService`
+#### 12.7.3 - Create a `getForUserId` function in `RantService`
 
 ```js
 function getForUserId( id ) {
@@ -1518,19 +1514,21 @@ function getForUserId( id ) {
 }
 ```
 
-### 8.8 - Reinitialize the application
+### 12.8 - Reinitialize the application
 
-### 8.9 - Test it out in the browser
+### 12.9 - Test it out in the browser
 
-## 9. Add 👊 and 💩 actions
 
-#### 9.1.1 - Migrate `bumps` table
+
+## 13. Add 👊 and 💩 actions
+
+#### 13.1.1 - Migrate `bumps` table
 
 ```
 migrate create create_bumps_table
 ```
 
-#### 9.1.2 - Fill the file you just create with the following functions
+#### 13.1.2 - Fill the file you just create with the following functions
 
 ```js
 component {
@@ -1563,12 +1561,12 @@ component {
 }
 ```
 
-#### 9.2.1 - Migrate `poops` table
+#### 13.2.1 - Migrate `poops` table
 ```
 migrate create create_poops_table
 ```
 
-#### 9.2.2 - Fill the file you just create with the following functions
+#### 13.2.2 - Fill the file you just create with the following functions
 
 ```js
 component {
@@ -1601,13 +1599,13 @@ component {
 }
 ```
 
-### 9.3 - Now run the function `up`
+### 13.3 - Now run the function `up`
 
 ```
 migrate up
 ```
 
-### 9.4 - Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+### 13.4 - Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
 
 ```
 // /views/_partials/_rant.cfm
@@ -1622,9 +1620,9 @@ migrate up
 </div>
 ```
 
-### 9.5 - Update `Rant.cfc`
+### 13.5 - Update `Rant.cfc`
 
-#### 9.5.1 - Create `ReactionService.cfc` in `models/services/`
+#### 13.5.1 - Create `ReactionService.cfc` in `models/services/`
 
 ```js
 // models/services/ReactionService.cfc
@@ -1662,7 +1660,7 @@ component {
 }
 ```
 
-#### 9.5.2 - Inject reactionService and create the following functions
+#### 13.5.2 - Inject reactionService and create the following functions
 
 ```js
 // models/Rant.cfc
@@ -1678,9 +1676,9 @@ function getPoops() {
 }
 ```
 
-### 9.6 - Reinitialize the framework
+### 13.6 - Reinitialize the framework
 
-### 9.7 - Try the site, and realize its broken, but why?
+### 13.7 - Try the site, and realize its broken, but why?
 
 ```js
 Event: rants.index
@@ -1694,20 +1692,27 @@ Messages: The DSL Definition {REF={null}, REQUIRED={true}, ARGNAME={}, DSL={id},
 
 This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the reactionService
 
-## 10 - Wirebox Conventions vs Configuration
+
+
+
+## 14 - Wirebox Conventions vs Configuration
 
 Dependency Injection is Magic - Not really
 
-Did you notice anything different when we create my Service??
+Did you notice anything different when we created the Service??
 We created a services folder inside of Models, to organize our Models better.
 
 Wirebox is very powerful, but it is not magic, it runs by conventions, and you can configure it to run differently if you have differing opinions on the conventions.
 
 So you have to tell it what you want it to do if you want to do something more. In this case, instead of just using model paths (automatic convention), we can tell Wirebox to map models and all of its subfolders.
 
-### 10.1 - Open the WireBox.cfc
+Note - This recursive search of the models folder is the default in modules, and this convention will be modified for the main models folder very soon in ColdBox.
 
-### 10.2 - Scroll to the bottom of the file and insert the following
+### 14.1 - Open the WireBox.cfc
+
+Located in the /config folder.
+
+### 14.2 - Scroll to the bottom of the file and insert the following
 
 ```js
 // Map Bindings below
@@ -1716,15 +1721,15 @@ mapDirectory( "models" );
 
 This will make the models folder recursively, now allowing you to organize your folders however you see fit.
 
-### 10.3 - Reinitialize the framework
+### 14.3 - Reinitialize the framework
 
-### 10.4 - Test out the site... no errors now.
+### 14.4 - Test out the site... no errors now.
 
-## 11 - Make Rant Reactions Functional
+## 15 - Make Rant Reactions Functional
 
-### 11.1 - Make buttons clickable
+### 15.1 - Make buttons clickable
 
-#### 11.1.1 - Update your the footer of `_rant.cfm`
+#### 15.1.1 - Update your the footer of `_rant.cfm`
 
 ```html
 // views/_partials/_rant.cfm
@@ -1769,7 +1774,7 @@ This will make the models folder recursively, now allowing you to organize your 
 </div>
 ```
 
-### 11.2 - Update your `User.cfc`, inject the reactionService and add the following functions
+### 15.2 - Update your `User.cfc`, inject the reactionService and add the following functions
 
 ```js
 // models/User.cfc
@@ -1795,7 +1800,7 @@ function hasPooped( rant ) {
 }
 ```
 
-### 11.3 - Update your `ReactionService.cfc`, add the following functions
+### 15.3 - Update your `ReactionService.cfc`, add the following functions
 
 ```js
 // models/services/ReactionService.cfc
@@ -1827,16 +1832,16 @@ function getPoopsForUser( user ) {
 }
 ```
 
-### 11.4 - Create new handlers
+### 15.4 - Create new handlers
 
-#### 11.4.1 - Add the routes before the resources
+#### 15.4.1 - Add the routes before the resources
 
 ```js
 addRoute( "rants/:id/bumps", "Bumps", { "POST" = "create", "DELETE" = "delete" } );
 addRoute( "rants/:id/poops", "Poops", { "POST" = "create", "DELETE" = "delete" } );
 ```
 
-#### 11.4.2 - Create `bumps` handler
+#### 15.4.2 - Create `bumps` handler
 
 ```js
 // handlers/bumps.cfc
@@ -1857,7 +1862,7 @@ component {
 }
 ```
 
-#### 11.4.3 - Create `poops` handler
+#### 15.4.3 - Create `poops` handler
 
 ```js
 // handlers/poops.cfc
@@ -1878,7 +1883,7 @@ component {
 }
 ```
 
-### 11.5 - Update your `ReactionService.cfc` with the following functions
+### 15.5 - Update your `ReactionService.cfc` with the following functions
 
 ```js
 // models/services/ReactionService.cfc
@@ -1911,7 +1916,7 @@ function unpoop( rantId, userId ) {
 }
 ```
 
-### 11.9 - Add the Bump Model
+### 15.6 - Add the Bump Model
 
 ```js
 // models/Bump.cfc
@@ -1923,7 +1928,7 @@ component accessors="true" {
 }
 ```
 
-### 11.10 - Add the Poop Model
+### 15.7 - Add the Poop Model
 
 ```js
 // models/Poop.cfc
@@ -1935,13 +1940,13 @@ component accessors="true" {
 }
 ```
 
-### 11.11 - Reinialize the Framework and Test the Site
+### 15.8 - Reinialize the Framework and Test the Site
 
-### 11.12 - You're done!!
+### 15.9 - You're done!!
 
 
 
-## 12 - Extra Credit
+## 16 - Extra Credit
 
 + Don't let a user poop and bump the same rant
 + When you bump or poop from the user profile page - take the user back to that page, not the main rant page. Ie - return them to where they started
@@ -1954,13 +1959,13 @@ Other Ideas:
 + Domain Names in CommandBox
 
 
-### 13.1 - Install `qb`
+### 17.1 - Install `qb`
 
 ```sh
 install qb
 ```
 
-### 13.2 - Configure `qb`
+### 17.2 - Configure `qb`
 
 #### 13.2.1 - Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 

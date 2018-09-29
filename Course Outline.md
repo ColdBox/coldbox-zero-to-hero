@@ -150,20 +150,7 @@ Steps: 11
 - Create the handler
 - Create a reusable viewlet for our rants
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Steps: 12
 
 ### 12. Add Rant Actions
 
@@ -172,8 +159,9 @@ Steps: 11
 - Update Rant object for reactions
 - Update Tests
 - Update the rant viewlet
-- All rant actions will be done via Ajax
+- Learn about Wirebox Convention vs Configuration
 
+Steps: 13, 14
 
 ### 13. Make Reactions Functional
 
@@ -186,9 +174,20 @@ Steps: 11
 - Create the integration tests
 - Implement the handlers
 
+Steps: 15
+
 ### 14. Extra Credit
 
 - Ability to see global and user rants in JSON
+- Don't let a user poop and bump the same rant
+- When you bump or poop from the user profile page - take the user back to that page, not the main rant page. Ie - return them to where they started
+- Convert the bump and poop to AJAX calls
+- CSRF tokens for login, register, and new rant
+- Move `queryExecute` to `qb`
+
+Other Ideas:
+- Environments in ColdBox.cfc
+- Domain Names in CommandBox
 
 
 
