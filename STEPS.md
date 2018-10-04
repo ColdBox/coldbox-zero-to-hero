@@ -506,7 +506,7 @@ Add the injection into your `/handlers/Main.cfc`
 property name="userService"		inject="UserService";
 ```
 
-### 7.2 Use the `serService.list()` call to retrieve the user list
+### 7.2 Use the `userService.list()` call to retrieve the user list
 
 Call the userService.list() function and store it in a prc variable.
 
