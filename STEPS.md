@@ -105,6 +105,7 @@ testbox watch **.cfc
 
 ### 2.11 Assignment: Add a Links page
 
+### 2.12 Assignment: Change prc.welcome and update test to pass.
 
 ## 3 - Layouts
 
@@ -719,7 +720,7 @@ Reinit the framework so the injection is used.
 Remove `//insert the user` and replace with
 
 ```js
-userService.save( rc.email, rc.username, rc.password );
+userService.create( rc.email, rc.username, rc.password );
 ```
 
 ### 8.5 - Update UserService with a Create Method
