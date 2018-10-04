@@ -9,10 +9,10 @@
 ### 1.2  Scaffold out a new Coldbox application with TestBox included.
 
 ```sh
-coldbox create app soapbox --installTestBox --installColdBoxBE
+coldbox create app soapbox
 ```
 
-### 1.2 bug Install testbox if the above command didn't work
+### 1.2 bug Install testbox if the above command didn't work (CommandBox < 4.2)
 
 ```sh
 install --dev
