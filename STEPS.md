@@ -830,7 +830,7 @@ You will see an error `Messages: Page /views/sessions/new.cfm [YourAppPath\views
 #### 9.1.4 - Create a new view `/views/sessions/new.cfm`
 
 ```html
-// views/sessions/new.cfm
+<!-- views/sessions/new.cfm -->
 <cfoutput>
     <div class="card">
         <h4 class="card-header">Log In</h4>
@@ -851,7 +851,7 @@ You will see an error `Messages: Page /views/sessions/new.cfm [YourAppPath\views
 </cfoutput>
 ```
 
-#### 9.1.5 - Hit `http://127.0.0.1:42518/login` in your browser
+#### 9.1.5 - Hit http://127.0.0.1:42518/login in your browser
 You can now see the login screen. Let's build the login action next.
 
 ### 9.2 - Build the Login Action
@@ -1022,7 +1022,7 @@ Replace the Create function with the following
 // create / save User
 function create( event, rc, prc ) {
     var user = populateModel( getInstance( "User" ) );
-    userService.save( user );
+    userService.create( user );
     relocate( uri = "/login" );
 }
 ```
@@ -1047,7 +1047,7 @@ property name="auth" inject="authenticationService@cbauth";
 
 function create( event, rc, prc ) {
     var user = populateModel( getInstance( "User" ) );
-    userService.save( user );
+    userService.create( user );
     auth.login( user );
     relocate( uri = "/" );
 }
