@@ -1027,7 +1027,7 @@ Replace the Create function with the following
 // create / save User
 function create( event, rc, prc ) {
     var user = populateModel( getInstance( "User" ) );
-    userService.save( user );
+    userService.create( user );
     relocate( uri = "/login" );
 }
 ```
