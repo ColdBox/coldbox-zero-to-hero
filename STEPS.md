@@ -1217,7 +1217,7 @@ component {
         } );
     }
 
-    function save( rant ) {
+    function create( rant ) {
         rant.setModifiedDate( now() );
         queryExecute(
             "
@@ -1267,7 +1267,7 @@ component {
     function create( event, rc, prc ) {
         rc.userId = auth().getUserId();
         var rant = populateModel( getInstance( "Rant" ) );
-        rantService.save( rant );
+        rantService.create( rant );
         relocate( "rants" );
     }
 
