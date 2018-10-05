@@ -695,7 +695,7 @@ Next we'll create the saving action. Which is what our test was written for.
 
 ### 8.4 - Add `create` action in the Registration.cfc handler
 
-#### 8.4.1 - Suedo Code our Create action
+#### 8.4.1 - Psuedo Code our Create action
 ```js
 function create( event, rc, prc ) {
     //insert the user
