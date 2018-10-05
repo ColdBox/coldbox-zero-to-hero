@@ -1272,7 +1272,7 @@ component {
 #### 10.4.3 - Create an index view
 
 ```html
-// views/rants/index.cfm
+<!-- views/rants/index.cfm -->
 <cfoutput>
     <cfif prc.rants.isEmpty()>
         <h3>No rants yet</h3>
@@ -1310,7 +1310,7 @@ Reinit the framework, then you'll see the Rant index.
 #### 10.4.5 - Create a new view
 
 ```html
-// views/rants/new.cfm
+<!-- views/rants/new.cfm -->
 <cfoutput>
     <div class="card">
         <h4 class="card-header">Start a Rant</h4>
@@ -1329,7 +1329,7 @@ Reinit the framework, then you'll see the Rant index.
 #### 10.4.6 - Update the main layout
 
 ```html
-// layouts/Main.cfm
+<!-- layouts/Main.cfm -->
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav">
         <li><a href="#event.buildLink( "rants.new" )#" class="nav-link">Start a Rant</a></li>
