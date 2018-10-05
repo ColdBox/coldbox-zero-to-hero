@@ -795,8 +795,13 @@ Check your tests, they should all pass again.
 
 ```js
 // config/Router.cfc
-addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
-delete( "/logout" ).to( "sessions.delete" );
+function configure(){
+    setFullRewrites( true );
+    resources("registration");
+    addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
+    delete( "/logout" ).to( "sessions.delete" );
+	route( ":handler/:action?" ).end();
+}
 ```
 
 Hit the url: http://127.0.0.1:42518/login
