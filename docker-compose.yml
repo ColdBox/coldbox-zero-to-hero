@@ -5,7 +5,7 @@ services:
         restart: unless-stopped
         container_name: mysql57-container
         ports:
-            - "127.0.0.1:3306:3306"
+            - "127.0.0.1:33306:3306"
         environment:
             MYSQL_ROOT_PASSWORD: soapbox
             MYSQL_DATABASE: soapbox
