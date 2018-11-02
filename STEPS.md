@@ -913,7 +913,39 @@ Check your tests, they should all pass again.
 
 #### 9.1.1 - Install CBMessageBox via Commandbox
 
-`install cbmessagebox`
+We used flash, but that's too much work, lets go nuts and reuse a module:
+
+`install cbmessagebox && coldbox reinit`
+
+Update the flash setting code in the `create` action of the `registration` handler to this:
+
+```js
+flash.put( "notice", {
+    type : "success",
+    message : "The user #encodeForHTML( rc.username )# with id: #generatedKey# was created!"
+} );
+
+to this:
+
+getInstance( "messageBox@cbmessagebox" )
+    .success( "The user #encodeForHTML( rc.username )# with id: #generatedKey# was created!" );
+```
+
+And the display code in the `layouts/Main.cfm` to this:
+
+```html
+<cfif flash.exists( "notice" )>
+    <div class="alert alert-#flash.get( "notice" ).type#">
+    #flash.get( "notice" ).message#
+    </div>
+</cfif>
+
+to this
+
+
+#getInstance( "messagebox@cbMessageBox" ).renderit()#
+
+```
 
 #### 9.1.2 - Add the following into your existing `/config/Router.cfc` file
 
@@ -922,11 +954,18 @@ Check your tests, they should all pass again.
 function configure(){
     setFullRewrites( true );
     resources("registration");
-    addRoute( "/login", "sessions", { "POST" = "create", "GET" = "new" } );
+    
+    route( "/login" )
+        .withAction( { "POST" = "create", "GET" = "new" } )
+        .toHandler( "sessions" );
+
     delete( "/logout" ).to( "sessions.delete" );
+    
 	route( ":handler/:action?" ).end();
 }
 ```
+
+Check them out in the route visualizer!
 
 Hit the url: http://127.0.0.1:42518/login
 You will see an error `Messages: The event: login is not a valid registered event.`
@@ -938,22 +977,41 @@ You will now see an error `Messages: The event: Sessions.new is not a valid regi
 Now we'll build the sessions handler, and the new action.
 
 #### 9.1.3 - Create a new `/handler/Sessions.cfc` handler
+
+Issue the following: `coldbox create handler name="sessions" actions="new,create,delete"` This will also create the tests.
+
 ```js
 // handlers/Sessions.cfc
 component {
 
     property name="messagebox" inject="MessageBox@cbmessagebox";
 
-    // new / login form page
-    function new( event, rc, prc ) {
-        return event.setView( "sessions/new" );
-    }
+    /**
+	* new
+	*/
+	function new( event, rc, prc ){
+		event.setView( "sessions/new" );
+	}
+
+    /**
+	* create
+	*/
+	function create( event, rc, prc ){
+		event.setView( "sessions/create" );
+	}
+
+	/**
+	* delete
+	*/
+	function delete( event, rc, prc ){
+		event.setView( "sessions/delete" );
+	}
 
 }
 ```
 
 Hit the url: http://127.0.0.1:42518/login
-You will see an error `Messages: Page /views/sessions/new.cfm [YourAppPath\views\sessions\new.cfm] not found`
+You will see the empty shell pages, let's update them.
 
 
 #### 9.1.4 - Create a new view `/views/sessions/new.cfm`
@@ -994,10 +1052,14 @@ You can now see the login screen. Let's build the login action next.
 #### 9.2.3 - Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
 
 Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
-    isValidCredentials( username, password )
-    retrieveUserByUsername( username )
-    retrieveUserById( id )
-Additionally, the user component returned by the retrieve methods needs to respond to getId().
+
+```js
+function isValidCredentials( username, password )
+function retrieveUserByUsername( username )
+function retrieveUserById( id )
+```
+
+Additionally, the `User` component returned by the retrieve methods needs to respond to `getId()`.
 
 https://www.forgebox.io/view/cbauth
 
@@ -1011,22 +1073,39 @@ moduleSettings = {
 
 #### 9.2.4 - Create a User Object
 
-Create a new Model `/models/User.cfc`
+Create a new Model `coldbox create model name="User" properties="id,username,email,password"`
 
 ```js
-component accessors="true" {
+/**
+* I am a new Model Object
+*/
+component accessors="true"{
+	
+	// Properties
+	property name="id" type="string";
+	property name="username" type="string";
+	property name="email" type="string";
+	property name="password" type="string";
+	
 
-    property name="id";
-    property name="username";
-    property name="email";
-    property name="password";
+	/**
+	 * Constructor
+	 */
+	User function init(){
+		
+		return this;
+    }
+    
+    boolean function isLoaded(){
+		return ( !isNull( variables.id ) && len( variables.id ) );
+	}
 
 }
 ```
 
 #### 9.2.5 - Update the User Service
 
-We need to update our User Service for CBAuth to function. It requires 3 function.
+We need to update our User Service for CBAuth to function. It requires 3 functions and 1 for good luck:
 
 **Explain `wirebox.getInstance` and `populator`**
 
@@ -1035,36 +1114,42 @@ Inject the new wirebox items into `/models/UserService.cfc`
 ```js
 component {
 
+    // To populate objects from data
     property name="populator" inject="wirebox:populator";
+    // To create new User instances
     property name="wirebox" inject="wirebox";
+    // For encryption
     property name="bcrypt" inject="@BCrypt";
 ```
 
 Add the new methods to the `/models/UserService.cfc`
 
 ```js
-    function retrieveUserById( id ) {
+    User function new() provider="User"{}
+
+	User function retrieveUserById( id ) {
         return populator.populateFromQuery(
-            wirebox.getInstance( "User" ),
+            new(),
             queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ id ] ),
             1
         );
     }
 
-    function retrieveUserByUsername( username ) {
+    User function retrieveUserByUsername( username ) {
         return populator.populateFromQuery(
-            wirebox.getInstance( "User" ),
+            new(),
             queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ] ),
             1
         );
     }
 
-    function isValidCredentials( username, password ) {
-        var users = queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ], { returntype = "array" } );
-        if ( users.isEmpty() ) {
+    boolean function isValidCredentials( username, password ) {
+		var oUser = retrieveUserByUsername( username );
+        if( !oUser.isLoaded() ){
             return false;
-        }
-        return bcrypt.checkPassword( password, users[ 1 ].password );
+		}
+		
+        return bcrypt.checkPassword( password, oUser.getPassword() );
     }
 ```
 
@@ -1080,23 +1165,29 @@ Update the `/handlers/Sessions.cfc` by injection cbauth
 Update the `/handlers/Sessions.cfc` by adding new methods
 
 ```js
-    // create / doLogin actLogin
-    function create( event, rc, prc ) {
-        try {
-            auth.authenticate( rc.username, rc.password )
+    /**
+	* create
+	*/
+	function create( event, rc, prc ){
+		try {
+			auth.authenticate( rc.username, rc.password )
+			messagebox.success( "Welcome back #rc.username#" );
             return relocate( uri = "/" );
         }
         catch ( InvalidCredentials e ) {
-            messagebox.setMessage( type = "warn", message = e.message );
+            messagebox.warn( e.message );
             return relocate( uri = "/login" );
         }
-    }
+	}
 
-    // delete / logout
-    function delete( event, rc, prc ) {
-        auth.logout();
+	/**
+	* delete
+	*/
+	function delete( event, rc, prc ){
+		auth.logout();
+		messagebox.info( "Bye Bye! See ya soon!" );
         return relocate( uri = "/" );
-    }
+	}
 ```
 
 
@@ -1116,7 +1207,7 @@ Update the `/handlers/Sessions.cfc` by adding new methods
 </ul>
 ```
 
-Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework. 
+Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
 
 **Explain Interceptors via Modules**
 
