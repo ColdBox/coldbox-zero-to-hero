@@ -22,7 +22,7 @@ install --dev
 ### 1.3 - Start up a local server
 
 ```sh
-start cfengine=lucee@5 port=42518
+start cfengine=lucee@5 port=42518 --rewritesEnable
 ```
 
 ### 1.4 - Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
@@ -87,21 +87,49 @@ testbox watch **.cfc
 
 ### 2.9 - Add an about page<br>
 
+```bash
+coldbox create view about/index
+```
+
 #### 2.9.1 - Add an `views/about/index.cfm`. Hit the url `/about/index` and it works!
 ```html
 <cfoutput>
     <h1>About us!</h1>
 </cfoutput>
 ```
-#### 2.9.2 - Add an `about` handler. Use a non existing view and see if it breaks. Talk about reinits.
+#### 2.9.2 - Add an `about` handler, change to non-existent view, does it work?
 
-#### 2.9.3 - Add an `index` action. Back to working!
+```bash
+coldbox create handler name="about" actions="index" views=false
+```
 
-### 2.10 - Reinit the framework
+#### 2.9.3 - Set it back to the `index` view, does it work?
+
+#### 2.9.4 - Execute the tests, we have more tests now
+
+* Explain Integration Testing
+* Fix the tests
+
+```js
+it( "index", function(){
+    var event = execute( event="about.index", renderResults=true );
+    // expectations go here.
+    expect( event.getRenderedContent() ).toInclude( "about" );
+});
+```
+
+### 2.10 - Reinit the framework, URL or Command
+
+> http://localhost:42518?fwreinit=1
 
 * What is cached?
-
 * Singletons
+* Handlers
+* View/Event Caching
+
+```bash
+coldbox reinit
+```
 
 ### 2.11 Assignment: Add a Links page
 
@@ -180,6 +208,23 @@ You should see a list of available commands with `migrate ?`.
 
 ### 4.2 - Initalize migrations using `migrate init`
 
+This adds the following to your `box.json` file:
+
+```js
+"cfmigrations":{
+    "schema":"${DB_DATABASE}",
+    "connectionInfo":{
+        "password":"${DB_PASSWORD}",
+        "connectionString":"${DB_CONNECTIONSTRING}",
+        "class":"${DB_CLASS}",
+        "username":"${DB_USER}"
+    },
+    "defaultGrammar":"AutoDiscover"
+}
+```
+
+Which is needed so migrations can talk to your database!
+
 ### 4.3 - Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
 To make our migration setup more secure, we're going to use environment variables. In local development, we can do this easily with a commandbox module, DotEnv.
@@ -188,8 +233,7 @@ To make our migration setup more secure, we're going to use environment variable
 install commandbox-dotenv
 ```
 
-### 4.4 - Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our
-    Docker credentials from before.)
+### 4.4 - Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our Docker credentials from before.)
 
 ```sh
 DB_DATABASE=soapbox
@@ -198,6 +242,8 @@ DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&charact
 DB_USER=root
 DB_PASSWORD=soapbox
 ```
+
+Once the `.env` file is seeded, reload CommandBox so it can pickup the environment: `reload`
 
 ### 4.5 - Test our environment variable with an echo command
 
@@ -221,7 +267,8 @@ You should now see `root`, your `DB_USER` output when you run that `echo` comman
 ```sh
 migrate install
 ```
-If the table does not exist, this will create the table in your db. If you refresh your db, you should see the table. If you run the command again, it will let you know it is already installed.
+
+If the table does not exist, this will create the table in your db. If you refresh your db, you should see the table. If you run the command again, it will let you know it is already installed. Try it!
 
 ### 4.8 - Create a users migration
 
@@ -229,11 +276,14 @@ If the table does not exist, this will create the table in your db. If you refre
 migrate create create_users_table
 ```
 
+All migration resources are CFCs and are stored under `resources/database/migrations/**.cfc`.  Make sure these are in version control. They can save your life!
+
 ### 4.9 - Fill in the migration.
+
 The migration file was created by the last command, and the file location was output by commandbox.
 If you are using VS Code, you can just `Ctrl` + Click to open the file.
 
-```js
+```java
 component {
 
     function up( schema ) {
@@ -268,15 +318,22 @@ component {
 }
 ```
 
+* Go over file and describe the options you can have to create the schemas.
+* QB Schema Builder Docs: https://qb.ortusbooks.com/overview/schema-builder
+
 ### 4.10 - Run the migration up.
 
 ```sh
 migrate up
 ```
 
-Check your database, and you should see the database table. You can migrate up and down to test both functions.
+Check your database, and you should see the database table. You can migrate `up` and `down` to test both functions. Go for it, tear it down: `migrate down`, and now back up: `migrate up`.
+
+> If all else fails: `migrate fresh` is your best bet! (https://www.forgebox.io/view/commandbox-migrations)
 
 ### 4.11 - Next add the following settings into your `/Application.cfc` file
+
+This will add the datasource to your CFML engine.  There are other ways, but this is the easiest and portable.
 
 ```js
 // Application.cfc
@@ -311,17 +368,15 @@ Hit `/tests/runner.cfm` in your browser
 
 ## 5 - Setup the Test Harness and Base Spec
 
-### 5.1 - Delete the MainBDDTest
+### 5.1 - Install `cfmigrations` as a dev dependency. 
 
-### 5.2 - Install `cfmigrations` as a dev dependency. 
+CF Migrations is different than `commandbox-migrations`. It allows you to run the migrations from a running CFML engine and NOT CommandBox.  Usually, you can use them for testing purposes or delivering updates in your apps.  However, for today, this is a development dependency only.
 
 ```sh
 install cfmigrations --saveDev
 ```
 
-This is not the same as commandbox-migrations.
-
-### 5.3 - Configure `tests/Application.cfc`
+### 5.2 - Configure `tests/Application.cfc`
 
 ```js
 // tests/Application.cfc
@@ -337,27 +392,34 @@ this.datasources = {
 };
 this.datasource = "soapbox";
 
-function onRequestStart() {
+public void function onRequestEnd() { 
     structDelete( application, "cbController" );
+    structDelete( application, "wirebox" );
 }
 ```
 
-### 5.4 - Create a `tests/resources/BaseIntegrationSpec.cfc`
+### 5.3 - Create a `tests/resources/BaseIntegrationSpec.cfc`
 
 ```js
 component extends="coldbox.system.testing.BaseTestCase" {
 
     property name="migrationService" inject="MigrationService@cfmigrations";
 
-    this.loadColdBox = true;
-    this.unloadColdBox = false;
+    this.loadColdBox    = true;
+    this.unloadColdBox  = false;
 
+    /**
+     * Run Before all tests
+     */
     function beforeAll() {
         super.beforeAll();
+        // Wire up this object
         application.wirebox.autowire( this );
+
+        // Check if migrations ran before all tests
         if ( ! request.keyExists( "migrationsRan" ) ) {
             migrationService.setMigrationsDirectory( "/root/resources/database/migrations" );
-	    migrationService.setDefaultGrammar( "MySQLGrammar" );
+	        migrationService.setDefaultGrammar( "MySQLGrammar" );
             migrationService.setDatasource( "soapbox" );
             migrationService.runAllMigrations( "down" );
             migrationService.runAllMigrations( "up" );
@@ -365,19 +427,19 @@ component extends="coldbox.system.testing.BaseTestCase" {
         }
     }
 
-
     /**
+     * This function is tagged as an around each handler.  All the integration tests we build
+     * will be automatically rolledbacked
+     * 
      * @aroundEach
      */
     function wrapInTransaction( spec ) {
         transaction action="begin" {
             try {
-                spec.body();
-            }
-            catch ( any e ) {
+                arguments.spec.body();
+            } catch ( any e ){
                 rethrow;
-            }
-            finally {
+            } finally {
                 transaction action="rollback";
             }
         }
@@ -386,67 +448,54 @@ component extends="coldbox.system.testing.BaseTestCase" {
 }
 ```
 
+Let's run the tests again!
+
 ## 6 - Intro to Models
 
-Models are at the core of ColdBox. We could teach you how to write legacy style code, but we want to teach the `right` way from the start. We still start with creating a `User Service`.
+Models are at the core of ColdBox. We could teach you how to write legacy style code, but we want to teach the `right` way from the start. We still start with creating a `User Service` that will be managing users in our SoapBox.
 
-### 6.1 - TDD - Let's write our tests first
+```bash
+coldbox create model name="UserService" persistence="singleton"
+```
 
-Create a new test `/tests/specs/integration/UserServiceTest.cfc`
+This  will create the `UserService.cfc` in the `models` folder and a companion test in `tests/specs/unit/UserServiceTest.cfc`.
+
+### 6.1 - BDD - Let's write our tests first
+
+Open up the test `/tests/specs/unit/UserServiceTest.cfc`
 
 ```js
-component extends="tests.resources.BaseIntegrationSpec" {
-
-    function run() {
-        describe( "User Service", function() {
-            it( "can list all users", function() {
-                fail( "test not implemented yet" );
-            } );
+function run() {
+    describe( "User Service", function() {
+        it( "can list all users", function() {
+            fail( "test not implemented yet" );
         } );
-    }
-
+    } );
 }
 ```
 
-Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use TDD we will write the real test.
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use BDD we will write the real test.
 
-### 6.2.1 - Let's write the real test - step 1
+### 6.2 - Let's write the real test - step 1
 
 ```js
-component extends="tests.resources.BaseIntegrationSpec" {
-
     function run() {
         
         describe( "User Service", function() {
-
-            beforeEach(function( currentSpec ){
-                service = prepareMock( getInstance( "UserService" ) );
-            });
-
-            it( "can be created", function(){
-				expect( service ).toBeComponent();
+			
+			it( "can be created", function(){
+				expect( model ).toBeComponent();
 			});
 
             it( "can list all users", function() {
-            } );
+			} );
+			
         } );
-    }
 
-}
+    }
 ```
 
 Run your tests `/tests/runner.cfm` 
-
-You will see an error message - `Requested instance not found: 'UserService'`
-
-### 6.2.1 - Create the User Service
-
-```sh
-component{
-}
-```
-
-Run the tests, and you'll see the test passes. The Service can be found.
 
 ### 6.3 - Lets create the `list()` function
 
@@ -456,7 +505,7 @@ Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to
 
 ```js
 it( "can list all users", function() {
-    service.list();
+    var aResults = model.list();
 } );
 ```
 
@@ -480,7 +529,8 @@ Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to
 
 ```js
 it( "can list all users", function() {
-    expect( service.list() ).toBeArray();
+    var aResults = model.list();
+	expect( aResults ).toBeArray();
 } );
 ```
 
@@ -518,8 +568,8 @@ function index(event,rc,prc){
 }
 ```
 
-Hit `/` in your browser, and you'll get an error - `Messages: variable [USERSERVICE] doesn't exist
-`
+Hit `/` in your browser, and you'll get an error - `Messages: variable [USERSERVICE] doesn't exist.`  What happened? Who can tell me why are we getting this error?
+
 
 ### 7.3 - Reinit the Framework
 
@@ -538,7 +588,7 @@ You'll see something like this
 ```sh
 Array (from Query)
 Template: /YourAppDirectory/models/UserService.cfc 
-Execution Time: 1.54 ms 
+Execution Time: 1.08 ms 
 Record Count: 0 
 Cached: No 
 SQL: 
@@ -547,7 +597,7 @@ select * from users
 
 ### 7.5 - Access the data from the View
 
-Remove the writeDump from the handler.
+Remove the `writeDump` from the handler.
 
 Add the following into the `/views/main/index.cfm` file, replacing the contents completely.
 
@@ -561,37 +611,76 @@ Now we can build our registration flow.
 
 ## 8 - Building the Registration Flow
 
-Start Register flow. The next series of steps will build the Register flow, including BDD and TDD.
+Start Registration flow. The next series of steps will build the Register flow.
 
-### 8.1 - Create a `tests/specs/integration/RegistrationSpec.cfc`
+```bash
+coldbox create handler name="registration" actions="new,create"
+```
+
+The `create` action does not have a view, so let's clean that up: `delete views/registration/create.cfm`
+
+### 8.1 - Open `tests/specs/integration/RegistrationTest.cfc` and modify
 
 ```js
-component extends="tests.resources.BaseIntegrationSpec" {
+component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+	
+	property name="query" inject="provider:QueryBuilder@qb";
 
-    property name="query" inject="provider:QueryBuilder@qb";
+	/*********************************** BDD SUITES ***********************************/
+	
+	function run(){
 
-    function run() {
-        describe( "registration", function() {
-            it( "can register a user", function() {
-                fail( "test not implemented yet" );
-            } );
-        } );
-    }
+		describe( "Registration Suite", function(){
+
+			beforeEach(function( currentSpec ){
+				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+				setup();
+			});
+
+			it( "can show the user registration form", function(){
+				var event = get( route="registration.new", params={} );
+				// expectations go here.
+				expect( false ).toBeTrue();
+            });
+            
+            it( "can register a user", function(){
+				var event = post( route="registration.create", params={} );
+				// expectations go here.
+				expect( false ).toBeTrue();
+			});
+
+		
+		});
+
+	}
 
 }
 ```
 
-Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use TDD we will write the real test.
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use BDD we will write the real test.
 
-### 8.2 - Replace the `can register a user` test with the following
+### 8.2 - Now let's update our tests once again
 
 ```js
+
+it( "can show the user registration form", function(){
+    var event = get( route="registration.new", params={} );
+    // expectations go here.
+    expect( event.getRenderedContent() ).toInclude( "Register for SoapBox" );
+});
+
 it( "can register a user", function() {
-    expect( queryExecute( "select * from users", {}, { returntype = "array" } ) ).toBeEmpty();
+    expect( 
+        queryExecute( 
+            "select * from users where username = :username", 
+            { username : "testadmin" }, 
+            { returntype = "array" } 
+        ) 
+    ).toBeEmpty();
 
     var event = post( "/registration", {
-        "username" = "elpete",
-        "email" = "eric@elpete.com",
+        "username" = "testadmin",
+        "email" = "testadmin@ortussolutions.com",
         "password" = "mypass1234",
         "passwordConfirmation" = "mypass1234"
     } );
@@ -600,8 +689,7 @@ it( "can register a user", function() {
 
     var users = query.from( "users" ).get();
     expect( users ).toBeArray();
-    expect( users ).toHaveLength( 1 );
-    expect( users[ 1 ].username ).toBe( "elpete" );
+    expect( users[ 1 ].username ).toBe( "testadmin" );
 } );
 ```
 
@@ -620,31 +708,31 @@ Update the `/config/Router.cfc` file - insert a resources definition.
 // config/Router.cfc
 function configure(){
     setFullRewrites( true );
-    resources("registration");
+    
+    resources( "registration" );
+
     route( ":handler/:action?" ).end();
 }
 ```
 
-Create a new Handler
-```js
-// handlers/Registration.cfc
-component {
+When working with routes it is essential to visualize them as they can become very complex.  We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`.  Now issue a reinit: `coldbox reinit` and refresh your browser.  You can navigate to: http://localhost:42518/route-visualizer and see all your wonderful routes.
 
-}
-```
-
-#### 8.3.1 - Add the action into the Registration Handler `handlers/Registration.cfc`
+#### 8.3.1 - Revise the actions in the Registration Handler `handlers/registration.cfc`
 
 ```js
 function new( event, rc, prc ) {
-    return event.setView( "registration/new" );
+    event.setView( "registration/new" );
+}
+
+function create( event, rc, prc ) {
+    event.setView( "registration/create" );
 }
 ```
 
 http://127.0.0.1:42518/registration/new?fwreinit=1
 You will see an error `Messages: Page /views/registration/new.cfm [C:\www\soapbox\app\registration\new.cfm] not found`
 
-#### 8.3.2 - Create the new view.
+#### 8.3.2 - Update the `new` view.
 
 Add the following into a new file `views/registration/new.cfm`
 
@@ -686,6 +774,7 @@ Now you will see the form.
     </ul>
 </div>
 ```
+
 The Nav bar is located in our Layout file `/layouts/Main.cfm`. Insert the code above, into the `<nav>` tag, before the closing `</nav>` .
 
 Refresh your page, click Register and fill out the form. Submit the form and you will see an error
@@ -704,28 +793,43 @@ function create( event, rc, prc ) {
 }
 ```
 
-#### 8.4.2 - To actually insert the User lets use the UserService
+#### 8.4.2 - To actually insert the User lets use the `UserService`
 
-We need to inject the UserService into the handler. Add the following code to the top of the Registration.cfc handler.
+We need to inject the `UserService` into the handler. Add the following code to the top of the Registration.cfc handler.
 
 ```js
 //handlers/Registration.cfc
 property name="userService"		inject="UserService";
 ```
 
-Reinit the framework so the injection is used.
+Reinit the framework so the injection is used: `coldbox reinit`
 
 #### 8.4.3 - Replace Psuedo Code with Real Code
 
 Remove `//insert the user` and replace with
 
 ```js
-userService.create( rc.email, rc.username, rc.password );
+var generatedKey = userService.create( rc.email, rc.username, rc.password );
+flash.put( "notice", {
+    type : "success",
+    message : "The user #encodeForHTML( rc.username )# with id: #generatedKey# was created!"
+} );
 ```
 
-### 8.5 - Update UserService with a Create Method
+What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and create the visualization of our flash messages:
 
-Do not ever use a password that is un-encrypted, it is not secure, so lets use BCrypt. On ForgeBox, there is a module for that and easily installable with CommandBox.
+```html
+<cfif flash.exists( "notice" )>
+    <div class="alert alert-#flash.get( "notice" ).type#">
+    #flash.get( "notice" ).message#
+    </div>
+</cfif>
+```
+
+
+### 8.5 - Update `UserService` with a Create Method
+
+Do not ever use a password that is un-encrypted, it is not secure, so lets use `BCrypt`. On ForgeBox, there is a module for that and easily installable with CommandBox.
 
 #### 8.5.1 - Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
@@ -735,13 +839,14 @@ install bcrypt
 
 ### 8.5.2 - Inject Bcrypt into the UserService
 
-Update the UserService to use BCrypt `/models/UserService.cfc`
+Update the `UserService` to use BCrypt `/models/UserService.cfc`
 We are adding the DI Injection for the BCrypt Module.
 
 ```js
-component {
-
-    property name="bcrypt" inject="@BCrypt";
+component singleton accessors="true"{
+	
+	// Properties
+	property name="bcrypt" inject="@BCrypt";
 ```
 
 #### 8.5.3 - Let's create the `create` method in the UserService
@@ -749,17 +854,36 @@ component {
 Create the `create` function, that has 3 arguments, and write the query, including wrapping the password in a call to bcrypt to encrypt the password.
 
 ```js
-function create(
+/**
+ * Create a new user
+ *
+ * @email 
+ * @username 
+ * @password 
+ * 
+ * @return The created id of the user
+ */
+numeric function create(
     required string email,
     required string username, 
     required string password
-    ){
-    return queryExecute( "
-        INSERT INTO `users` ( `email`, `username`, `password` )
-        VALUES ( ?, ?, ? )
-    ",
-        [ arguments.email, arguments.username, bcrypt.hashPassword( arguments.password ) ]
+){
+    queryExecute( 
+        "
+            INSERT INTO `users` ( `email`, `username`, `password` )
+            VALUES ( ?, ?, ? )
+        ",
+        [ 
+            arguments.email, 
+            arguments.username, 
+            bcrypt.hashPassword( arguments.password )
+        ],
+        {
+            result : 'local.result'
+        }
     );
+
+    return local.result;
 }
 ```
 
