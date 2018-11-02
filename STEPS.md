@@ -1251,6 +1251,22 @@ function create( event, rc, prc ) {
 * [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
 * [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
 
+#### 9.3.3 - Let's make the user listing friendly
+
+Let's update our dump to just a simple listing in order to try out the HTML Helper and make it pretty:
+
+Open the `main/index.cfm` and remove the dump and use the following instead:
+
+```html
+<cfoutput>
+<h1>System Users</h1>
+#html.table(
+    data = prc.userList,
+    class = "table table-hover table-striped"
+)#
+</cfoutput>
+```
+
 ### 9.4 - Test the login and logout.
 
 #### 9.4.1 - Test login and login
@@ -1275,80 +1291,9 @@ function create( event, rc, prc ) {
 
 Now register and you will be automatically logged in.
 
-#### 9.4.3 - Incorrect Logins are not user friendly
+#### 9.5 Tests
 
-Login incorrectly and you'll see that the page is redirecting back tot he login page, but not showing an error message.
-
-Let's use MessageBox to display messages where appropriate.
-
-
-### 9.5 - Using and Configuring Messagebox
-
-#### 9.5.1 - Let's update our main layout, Instead of
-
-```html
-<main role="main" class="container">
-    #renderView()#
-</main>
-```
-
-We need to add a line and make it look like below
-
-```html
-<main role="main" class="container">
-    #getInstance( "MessageBox@cbmessagebox" ).renderIt()#
-    #renderView()#
-</main>
-```
-
-#### 9.5.2 - Reinit the framework, and test it out.
-
-You should see an error message, but it is not the prettiest message ever. Next, we'll learn how to customize it.
-
-#### 9.5.3 - Add to ColdBox Config as its own struct
-
-```js
-messagebox = {
-    template = "/views/_partials/_messagebox.cfm"
-};
-```
-
-#### 9.5.2 - Add `/views/_partials/_messagebox.cfm`
-
-```html
-<cfscript>
-    switch( msgStruct.type ){
-        case "info" : {
-            local.cssType = " alert-info";
-            local.iconType = "fas fa-info-circle";
-            break;
-        }
-        case "error" : {
-            local.cssType = " alert-danger";
-            local.iconType = "far fa-frown";
-            break;
-        }
-        default : {
-            local.cssType = " alert-warning";
-            local.iconType = "fas fa-exclamation-triangle";
-        }
-    }
-</cfscript>
-<cfoutput>
-<div class="alert#local.cssType#" style="min-height: 38px">
-    <button type="button" class="close" data-dismiss="alert">&times;</button>
-    <div class="row">
-        <i class="#local.iconType# fa-2x pull-left"></i>
-        <p class="col-10">#msgStruct.message#</p>
-    </div>
-</div>
-</cfoutput>
-```
-
-#### 9.5.3 - Reinit Framework and test the output
-
-Since the change was in the ColdBox.cfc in the config folder, we need to re-init to see the change.
-When you login with incorrect username/details, you should see the style of the messagebox error has now changed.
+Did you do the tests, if not, let's go do them folks!
 
 ## 10 - Rants
 
