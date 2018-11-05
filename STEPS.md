@@ -1065,8 +1065,8 @@ https://www.forgebox.io/view/cbauth
 
 ```js
 moduleSettings = {
-    cbauth = {
-        userServiceClass = "UserService"
+    "cbauth" = {
+        "userServiceClass" = "UserService"
     }
 };
 ```
@@ -1211,6 +1211,79 @@ Refresh the page, and you will get an error `Messages: No matching function [AUT
 
 **Explain Interceptors via Modules**
 
+#### 9.2.8 - Build out the integration tests for the login/doLogin and logout
+
+Take the time now to build out the integration tests
+
+```js
+// sessionsTest.cfc
+component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+	
+	property name="query" 		inject="provider:QueryBuilder@qb";
+	property name="bcrypt" 		inject="@BCrypt";
+
+	function beforeAll(){
+		super.beforeAll();
+		query.from( "users" )
+			.insert( values = {
+				username : "testuser",
+				email : "testuser@tests.com",
+				password : bcrypt.hashPassword( "password" )
+			} );
+	}
+
+	function afterAll(){
+		super.afterAll();
+		query.from( "users" )
+			.where( "username", "=", "testuser" )
+			.delete();
+	}
+
+	/*********************************** BDD SUITES ***********************************/
+	
+	function run(){
+
+		describe( "sessions Suite", function(){
+
+			beforeEach(function( currentSpec ){
+				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+				setup();
+			});
+
+			it( "can present the login screen", function(){
+				var event = execute( event="sessions.new", renderResults=true );
+				// expectations go here.
+				expect( event.getRenderedContent() ).toInclude( "Log In" );
+			});
+
+			it( "can log in a valid user", function(){
+				var event = post( route="/login", params={ username="testuser", password="password"} );
+				// expectations go here.
+				expect( event.getValue( "relocate_URI") ).toBe( "/" );
+				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeTrue();
+			});
+
+			it( "can show an invalid message for an invalid user", function(){
+				var event = post( route="/login", params={ username="testuser", password="bad"} );
+				// expectations go here.
+				expect( event.getValue( "relocate_URI") ).toBe( "/login" );
+			});
+
+			xit( "delete", function(){
+				var event = get( event="sessions.delete" );
+				// expectations go here.
+				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeFalse();
+				expect( event.getValue( "relocate_URI") ).toBe( "/" );
+			});
+
+		
+		});
+
+	}
+
+}
+```
+
 ### 9.3 - Refactor Registration to use the User Object
 
 #### 9.3.1 - Update UserService `create` function to use User object
@@ -1337,48 +1410,111 @@ migrate up
 
 ### 10.2 - Create a Rant object in the models folder
 
+Run the following to create your Rant object with a constructor and a few methods `getUser(),isLoaded()` method we will fill out later.  Please note the unit test is created as well.
+
+```bash
+coldbox create model name="Rant" properties="id,body,createdDate:date,modifiedDate:date,userID" methods="getUser,isLoaded"
+```
+
+Let's open the model and modify it a bit
+
 ```js
-// Rant.cfc
-component accessors="true" {
+/**
+* I am a new Model Object
+*/
+component accessors="true"{
 
-    property name="userService" inject="id";
+	// DI
+	property name="userService" inject;
+	
+	// Properties
+	property name="id"           type="string";
+	property name="body"         type="string";
+	property name="createdDate"  type="date";
+	property name="modifiedDate" type="date";
+	property name="userID"       type="string";
+	
 
-    property name="id";
-    property name="body";
-    property name="createdDate";
-    property name="modifiedDate";
-    property name="userId";
+	/**
+	 * Constructor
+	 */
+	Rant function init(){
+		return this;
+	}
 
-    function getUser() {
-        return UserService.retrieveUserById( getUserId() );
-    }
+	/**
+	 * Verify if instance has been loaded or not
+	 */
+	boolean function isLoaded(){
+		return ( !isNull( variables.id ) && len( variables.id ) );
+	}
+	
+	/**
+	 * Get the related user
+	 */
+	function getUser(){
+		return userService.retrieveUserById( getUserId() );
+	}
 
 }
 ```
 
+Work on the unit test, what will you test?
+
 ### 10.3 - Create RantService.cfc
 
-```js
-component {
+Let's create our rant service and work on it with a few methods: `getAll(),create()`
 
-    property name="populator" inject="wirebox:populator";
+```bash
+coldbox create model name="RantService" persistence="singleton" methods="getAll,create,new"
+```
+
+Now open it and let's modify it a bit for our purposes.  Also update the unit tests.
+
+```js
+/**
+* I am a new Model Object
+*/
+component singleton accessors="true"{
+	
+	// Properties
+	property name="populator" inject="wirebox:populator";
     property name="wirebox"   inject="wirebox";
 
-    function getAll() {
-        return queryExecute(
+	/**
+	 * Constructor
+	 */
+	RantService function init(){
+		
+		return this;
+	}
+
+	/**
+	 * Provider of Rant objects
+	 */
+	Rant function new() provider="Rant"{}
+	
+	/**
+	 * Get all rants
+	 */
+	array function getAll(){
+		return queryExecute(
             "SELECT * FROM `rants` ORDER BY `createdDate` DESC",
             [],
             { returntype = "array" }
         ).map( function ( rant ) {
             return populator.populateFromStruct(
-                wirebox.getInstance( "Rant" ),
+                new(),
                 rant
             );
         } );
-    }
+	}
 
-    function create( rant ) {
-        rant.setModifiedDate( now() );
+	/**
+	 * Create a rant
+	 */
+	function create( required rant ){
+		rant.setModifiedDate( now() );
         queryExecute(
             "
                 INSERT INTO `rants` (`body`, `modifiedDate`, `userId`)
@@ -1386,14 +1522,15 @@ component {
             ",
             [
                 rant.getBody(),
-                { value = rant.getModifiedDate(), cfsqltype = "CF_SQL_TIMESTAMP" },
+                { value = rant.getModifiedDate(), cfsqltype = "TIMESTAMP" },
                 rant.getUserId()
             ],
             { result = "local.result" }
         );
         rant.setId( result.GENERATED_KEY );
-        return rant;
-    }
+		
+		return rant;
+	}
 
 }
 ```
@@ -1407,13 +1544,28 @@ component {
 resources( "rants" );
 ```
 
-#### 10.4.2 - Create a rants handler
+#### 10.4.2 - Create the rants handler and views
+
+Go into CommandBox and type away:
+
+```bash
+coldbox create handler name="rants" actions="index,new,create"
+# delete the create view, it's not necessary
+delete views/rants/create.cfm --force
+```
+
+Now open the handler and let's do some modifications:
+
 
 ```js
 // handlers/rants.cfc
-component {
-
-    property name="RantService" inject="id";
+/**
+* I am a new handler
+*/
+component{
+	
+	property name="rantService" 	inject;
+	property name="messagebox" 		inject="MessageBox@cbmessagebox";
 
     function index( event, rc, prc ) {
         prc.rants = rantService.getAll();
@@ -1426,24 +1578,26 @@ component {
 
     function create( event, rc, prc ) {
         rc.userId = auth().getUserId();
-        var rant = populateModel( getInstance( "Rant" ) );
-        rantService.create( rant );
-        relocate( "rants" );
+        var oRant = populateModel( "Rant" );
+		rantService.create( oRant );
+		
+		messagebox.info( "Rant created!" );
+		relocate( "rants" );
     }
-
+	
 }
 ```
 
-#### 10.4.3 - Create an index view
+#### 10.4.3 - Modify the index view
 
 ```html
 <!-- views/rants/index.cfm -->
 <cfoutput>
     <cfif prc.rants.isEmpty()>
         <h3>No rants yet</h3>
-        <a href="#event.buildLink( "rants.new" )#">Start one now!</a>
+        <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start one now!</a>
     <cfelse>
-        <a href="#event.buildLink( "rants.new" )#" class="btn btn-link">Start a new rant!</a>
+        <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start a new rant!</a>
         <cfloop array="#prc.rants#" item="rant">
             <div class="card mb-3">
                 <div class="card-header">
@@ -1472,7 +1626,7 @@ Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox
 
 Reinit the framework, then you'll see the Rant index.
 
-#### 10.4.5 - Create a new view
+#### 10.4.5 - Modify the `new` view
 
 ```html
 <!-- views/rants/new.cfm -->
@@ -1494,11 +1648,22 @@ Reinit the framework, then you'll see the Rant index.
 #### 10.4.6 - Update the main layout
 
 ```html
-<!-- layouts/Main.cfm -->
-<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
+    <a class="navbar-brand" href="#event.buildLink( url = "/" )#">
+        <i class="fas fa-bullhorn mr-2"></i>
+        SoapBox
+    </a>
+
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="##navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <cfif auth().isLoggedIn()>
     <ul class="navbar-nav">
         <li><a href="#event.buildLink( "rants.new" )#" class="nav-link">Start a Rant</a></li>
     </ul>
+    </cfif>
+
     <ul class="navbar-nav ml-auto">
         <cfif auth().isLoggedIn()>
             <form method="POST" action="#event.buildLink( "logout" )#">
@@ -1510,7 +1675,8 @@ Reinit the framework, then you'll see the Rant index.
             <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
         </cfif>
     </ul>
-</div>
+
+</nav>
 ```
 
 Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
