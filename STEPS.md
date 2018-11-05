@@ -1209,8 +1209,6 @@ Update the `/handlers/Sessions.cfc` by adding new methods
 
 Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
 
-**Explain Interceptors via Modules**
-
 #### 9.2.8 - Build out the integration tests for the login/doLogin and logout
 
 Take the time now to build out the integration tests
@@ -1269,13 +1267,12 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 				expect( event.getValue( "relocate_URI") ).toBe( "/login" );
 			});
 
-			xit( "delete", function(){
+			it( "can logout a user", function(){
 				var event = get( event="sessions.delete" );
 				// expectations go here.
 				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeFalse();
 				expect( event.getValue( "relocate_URI") ).toBe( "/" );
 			});
-
 		
 		});
 
@@ -1302,7 +1299,7 @@ function create( required user ){
         ],
         { result = "local.result" }
     );
-    user.setId( result.GENERATED_KEY );
+    user.setId( result.generatedKey );
     return user;
 }
 ```
@@ -1319,6 +1316,8 @@ function create( event, rc, prc ) {
     relocate( uri = "/login" );
 }
 ```
+
+Also note that your tests don't change. Run Them!
 
 **References**
 * [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
@@ -1461,9 +1460,19 @@ component accessors="true"{
 
 Work on the unit test, what will you test?
 
+```js
+describe( "User Suite", function(){
+			
+    it( "can create the User", function(){
+        expect( model ).toBeComponent();
+    });
+
+});
+```
+
 ### 10.3 - Create RantService.cfc
 
-Let's create our rant service and work on it with a few methods: `getAll(),create()`
+Let's create our rant service and work on it with a few methods: `getAll(),create(),new()`
 
 ```bash
 coldbox create model name="RantService" persistence="singleton" methods="getAll,create,new"
@@ -1534,6 +1543,18 @@ component singleton accessors="true"{
 
 }
 ```
+
+```js
+describe( "RantService Suite", function(){
+			
+    it( "can be created", function(){
+        expect( model ).toBeComponent();
+    });
+
+});
+```
+
+Why not create more unit tests?
 
 ### 10.4 - Rants CRUD
 
@@ -1682,6 +1703,88 @@ Reinit the framework, then you'll see the Rant index.
 Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
 We need to secure the form, to ensure the user is logged in before they can send a rant.
+
+Now, let's do some BDD Testing:
+
+```js
+component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+	
+	property name="query" 		inject="provider:QueryBuilder@qb";
+	property name="bcrypt" 		inject="@BCrypt";
+	property name="auth" 		inject="authenticationService@cbauth";
+
+	/*********************************** LIFE CYCLE Methods ***********************************/
+
+	function beforeAll(){
+		super.beforeAll();
+		query.from( "users" )
+			.insert( values = {
+				username : "testuser",
+				email : "testuser@tests.com",
+				password : bcrypt.hashPassword( "password" )
+			} );
+	}
+
+	function afterAll(){
+		super.afterAll();
+		query.from( "users" )
+			.where( "username", "=", "testuser" )
+			.delete();
+	}
+
+	/*********************************** BDD SUITES ***********************************/
+	
+	function run(){
+
+		describe( "rants Suite", function(){
+
+			beforeEach(function( currentSpec ){
+				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+				setup();
+			});
+
+			it( "can display all rants", function(){
+				var event = get( route="rants.index" );
+				// expectations go here.
+				expect( event.getPrivateValue( "rants" ) ).toBeArray();
+				expect( event.getRenderedContent() ).toInclude( "Start one now" );
+			});
+
+			it( "can display the new rant form", function(){
+				var event = get( route="rants.new" );
+				// expectations go here.
+				expect( event.getRenderedContent() ).toInclude( "Rant About It" );
+			});
+
+			it( "stop a rant from being created from an invalid user", function(){
+				
+				expect( function(){
+					var event = post( route="rants.create", params={
+						body = "Test Rant"
+					} );
+				}).toThrow( type="NoUserLoggedIn" );
+				// expectations go here.
+			});
+			
+			it( "can create a rant from a valid user", function(){
+
+				// Log in user
+				auth.authenticate( "testuser", "password" );
+
+				var event = post( route="rants.create", params={
+					body = "Test Rant"
+				} );
+
+				expect( event.getValue( "relocate_URI" ) ).toBe( "rants" );
+			});
+
+		
+		});
+
+	}
+
+}
+```
 
 
 ## 11 - Install cbsecurity by running the following command
