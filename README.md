@@ -10,16 +10,6 @@ app is included here with branches as a reference.
 
 Check out the [prerequisites guide](PREREQUISITES.md) to make sure your system is ready to go.
 
-## Running the Completed App
-
-To view the completed sample app, clone the repository and install the dependencies.
-
-```
-git clone https://github.com/ortus-solutions/coldbox-zero-to-hero.git
-cd coldbox-zero-to-hero
-box install
-```
-
 Ensure that [`commandbox-dotenv`](https://www.forgebox.io/view/commandbox-dotenv)
 and [`commandbox-migrations`](https://www.forgebox.io/view/commandbox-migrations)
 are installed in CommandBox.
