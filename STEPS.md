@@ -2084,12 +2084,21 @@ migrate up
 
 #### 13.5.1 - Create `ReactionService.cfc` in `models/services/`
 
+```bash
+coldbox create model name="ReactionService" methods="getBumpsForRant,getPoopsForRant"
+```
+
+Then update the model
+
 ```js
 // models/services/ReactionService.cfc
 component {
 
     property name="populator" inject="wirebox:populator";
     property name="wirebox" inject="wirebox";
+
+    function newBump() provider="Bump";
+    function newPoop() provider="Poop";
 
     function getBumpsForRant( rant ) {
         return queryExecute(
@@ -2098,7 +2107,7 @@ component {
             { returntype = "array" }
         ).map( function( bump ) {
             return populator.populateFromStruct(
-                wirebox.getInstance( "Bump" ),
+                newBump(),
                 bump
             )
         } );
@@ -2111,7 +2120,7 @@ component {
             { returntype = "array" }
         ).map( function( bump ) {
             return populator.populateFromStruct(
-                wirebox.getInstance( "Poop" ),
+                newPoop(),
                 bump
             )
         } );
@@ -2120,7 +2129,7 @@ component {
 }
 ```
 
-#### 13.5.2 - Inject reactionService and create the following functions
+#### 13.5.2 - Inject `reactionService` and create the following functions in the `Rant` object
 
 ```js
 // models/Rant.cfc
@@ -2234,7 +2243,7 @@ This will make the models folder recursively, now allowing you to organize your 
 </div>
 ```
 
-### 15.2 - Update your `User.cfc`, inject the reactionService and add the following functions
+### 15.2 - Update your `User.cfc`, inject the `reactionService` and add the following functions
 
 ```js
 // models/User.cfc
@@ -2272,7 +2281,7 @@ function getBumpsForUser( user ) {
         { returntype = "array" }
     ).map( function( bump ) {
         return populator.populateFromStruct(
-            wirebox.getInstance( "Bump" ),
+            newBump(),
             bump
         )
     } );
@@ -2285,7 +2294,7 @@ function getPoopsForUser( user ) {
         { returntype = "array" }
     ).map( function( poop ) {
         return populator.populateFromStruct(
-            wirebox.getInstance( "Poop" ),
+            newPoop(),
             poop
         )
     } );
@@ -2302,6 +2311,10 @@ addRoute( "rants/:id/poops", "Poops", { "POST" = "create", "DELETE" = "delete" }
 ```
 
 #### 15.4.2 - Create `bumps` handler
+
+```bash
+coldbox create handler name="bumps" actions="create,delete"
+```
 
 ```js
 // handlers/bumps.cfc
@@ -2323,6 +2336,10 @@ component {
 ```
 
 #### 15.4.3 - Create `poops` handler
+
+```bash
+coldbox create handler name="poops" actions="create,delete"
+```
 
 ```js
 // handlers/poops.cfc
