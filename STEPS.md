@@ -1392,10 +1392,23 @@ component {
                 CONSTRAINT `fk_rants_userId` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
             )
         " );
+
+        /**
+        schema.create( "rants", function( table ){
+            table.increments( "id" );
+            table.text( "body" );
+            table.timestamp( "createdDate" );
+            table.timestamp( "modifiedDate" );
+            table.foreignKey( "userId" ).references( "id" ).onTable( "users" );
+        } );
+
+
+        **/
     }
 
     function down( schema ) {
         queryExecute( "DROP TABLE `rants`" );
+        // schema.drop( "rants" );
     }
 
 }
@@ -1787,25 +1800,25 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 ```
 
 
-## 11 - Install cbsecurity by running the following command
+## 11 - Install `cbsecurity` by running the following command
 
 ```sh
 install cbsecurity
 ```
 
-### 11.1 - Configure cbsecurity, add the settings in your `ColdBox.cfc` as a root level struct
+### 11.1 - Configure `cbsecurity`, add the settings in your `ColdBox.cfc` as a root level struct
 
 ```js
 // config/ColdBox.cfc
 
 cbsecurity = {
-    rulesFile = "/config/security.json",
+    rulesFile = "/config/security.json.cfm",
     rulesSource = "json",
     validatorModel = "UserService"
 };
 ```
 
-### 11.2 - Create a `security.json` file inside the config folder
+### 11.2 - Create a `security.json.cfm` file inside the config folder
 ```js
 // config/security.json
 
@@ -1819,7 +1832,8 @@ cbsecurity = {
     }
 ]
 ```
-### 11.3 - Create the userValidator function in `UserService.cfc`
+
+### 11.3 - Create the `userValidator` function in `UserService.cfc`
 
 ```js
 // models/UserService.cfc
@@ -1833,12 +1847,15 @@ function userValidator( rule, controller ) {
 
 ### 11.4 - Reinit the framework
 
+`coldbox reinit`
+
 ### 11.5 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
 ### 11.6 - Now log in and make sure you see the rant page.
 
 
 ## 12 - View a user's rants
+
 ### 12.1 - Create a users profile page, for that we need to create a route in our `Router.cfc` file
 
 ```js
@@ -1849,15 +1866,21 @@ get( "/users/:username" ).to( "users.show" );
 
 ### 12.2 - Create a `users` handler
 
+`coldbox create handler name="users" actions="show"`
+
+Now work on the BDD and implementation
+
 ```js
 // handlers/users.cfc
 component {
 
-    property name="userService" inject="id";
+    property name="userService" inject;
 
     function show( event, rc, prc ) {
+        event.paramValue( "username", "" );
+
         prc.user = userService.retrieveUserByUsername( rc.username );
-        if ( prc.user.getId() == "" ) {
+        if ( !prc.user.isLoaded() ) {
             relocate( "404" );
         }
         event.setView( "users/show" );
@@ -1921,28 +1944,28 @@ To be able to pull the rants for a user, we need to update our User object, to b
 #### 12.7.1 - Inject the rantService
 
 ```
-property name="rantService" inject="id";
+property name="rantService" inject;
 ```
 
-#### 12.7.2 - Create a getRants function
+#### 12.7.2 - Create a `getRants` function
 
 ```js
 function getRants() {
-    return rantService.getForUserId( getId() );
+    return rantService.getForUserId( variables.id );
 }
 ```
 
 #### 12.7.3 - Create a `getForUserId` function in `RantService`
 
 ```js
-function getForUserId( id ) {
+function getForUserId( required userId ) {
     return queryExecute(
         "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
-        [ id ],
+        [ userId ],
         { returntype = "array" }
     ).map( function ( rant ) {
         return populator.populateFromStruct(
-            wirebox.getInstance( "Rant" ),
+            new(),
             rant
         );
     } );
@@ -1950,6 +1973,8 @@ function getForUserId( id ) {
 ```
 
 ### 12.8 - Reinitialize the application
+
+`coldbox reinit`
 
 ### 12.9 - Test it out in the browser
 
