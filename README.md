@@ -9,19 +9,3 @@ using this repository only as a guide. The code for the finished sample
 app is included here with branches as a reference.
 
 Check out the [prerequisites guide](PREREQUISITES.md) to make sure your system is ready to go.
-
-Ensure that [`commandbox-dotenv`](https://www.forgebox.io/view/commandbox-dotenv)
-and [`commandbox-migrations`](https://www.forgebox.io/view/commandbox-migrations)
-are installed in CommandBox.
-
-Next, copy the `.env.example` file to `.env`. Fill in the values to connect to
-your database server.
-
-Run your database migrations:
-
-```
-box migrate up
-```
-
-Start your local server with `box start`. You should be able to view the app at
-`http://localhost:42518`
