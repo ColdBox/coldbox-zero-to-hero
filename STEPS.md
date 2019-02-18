@@ -73,6 +73,47 @@ testbox watch **.cfc
 
 ### 2.2 - Development Settings
 
+* Configure the `configure()` method for production
+* Verify the `environment` structures
+* Add the `development()` method settings
+
+```js
+function development(){
+    coldbox.customErrorTemplate = "/coldbox/system/includes/BugReport.cfm";
+    coldbox.handlersIndexAutoreload = true;
+    coldbox.reinitPassword = "";
+    coldbox.handlerCaching = false;
+    coldbox.viewCaching = false;
+    coldbox.eventCaching = false;
+}
+```
+
+* Open the `layouts/Main.cfm` and add a tag for the environment
+
+```html
+<div class="badge badge-info">
+    #getSetting( "environment" )#
+</div>
+```
+
+* Where does the `getSetting()` method come from?
+* Go back again to the UML Diagram of Major Classes
+* Reinit the framework 
+
+> http://localhost:42518?fwreinit=1
+
+* What is cached?
+* Singletons
+* Handlers
+* View/Event Caching
+
+```bash
+coldbox reinit
+```
+
+* Change the environments, test the label
+
+
 ### 2.3 - Show routes file. Explain routing by convention.
 
 ### 2.4 - Explain `event`, `rc`, and `prc`.
@@ -85,7 +126,7 @@ testbox watch **.cfc
 
 ### 2.8 - Show how `rc` and `prc` are used in the views.
 
-### 2.9 - Add an about page<br>
+### 2.9 - Add an about page
 
 ```bash
 coldbox create view about/index
@@ -107,33 +148,20 @@ coldbox create handler name="about" actions="index" views=false
 
 #### 2.9.4 - Execute the tests, we have more tests now
 
-* Explain Integration Testing
+* Explain Integration Testing, BDD Specs, Expectations
 * Fix the tests
 
 ```js
-it( "index", function(){
-    var event = execute( event="about.index", renderResults=true );
-    // expectations go here.
-    expect( event.getRenderedContent() ).toInclude( "about" );
+it( "can render the about page", function(){
+    var event = GET( route="/about" );
+
+    expect(	event.getRenderedContent() ).toInclude( "About Us" );
 });
 ```
 
-### 2.10 - Reinit the framework, URL or Command
+### 2.10 Assignment: Add a Links page
 
-> http://localhost:42518?fwreinit=1
-
-* What is cached?
-* Singletons
-* Handlers
-* View/Event Caching
-
-```bash
-coldbox reinit
-```
-
-### 2.11 Assignment: Add a Links page
-
-### 2.12 Assignment: Change prc.welcome and update test to pass.
+### 2.11 Assignment: Change prc.welcome and update test to pass.
 
 ## 3 - Layouts
 
