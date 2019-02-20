@@ -1927,11 +1927,10 @@ install cbsecurity
 
 ```js
 // config/ColdBox.cfc
-
-cbsecurity = {
-    rulesFile = "/config/security.json.cfm",
-    rulesSource = "json",
-    validatorModel = "UserService"
+"cbsecurity" = {
+    "rulesFile" = "/config/security.json.cfm",
+    "rulesSource" = "json",
+    "validatorModel" = "UserService"
 };
 ```
 
@@ -1962,6 +1961,19 @@ function userValidator( rule, controller ) {
 }
 ```
 
+Then let's change this function to add a messagebox:
+
+```js
+var isLoggedIn = authService.isLoggedIn();
+
+if( !isLoggedIn ){
+    controller.getWireBox().getInstance( "messagebox@cbMessageBox" )
+        .error( "You don't have access, please log in." );
+}
+
+return isLoggedIn;
+```
+
 ### 11.4 - Reinit the framework
 
 `coldbox reinit`
@@ -1969,7 +1981,6 @@ function userValidator( rule, controller ) {
 ### 11.5 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
 ### 11.6 - Now log in and make sure you see the rant page.
-
 
 ## 12 - View a user's rants
 
