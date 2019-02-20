@@ -161,7 +161,7 @@ it( "can render the about page", function(){
 
 ### 2.10 Assignment: Add a Links page
 
-### 2.11 Assignment: Change prc.welcome and update test to pass.
+### 2.11 Assignment: Change `prc.welcome` in the `handlers/main.cfc` and update the integration tests to pass.
 
 ## 3 - Layouts
 
@@ -198,6 +198,27 @@ it( "can render the about page", function(){
         <main role="main" class="container">
             #renderView()#
         </main>
+
+        <footer class="border-top py-3 mt-5">
+		<div class="container">
+			<p class="float-right">
+				<a href="##"><i class="fas fa-arrow-up"></i> Back to top</a>
+			</p>
+
+			<div class="badge badge-info">
+				#getSetting( "environment" )#
+			</div>
+
+			<p>
+				<a href="http://www.coldbox.org">ColdBox Platform</a> is a copyright-trademark software by
+				<a href="http://www.ortussolutions.com">Ortus Solutions, Corp</a>
+			</p>
+			<p>
+				Design thanks to
+				<a href="http://getbootstrap.com/">Twitter Boostrap</a>
+			</p>
+		</div>
+	</footer>
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
@@ -1382,7 +1403,7 @@ Replace the Create function with the following code
 property name="auth" inject="authenticationService@cbauth";
 
 function create( event, rc, prc ) {
-    var user = populateModel( getInstance( "User" ) );
+    var user = populateModel( "User" );
     userService.create( user );
     auth.login( user );
     relocate( uri = "/" );
@@ -1391,7 +1412,7 @@ function create( event, rc, prc ) {
 
 Now register and you will be automatically logged in.
 
-#### 9.5 Tests
+### 9.5 Tests
 
 Did you do the tests, if not, let's go do them folks!
 
