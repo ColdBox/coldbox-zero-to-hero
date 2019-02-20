@@ -1317,7 +1317,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 			});
 
 			it( "can logout a user", function(){
-				var event = get( event="sessions.delete" );
+				var event = delete( route="/logout" );
 				// expectations go here.
 				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeFalse();
 				expect( event.getValue( "relocate_URI") ).toBe( "/" );
