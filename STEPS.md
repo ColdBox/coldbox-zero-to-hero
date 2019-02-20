@@ -1693,26 +1693,40 @@ component{
 	
 	property name="rantService" 	inject;
 	property name="messagebox" 		inject="MessageBox@cbmessagebox";
-
-    function index( event, rc, prc ) {
-        prc.rants = rantService.getAll();
-        event.setView( "rants/index" );
-    }
-
-    function new( event, rc, prc ) {
-        event.setView( "rants/new" );
-    }
-
-    function create( event, rc, prc ) {
-        rc.userId = auth().getUserId();
-        var oRant = populateModel( "Rant" );
-		rantService.create( oRant );
 		
+	/**
+	* index
+	*/
+	function index( event, rc, prc ){
+		prc.aRants = rantService.getAll()
+		event.setView( "rants/index" );
+	}
+
+	/**
+	* new
+	*/
+	function new( event, rc, prc ){
+		event.setView( "rants/new" );
+	}
+
+	/**
+	* create
+	*/
+	function create( event, rc, prc ){
+		var oRant = populateModel( "Rant" );
+
+		oRant.setUserId( auth().getUserId() );
+
+		rantService.create( oRant );
+
 		messagebox.info( "Rant created!" );
-		relocate( "rants" );
-    }
+		relocate( URI="/rants" );
+	}
+
+
 	
 }
+
 ```
 
 #### 10.4.3 - Modify the index view
@@ -1720,12 +1734,12 @@ component{
 ```html
 <!-- views/rants/index.cfm -->
 <cfoutput>
-    <cfif prc.rants.isEmpty()>
+    <cfif prc.aRants.isEmpty()>
         <h3>No rants yet</h3>
         <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start one now!</a>
     <cfelse>
         <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start a new rant!</a>
-        <cfloop array="#prc.rants#" item="rant">
+        <cfloop array="#prc.aRants#" item="rant">
             <div class="card mb-3">
                 <div class="card-header">
                     <strong>#rant.getUser().getUsername()#</strong> said at #dateTimeFormat( rant.getCreatedDate(), "h:nn:ss tt" )# on #dateFormat( rant.getCreatedDate(), "mmm d, yyyy")#
@@ -1813,7 +1827,7 @@ We need to secure the form, to ensure the user is logged in before they can send
 Now, let's do some BDD Testing:
 
 ```js
-component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+component extends="tests.resources.BaseIntegrationSpec"{
 	
 	property name="query" 		inject="provider:QueryBuilder@qb";
 	property name="bcrypt" 		inject="@BCrypt";
@@ -1832,6 +1846,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 	}
 
 	function afterAll(){
+		// do your own stuff here
 		super.afterAll();
 		query.from( "users" )
 			.where( "username", "=", "testuser" )
@@ -1850,26 +1865,35 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 			});
 
 			it( "can display all rants", function(){
-				var event = get( route="rants.index" );
+				var event = get( route="/rants", params={} );
 				// expectations go here.
-				expect( event.getPrivateValue( "rants" ) ).toBeArray();
-				expect( event.getRenderedContent() ).toInclude( "Start one now" );
+				expect( event.getPrivateValue( "aRants") ).toBeArray();
+				expect( event.getRenderedContent() ).toInclude( "All Rants" );
+			});
+
+			it( "can display the rants index when no rants exists", function(){
+				prepareMock( getInstance( "RantService" ) )
+					.$( "getAll", [] );
+				var event = get( route="/rants", params={} );
+				
+				getWireBox().clearSingletons();
+
+				expect( event.getPrivateValue( "aRants") ).toBeEmpty();
+				expect( event.getRenderedContent() ).toInclude( "No rants yet" );
 			});
 
 			it( "can display the new rant form", function(){
-				var event = get( route="rants.new" );
+				var event = get( route="/rants/new" );
 				// expectations go here.
 				expect( event.getRenderedContent() ).toInclude( "Rant About It" );
 			});
 
-			it( "stop a rant from being created from an invalid user", function(){
-				
+			it( "can stop a rant from being created from an invalid user", function(){
 				expect( function(){
 					var event = post( route="rants.create", params={
 						body = "Test Rant"
 					} );
 				}).toThrow( type="NoUserLoggedIn" );
-				// expectations go here.
 			});
 			
 			it( "can create a rant from a valid user", function(){
@@ -1881,7 +1905,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 					body = "Test Rant"
 				} );
 
-				expect( event.getValue( "relocate_URI" ) ).toBe( "rants" );
+				expect( event.getValue( "relocate_URI" ) ).toBe( "/rants" );
 			});
 
 		
