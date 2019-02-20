@@ -1428,39 +1428,24 @@ migrate create create_rants_table
 
 ```js
 component {
-
-    function up( schema ) {
-        queryExecute( "
-            CREATE TABLE `rants` (
-                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-                `body` TEXT NOT NULL,
-                `createdDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `modifiedDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `userId` INTEGER UNSIGNED NOT NULL,
-                CONSTRAINT `pk_rants_id` PRIMARY KEY (`id`),
-                CONSTRAINT `fk_rants_userId` FOREIGN KEY (`userId`) REFERENCES `users` (`id`) ON UPDATE CASCADE ON DELETE CASCADE
-            )
-        " );
-
-        /**
+    
+    function up( schema, queryBuilder ) {
         schema.create( "rants", function( table ){
             table.increments( "id" );
             table.text( "body" );
             table.timestamp( "createdDate" );
             table.timestamp( "modifiedDate" );
+            table.unsignedInteger( "userId" );
             table.foreignKey( "userId" ).references( "id" ).onTable( "users" );
         } );
-
-
-        **/
     }
 
-    function down( schema ) {
-        queryExecute( "DROP TABLE `rants`" );
-        // schema.drop( "rants" );
+    function down( schema, queryBuilder ) {
+        schema.drop( "rants" );
     }
 
 }
+
 ```
 
 #### 10.1.2 - Now, migrate your rants
@@ -1481,7 +1466,7 @@ Let's open the model and modify it a bit
 
 ```js
 /**
-* I am a new Model Object
+* I am a new Rant Object
 */
 component accessors="true"{
 
@@ -1489,33 +1474,36 @@ component accessors="true"{
 	property name="userService" inject;
 	
 	// Properties
-	property name="id"           type="string";
-	property name="body"         type="string";
+	property name="id"           type="string" default = "";
+	property name="body"         type="string" default = "";
 	property name="createdDate"  type="date";
 	property name="modifiedDate" type="date";
-	property name="userID"       type="string";
+	property name="userID"       type="string" default = "";
 	
 
 	/**
 	 * Constructor
 	 */
 	Rant function init(){
+		variables.createdDate = now();
 		return this;
-	}
-
-	/**
-	 * Verify if instance has been loaded or not
-	 */
-	boolean function isLoaded(){
-		return ( !isNull( variables.id ) && len( variables.id ) );
 	}
 	
 	/**
-	 * Get the related user
-	 */
+	* getUser
+	*/
 	function getUser(){
-		return userService.retrieveUserById( getUserId() );
+		// Lazy loading the relationship
+		return userService.retrieveUserById( getuserId() );
 	}
+
+	/**
+	* isLoaded
+	*/
+	boolean function isLoaded(){
+		return( !isNull( variables.id ) && len( variables.id ) );
+	}
+
 
 }
 ```
@@ -1523,16 +1511,72 @@ component accessors="true"{
 Work on the unit test, what will you test?
 
 ```js
-describe( "User Suite", function(){
-			
-    it( "can create the User", function(){
-        expect( model ).toBeComponent();
-    });
+/**
+* The base model test case will use the 'model' annotation as the instantiation path
+* and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
+* responsibility to update the model annotation instantiation path and init your model.
+*/
+component extends="tests.resources.BaseIntegrationSpec"{
+	
+	property name="query" 		inject="provider:QueryBuilder@qb";
+	property name="bcrypt" 		inject="@BCrypt";
 
-});
+	/*********************************** LIFE CYCLE Methods ***********************************/
+
+	function beforeAll(){
+		super.beforeAll();
+
+		model = getInstance( "Rant" );
+		
+		cleanUserFixture();
+		testUserId = query.from( "users" )
+			.insert( values = {
+				username : "testuser",
+				email : "testuser@tests.com",
+				password : bcrypt.hashPassword( "password" )
+			} ).result.generatedKey;
+
+		model.setUserId( testUserId );
+	}
+
+	function afterAll(){
+		cleanUserFixture();
+		super.afterAll();
+	}
+
+	function cleanUserFixture(){
+		query.from( "users" )
+			.where( "username", "=", "testuser" )
+			.delete();
+	}
+
+	/*********************************** BDD SUITES ***********************************/
+	
+	function run(){
+
+		describe( "Rant Suite", function(){
+			
+			it( "can create the Rant", function(){
+				
+				expect(	model ).toBeComponent();
+				
+			});
+
+			it( "should getUser", function(){
+				var oUser = model.getUser();
+
+				expect( oUser.getId() ).toBe( testUserId );
+			});
+
+
+		});
+
+	}
+
+}
 ```
 
-### 10.3 - Create RantService.cfc
+### 10.3 - Create `RantService.cfc`
 
 Let's create our rant service and work on it with a few methods: `getAll(),create(),new()`
 
