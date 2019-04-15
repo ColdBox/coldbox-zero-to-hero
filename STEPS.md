@@ -64,8 +64,7 @@ You can also control what files to watch.
 testbox watch **.cfc
 ```
 
-`ctl-c` will escape and stop the watching. 
-
+`ctl-c` will escape and stop the watching.
 
 ## 2 - Intro to ColdBox MVC
 
@@ -287,6 +286,7 @@ install commandbox-dotenv
 ```sh
 DB_DATABASE=soapbox
 DB_CLASS=org.gjt.mm.mysql.Driver
+DB_CLASS=com.mysql.jdbc.Driver
 DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&characterEncoding=UTF-8\&useLegacyDatetimeCode=true\&useSSL=false
 DB_USER=root
 DB_PASSWORD=soapbox
@@ -338,7 +338,7 @@ component {
     function up( schema ) {
         queryExecute( "
             CREATE TABLE `users` (
-                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                `id` INTEGER UNSIGNED NOT **NULL** AUTO_INCREMENT,
                 `username` VARCHAR(255) NOT NULL UNIQUE,
                 `email` VARCHAR(255) NOT NULL UNIQUE,
                 `password` VARCHAR(255) NOT NULL,
