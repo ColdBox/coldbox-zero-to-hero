@@ -52,7 +52,7 @@ The docker compose uses port `3306`. If you have MySQL already running on your m
 You can also use the following command will start a MySQL Server with docker.
 
 ```bash
-docker run -d --name soapbox -p 3306:3306 -e MYSQL_DATABASE=soapbox -e MYSQL_ROOT_PASSWORD=soapbox mysql
+docker run -d --name soapbox -p 3306:3306 -e MYSQL_DATABASE=soapbox -e MYSQL_ROOT_PASSWORD=soapbox mysql:5.7
 ```
 
 After you have created the container, you can start and stop it using the following commands:
@@ -71,6 +71,7 @@ You can use any client you would like. Here are a few we like ourselves:
 
 * [Sequel Pro](https://sequelpro.com) (Mac, Free)
 * [Heidi SQL](https://www.heidisql.com) (Windows, Free)
+* [TablePlus](https://tableplus.io/) (Cross Platform, Commercial / Free Trial)
 * [Data Grip](https://www.jetbrains.com/datagrip/) (Cross Platform, Commercial / Free Trial)
 
 ## Useful Resources
