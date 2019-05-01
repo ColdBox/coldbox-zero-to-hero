@@ -503,6 +503,16 @@ Let's run the tests again!
 
 Models are at the core of ColdBox. We could teach you how to write legacy style code, but we want to teach the `right` way from the start. We still start with creating a `User Service` that will be managing users in our SoapBox.
 
+Here are a few diagrams regarding MVC.
+
+https://coldbox.ortusbooks.com/the-basics/models
+
+https://coldbox.ortusbooks.com/the-basics/models/domain-modeling/service-layer
+
+https://coldbox.ortusbooks.com/the-basics/models/super-type-usage-methods
+
+
+
 ```bash
 coldbox create model name="UserService" persistence="singleton"
 ```
@@ -1756,7 +1766,7 @@ component{
 #### 10.4.4 - Set the default event to `rants.index`
 
 ```js
-// inside the coldbox struct
+// /config/Coldbox.cfc file - inside the coldbox struct
 coldbox = {
     defaultEvent = "rants.index",
     ...
@@ -1789,6 +1799,7 @@ Reinit the framework, then you'll see the Rant index.
 #### 10.4.6 - Update the main layout
 
 ```html
+<!-- inside the main layout /layouts/Main.cfm -->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
     <a class="navbar-brand" href="#event.buildLink( url = "/" )#">
         <i class="fas fa-bullhorn mr-2"></i>
@@ -1927,7 +1938,7 @@ install cbsecurity
 
 ```js
 // config/ColdBox.cfc
-"cbsecurity" = {
+cbsecurity = {
     "rulesFile" = "/config/security.json.cfm",
     "rulesSource" = "json",
     "validatorModel" = "UserService"
@@ -1954,10 +1965,10 @@ install cbsecurity
 ```js
 // models/UserService.cfc
 
-property name="authenticationService" inject="AuthenticationService@cbauth";
+property name="authService" inject="AuthenticationService@cbauth";
 
 function userValidator( rule, controller ) {
-    return authenticationService.isLoggedIn();
+    return authService.isLoggedIn();
 }
 ```
 

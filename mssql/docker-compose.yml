@@ -1,0 +1,20 @@
+version: "3.4"
+
+services:
+
+  soapboxdb:
+    build:
+      dockerfile: ./Dockerfile
+      args:
+        ACCEPT_EULA: Y
+        MSSQL_PID: "Developer"
+        SA_PASSWORD: "soapbox"
+    ports:
+      - "1433:1433"
+    volumes:
+      - type: volume
+        source: sql-data
+        target: /var/opt/mssql
+
+volumes:
+  sql-data:
