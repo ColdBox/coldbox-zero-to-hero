@@ -1964,7 +1964,7 @@ function userValidator( rule, controller ) {
 Then let's change this function to add a messagebox:
 
 ```js
-var isLoggedIn = authService.isLoggedIn();
+var isLoggedIn = authenticationService.isLoggedIn();
 
 if( !isLoggedIn ){
     controller.getWireBox().getInstance( "messagebox@cbMessageBox" )
