@@ -2,6 +2,10 @@
 
 Please have the following software on your computer before the workshop. If everyone is downloading the software at once, it will slow everyone down, and we want to make the most of our time together.
 
+## A Modern Computer
+
+Please make sure you have a computer that is modern. No running windows 95, 7 or something funky from the year 2000.  Make sure you have plenty of FREE RAM (at least 4gb) and with a modern processor (at least an i5).  Most of the hiccups in trainings are when people do not meet the appropriate requirements in their own machines.  We will be running CFML engines and docker containers, so make sure you can run them.
+
 ## [Git](https://git-scm.com)
 
 * https://git-scm.com
@@ -21,7 +25,7 @@ This can be downloaded bundled with CommandBox if needed
 Once CommandBox is installed we will need to install some global modules. Start by opening a box shell by typing `box`.  Once in the shell you can type:
 
 ```bash
-install commandbox-dotenv,commandbox-migrations
+install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig
 ```
 
 ## MySQL Server (5.7)
@@ -73,6 +77,30 @@ You can use any client you would like. Here are a few we like ourselves:
 * [Heidi SQL](https://www.heidisql.com) (Windows, Free)
 * [TablePlus](https://tableplus.io/) (Cross Platform, Commercial / Free Trial)
 * [Data Grip](https://www.jetbrains.com/datagrip/) (Cross Platform, Commercial / Free Trial)
+
+## IDE 
+
+We recommend the following IDEs for development for this workshop
+
+* [Microsoft VSCode](https://code.visualstudio.com/)
+* [Sublime](https://www.sublimetext.com/)
+
+If using VS Code, please install the following extensions:
+
+* CFML - KamasamaK
+* vscode-coldbox
+* vscode-testbox
+* Docker
+* Yaml
+
+If using Sublime, please install the following extensions:
+
+* ColdBox Platform
+* CFML
+* CFMLDocPlugin
+* Enhanced HTML and CFML
+* DockerFile Syntax Highlighting
+* Yaml
 
 ## Useful Resources
 

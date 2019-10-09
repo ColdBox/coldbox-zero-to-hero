@@ -188,6 +188,3 @@ Steps: 15
 Other Ideas:
 - Environments in ColdBox.cfc
 - Domain Names in CommandBox
-
-
-

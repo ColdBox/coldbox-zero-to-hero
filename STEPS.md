@@ -4,9 +4,9 @@
 
 ## 1 - Create the base app
 
-### 1.1 - Create a folder for your app on your hard drive called `soapbox`.
-`
-### 1.2  Scaffold out a new Coldbox application with TestBox included.
+### 1.1 - Create a folder for your app on your hard drive called `soapbox`
+
+### 1.2  Scaffold out a new Coldbox application with TestBox included
 
 ```sh
 coldbox create app soapbox
@@ -18,20 +18,21 @@ coldbox create app soapbox
 install --dev
 ```
 
-
 ### 1.3 - Start up a local server
 
 ```sh
 start cfengine=lucee@5 port=42518 --rewritesEnable
 ```
 
-### 1.4 - Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template.
+### 1.4 - Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template
 
-### 1.5 - Open `/tests` in your browser. You should see the TestBox test browser.
-    This is useful to find a specific test or group of tests to run _before_ running them.
+### 1.5 - Open `/tests` in your browser. You should see the TestBox test browser
 
-### 1.6 - Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project.
-    This is running all of our tests by default. We can create our own test runners as needed.
+This is useful to find a specific test or group of tests to run _before_ running them.
+
+### 1.6 - Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project
+
+This is running all of our tests by default. We can create our own test runners as needed.
 
 All your tests should be passing at this point. 😉
 
