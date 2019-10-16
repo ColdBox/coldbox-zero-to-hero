@@ -628,7 +628,7 @@ Now we can build our registration flow.
 
 ## 8 - Building the Registration Flow
 
-Start Registration flow. The next series of steps will build the Register flow.
+Let's begin by creating the registration flow by generating our `registration` handler:
 
 ```bash
 coldbox create handler name="registration" actions="new,create"
@@ -636,10 +636,12 @@ coldbox create handler name="registration" actions="new,create"
 
 The `create` action does not have a view, so let's clean that up: `delete views/registration/create.cfm`
 
-### 8.1 - Open `tests/specs/integration/RegistrationTest.cfc` and modify
+### BDD
+
+Open `tests/specs/integration/RegistrationTest.cfc` and modify
 
 ```js
-component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+component extends="tests.resources.BaseIntegrationSpec"{
 	
 	property name="query" inject="provider:QueryBuilder@qb";
 
@@ -674,9 +676,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 }
 ```
 
-Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use BDD we will write the real test.
-
-### 8.2 - Now let's update our tests once again
+Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use BDD we will write the real specs:
 
 ```js
 
@@ -692,7 +692,7 @@ it( "can register a user", function() {
             "select * from users where username = :username", 
             { username : "testadmin" }, 
             { returntype = "array" } 
-        ) 
+        );
     ).toBeEmpty();
 
     var event = post( "/registration", {
@@ -714,7 +714,7 @@ Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test
 
 Next we'll write the production code to make this test pass.
 
-### 8.3 - Write the production code
+### Resourceful Routes
 
 **SHOW RESOURCES ROUTING TABLE. EXPLAIN WHY RESOURCES.**
 https://coldbox.ortusbooks.com/the-basics/routing/routing-dsl/resourceful-routes
@@ -734,7 +734,9 @@ function configure(){
 
 When working with routes it is essential to visualize them as they can become very complex.  We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`.  Now issue a reinit: `coldbox reinit` and refresh your browser.  You can navigate to: http://localhost:42518/route-visualizer and see all your wonderful routes.
 
-#### 8.3.1 - Revise the actions in the Registration Handler `handlers/registration.cfc`
+### Event Handler - new() action
+
+Revise the actions in the Registration Handler `handlers/registration.cfc`
 
 ```js
 function new( event, rc, prc ) {
@@ -742,14 +744,12 @@ function new( event, rc, prc ) {
 }
 
 function create( event, rc, prc ) {
-    event.setView( "registration/create" );
+    event.setView( "registration/create" ); // REMOVE THIS
 }
 ```
 
-http://127.0.0.1:42518/registration/new?fwreinit=1
-You will see an error `Messages: Page /views/registration/new.cfm [C:\www\soapbox\app\registration\new.cfm] not found`
 
-#### 8.3.2 - Update the `new` view.
+### Update the `new` view
 
 Add the following into a new file `views/registration/new.cfm`
 
@@ -780,9 +780,12 @@ Add the following into a new file `views/registration/new.cfm`
 ```
 
 Hit http://127.0.0.1:42518/registration/new
+
 Now you will see the form.
 
-#### 8.3.3 - Add a register link to the navbar
+### NavBar Updates
+
+Add a register link to the navbar for our registration page
 
 ```html
 <div class="collapse navbar-collapse" id="navbarSupportedContent">
@@ -799,9 +802,8 @@ Refresh your page, click Register and fill out the form. Submit the form and you
 
 Next we'll create the saving action. Which is what our test was written for.
 
-### 8.4 - Add `create` action in the Registration.cfc handler
+### Event Handler - create() action
 
-#### 8.4.1 - Pseudo Code our Create action
 ```js
 function create( event, rc, prc ) {
     //insert the user
@@ -810,18 +812,12 @@ function create( event, rc, prc ) {
 }
 ```
 
-#### 8.4.2 - To actually insert the User lets use the `UserService`
-
 We need to inject the `UserService` into the handler. Add the following code to the top of the Registration.cfc handler.
 
 ```js
 //handlers/Registration.cfc
 property name="userService"		inject="UserService";
 ```
-
-Reinit the framework so the injection is used: `coldbox reinit`
-
-#### 8.4.3 - Replace Psuedo Code with Real Code
 
 Remove `//insert the user` and replace with
 
@@ -832,6 +828,7 @@ flash.put( "notice", {
     message : "The user #encodeForHTML( rc.username )# with id: #generatedKey# was created!"
 } );
 ```
+#### Update Layout With Flash
 
 What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and create the visualization of our flash messages:
 
@@ -843,18 +840,15 @@ What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and
 </cfif>
 ```
 
-
-### 8.5 - Update `UserService` with a Create Method
+### Model Updates
 
 Do not ever use a password that is un-encrypted, it is not secure, so lets use `BCrypt`. On ForgeBox, there is a module for that and easily installable with CommandBox.
 
-#### 8.5.1 - Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
+#### Add [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
 
 ```sh
 install bcrypt
 ```
-
-### 8.5.2 - Inject Bcrypt into the UserService
 
 Update the `UserService` to use BCrypt `/models/UserService.cfc`
 We are adding the DI Injection for the BCrypt Module.
@@ -866,7 +860,7 @@ component singleton accessors="true"{
 	property name="bcrypt" inject="@BCrypt";
 ```
 
-#### 8.5.3 - Let's create the `create` method in the UserService
+#### Let's create the `create` method in the UserService
 
 Create the `create` function, that has 3 arguments, and write the query, including wrapping the password in a call to bcrypt to encrypt the password.
 
@@ -904,9 +898,10 @@ numeric function create(
 }
 ```
 
-#### 8.5.4
+#### Verify Registration
 
 Hit the url: http://127.0.0.1:42518//registration/new and add a new user.
+
 If you didn't reinit the framework, you will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init.
 
 Now hit the url with frame reinit: http://127.0.0.1:42518//registration/new?fwreinit=1
@@ -915,14 +910,13 @@ Add a new user, and see that the password is now encrypted. Bcrypt encrypted pas
 
 `$2a$12$/w/nkNrV6W6qqZBNXdqb4OciGWNNS7PCv1psej5WTDiCs904Psa8S`
 
-#### 8.5.5
-
 Check your tests, they should all pass again.
 
-### 8.6 Complete the steps and Register yourself 
+### Complete the steps and Register yourself
 
 **SELF DIRECTED** (20 minutes)
 
+What happens if you run the tests again? Where is your user?
 
 ## 9 - Build the Login & Logout Flow
 
