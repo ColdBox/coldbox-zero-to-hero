@@ -4,45 +4,40 @@
 
 ## 1 - Create the base app
 
-### 1.1 - Create a folder for your app on your hard drive called `soapbox`
+### Create a folder for your app on your hard drive called `soapbox`
 
-### 1.2  Scaffold out a new Coldbox application with TestBox included
+### Scaffold out a new Coldbox application with TestBox included
 
 ```sh
 coldbox create app soapbox
 ```
+`
 
-### 1.2 bug Install testbox if the above command didn't work (CommandBox < 4.2)
-
-```sh
-install --dev
-```
-
-### 1.3 - Start up a local server
+### Start up a local server
 
 ```sh
-start cfengine=lucee@5 port=42518 --rewritesEnable
+start port=42518
 ```
 
-### 1.4 - Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template
+### Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template
 
-### 1.5 - Open `/tests` in your browser. You should see the TestBox test browser
+### Open `/tests` in your browser. You should see the TestBox test browser
 
 This is useful to find a specific test or group of tests to run _before_ running them.
 
-### 1.6 - Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project
+### Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project
 
 This is running all of our tests by default. We can create our own test runners as needed.
 
 All your tests should be passing at this point. 😉
 
-### 1.7 - Let's run the Tests via CommandBox
+### Let's run the Tests via CommandBox
 
 ```sh
 testbox run "http://localhost:42518/tests/runner.cfm"
 ```
 
-### 1.7.1 - Lets add this url to our server.json
+### Lets add this url to our server.json
 
 We can set the testbox runner into our server.json, and then we can easily run the tests at a later stage without having to type out the whole url. To do so, we use the `package set` command.
 
@@ -51,7 +46,7 @@ package set testbox.runner="http://localhost:42518/tests/runner.cfm"
 testbox run
 ```
 
-### 1.8 - Use CommandBox Test Watchers
+### Use CommandBox Test Watchers
 
 CommandBox now supports Test Watchers. This allows you to automatically run your tests run as you make changes to tests or cfcs. You can start CommandBox Test watchers with the following command
 
@@ -69,9 +64,7 @@ testbox watch **.cfc
 
 ## 2 - Intro to ColdBox MVC
 
-### 2.1 - ColdBox.cfc Intro
-
-### 2.2 - Development Settings
+### Development Settings
 
 * Configure the `configure()` method for production
 * Verify the `environment` structures
@@ -97,7 +90,7 @@ function development(){
 ```
 
 * Where does the `getSetting()` method come from?
-* Go back again to the UML Diagram of Major Classes
+* Go back again to the UML Diagram of Major Classes (https://coldbox.ortusbooks.com/the-basics/models/super-type-usage-methods)
 * Reinit the framework 
 
 > http://localhost:42518?fwreinit=1
@@ -114,58 +107,61 @@ coldbox reinit
 * Change the environments, test the label
 
 
-### 2.3 - Show routes file. Explain routing by convention.
+### Show routes file. Explain routing by convention.
 
-### 2.4 - Explain `event`, `rc`, and `prc`.
+### Explain `event`, `rc`, and `prc`.
 
-### 2.5 - Show `Main.index`.
+### Show `Main.index`.
 
-### 2.6 - Explain views. Point out view conventions.
+### Explain views. Point out view conventions.
 
-### 2.7 - Briefly touch on layouts.
+### Briefly touch on layouts.
 
-### 2.8 - Show how `rc` and `prc` are used in the views.
+### Show how `rc` and `prc` are used in the views.
 
-### 2.9 - Add an about page
+### Add an about page
 
 ```bash
 coldbox create view about/index
 ```
 
-#### 2.9.1 - Add an `views/about/index.cfm`. Hit the url `/about/index` and it works!
+#### Add an `views/about/index.cfm`. Hit the url `/about/index` and it works!
+
 ```html
 <cfoutput>
     <h1>About us!</h1>
 </cfoutput>
 ```
-#### 2.9.2 - Add an `about` handler, change to non-existent view, does it work?
+#### Add an `about` handler, change to non-existent view, does it work?
 
 ```bash
 coldbox create handler name="about" actions="index" views=false
 ```
 
-#### 2.9.3 - Set it back to the `index` view, does it work?
+#### Set it back to the `index` view, does it work?
 
-#### 2.9.4 - Execute the tests, we have more tests now
+#### Execute the tests, we have more tests now
 
 * Explain Integration Testing, BDD Specs, Expectations
 * Fix the tests
 
 ```js
 it( "can render the about page", function(){
-    var event = GET( route="/about" );
+    //var event = execute( event="about.index", renderResults=true );
+    //var event = execute( route="/about/index", renderResults=true );
+    var event = GET( "/about" );
 
     expect(	event.getRenderedContent() ).toInclude( "About Us" );
 });
 ```
 
-### 2.10 Assignment: Add a Links page
+### Assignment: Add a Links page
 
-### 2.11 Assignment: Change `prc.welcome` in the `handlers/main.cfc` and update the integration tests to pass.
+### Assignment: Change `prc.welcome` in the `handlers/main.cfc` and update the integration tests to pass.
 
 ## 3 - Layouts
 
-### 3.1 -  Copy in simple bootstrap theme / layout to replace the existing `/layouts/main.cfm` layout.
+### Copy in simple bootstrap theme / layout to replace the existing `/layouts/main.cfm` layout.
 
 ```html
 <cfoutput>
@@ -228,7 +224,8 @@ it( "can render the about page", function(){
 </cfoutput>
 ```
 
-### 3.2 - Insert the following CSS into a new file: `/includes/css/app.css`
+### Insert the following CSS into a new file: `/includes/css/app.css`
+
 ```css
 /* includes/css/app.css */
 
@@ -247,7 +244,7 @@ body {
 
 ## 4 - Database and CBMigrations
 
-### 4.1 - Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
+### Install [commandbox-migrations](https://www.forgebox.io/view/commandbox-migrations)
 
 ```sh
 install commandbox-migrations
@@ -255,7 +252,7 @@ install commandbox-migrations
 
 You should see a list of available commands with `migrate ?`.
 
-### 4.2 - Initalize migrations using `migrate init`
+### Initalize migrations using `migrate init`
 
 This adds the following to your `box.json` file:
 
@@ -274,7 +271,7 @@ This adds the following to your `box.json` file:
 
 Which is needed so migrations can talk to your database!
 
-### 4.3 - Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
+### Install [commandbox-dotenv](https://www.forgebox.io/view/commandbox-dotenv)
 
 To make our migration setup more secure, we're going to use environment variables. In local development, we can do this easily with a commandbox module, DotEnv.
 
@@ -282,7 +279,7 @@ To make our migration setup more secure, we're going to use environment variable
 install commandbox-dotenv
 ```
 
-### 4.4 - Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our Docker credentials from before.)
+### Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our Docker credentials from before.)
 
 ```sh
 DB_DATABASE=soapbox
@@ -295,7 +292,7 @@ DB_PASSWORD=soapbox
 
 Once the `.env` file is seeded, reload CommandBox so it can pickup the environment: `reload`
 
-### 4.5 - Test our environment variable with an echo command
+### Test our environment variable with an echo command
 
 ```sh
 echo ${DB_USER}
@@ -303,7 +300,7 @@ echo ${DB_USER}
 
 You should see no output, because DotEnv has not loaded the variables from our file.
 
-### 4.6 - Reload your shell in your project root. (`reload` or `r`)
+### Reload your shell in your project root. (`reload` or `r`)
 
 ```sh
 r
@@ -312,7 +309,7 @@ echo ${DB_USER}
 
 You should now see `root`, your `DB_USER` output when you run that `echo` command.
 
-### 4.7 - Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
+### Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
 ```sh
 migrate install
@@ -320,7 +317,7 @@ migrate install
 
 If the table does not exist, this will create the table in your db. If you refresh your db, you should see the table. If you run the command again, it will let you know it is already installed. Try it!
 
-### 4.8 - Create a users migration
+### Create a users migration
 
 ```sh
 migrate create create_users_table
@@ -328,7 +325,7 @@ migrate create create_users_table
 
 All migration resources are CFCs and are stored under `resources/database/migrations/**.cfc`.  Make sure these are in version control. They can save your life!
 
-### 4.9 - Fill in the migration.
+### Fill in the migration.
 
 The migration file was created by the last command, and the file location was output by commandbox.
 If you are using VS Code, you can just `Ctrl` + Click to open the file.
@@ -369,9 +366,9 @@ component {
 ```
 
 * Go over file and describe the options you can have to create the schemas.
-* QB Schema Builder Docs: https://qb.ortusbooks.com/overview/schema-builder
+* QB Schema Builder Docs: https://qb.ortusbooks.com/schema-builder/schema-builder
 
-### 4.10 - Run the migration up.
+### Run the migration up.
 
 ```sh
 migrate up
@@ -381,26 +378,15 @@ Check your database, and you should see the database table. You can migrate `up`
 
 > If all else fails: `migrate fresh` is your best bet! (https://www.forgebox.io/view/commandbox-migrations)
 
-### 4.11 - Next add the following settings into your `/Application.cfc` file
+### Next add the following settings into your `/Application.cfc` file
 
 This will add the datasource to your CFML engine.  There are other ways, but this is the easiest and portable.
 
 ```js
-// Application.cfc
-variables.util = new coldbox.system.core.util.Util();
-
-this.datasources = {
-    "soapbox" = {
-        "class" = util.getSystemSetting( "DB_CLASS" ),
-        "connectionString" = util.getSystemSetting( "DB_CONNECTIONSTRING" ),
-        "username" = util.getSystemSetting( "DB_USER" ),
-        "password" = util.getSystemSetting( "DB_PASSWORD" )
-    }
-};
 this.datasource = "soapbox";
 ```
 
-### 4.12 - Refresh your app, and you will see an error.
+### Refresh your app, and you will see an error.
 
 `Could not find a Java System property or Env setting with key [DB_CLASS].`
 
@@ -411,14 +397,14 @@ This is because although we reloaded the CLI so migrations is able to read those
 Now when you restart, Java is passed all of those variables automatically by the DotEnv module, and now this will work.
 You will need to restart your server whenever you add, remove, or change environment variables.
 
-### 4.13 - Ensure your app and your tests are running
+### Ensure your app and your tests are running
 
 Hit `/` in your browser
 Hit `/tests/runner.cfm` in your browser
 
 ## 5 - Setup the Test Harness and Base Spec
 
-### 5.1 - Install `cfmigrations` as a dev dependency. 
+### Install `cfmigrations` as a dev dependency. 
 
 CF Migrations is different than `commandbox-migrations`. It allows you to run the migrations from a running CFML engine and NOT CommandBox.  Usually, you can use them for testing purposes or delivering updates in your apps.  However, for today, this is a development dependency only.
 
@@ -426,29 +412,14 @@ CF Migrations is different than `commandbox-migrations`. It allows you to run th
 install cfmigrations --saveDev
 ```
 
-### 5.2 - Configure `tests/Application.cfc`
+### Configure `tests/Application.cfc`
 
 ```js
 // tests/Application.cfc
-variables.util = new coldbox.system.core.util.Util();
-
-this.datasources = {
-    "soapbox" = {
-        "class" = util.getSystemSetting( "DB_CLASS" ),
-        "connectionString" = util.getSystemSetting( "DB_CONNECTIONSTRING" ),
-        "username" = util.getSystemSetting( "DB_USER" ),
-        "password" = util.getSystemSetting( "DB_PASSWORD" )
-    }
-};
 this.datasource = "soapbox";
-
-public void function onRequestEnd() { 
-    structDelete( application, "cbController" );
-    structDelete( application, "wirebox" );
-}
 ```
 
-### 5.3 - Create a `tests/resources/BaseIntegrationSpec.cfc`
+### Create a `tests/resources/BaseIntegrationSpec.cfc`
 
 ```js
 component extends="coldbox.system.testing.BaseTestCase" {
@@ -500,7 +471,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 Let's run the tests again!
 
-## 6 - Intro to Models
+## 6 - Intro to Models - User Service
 
 Models are at the core of ColdBox. We could teach you how to write legacy style code, but we want to teach the `right` way from the start. We still start with creating a `User Service` that will be managing users in our SoapBox.
 
@@ -510,7 +481,7 @@ coldbox create model name="UserService" persistence="singleton"
 
 This  will create the `UserService.cfc` in the `models` folder and a companion test in `tests/specs/unit/UserServiceTest.cfc`.
 
-### 6.1 - BDD - Let's write our tests first
+### BDD - Let's write our tests first
 
 Open up the test `/tests/specs/unit/UserServiceTest.cfc`
 
@@ -526,7 +497,7 @@ function run() {
 
 Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and fail as expected. As we use BDD we will write the real test.
 
-### 6.2 - Let's write the real test - step 1
+### Let's write the real test - step 1
 
 ```js
     function run() {
@@ -547,9 +518,9 @@ Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test
 
 Run your tests `/tests/runner.cfm` 
 
-### 6.3 - Lets create the `list()` function
+### Lets create the `list()` function
 
-#### 6.3.1 - Lets test the `list()` function exists
+Lets test the `list()` function exists
 
 Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to the following `it` block.
 
@@ -561,7 +532,7 @@ it( "can list all users", function() {
 
 Run the tests and you'll get the following error `component [models.UserService] has no function with name [list]`
 
-#### 6.3.2 - Lets create the `list()` function
+Lets create the `list()` function
 
 ```js
 function list(){
@@ -571,9 +542,7 @@ function list(){
 
 Run the tests and you'll see you tests pass.
 
-### 6.4 Lets make the `list()` function return the data
-
-#### 6.4.1 - Update our test for the `list()` function
+### Lets make the `list()` function return the data
 
 Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to the following `it` block. This will check the return type, to ensure the return is an array.
 
@@ -586,8 +555,6 @@ it( "can list all users", function() {
 
 Run the tests, and they will fail with the following error. `Actual data [] is not of this type: [Array]`
 
-#### 6.4.2 - Let's make the `list()` function work
-
 ```js
 function list(){
     return queryExecute( "select * from users", {}, { returntype = "array" } );
@@ -598,7 +565,7 @@ Run the tests, and the test should pass.
 
 ## 7 - Using Models in Handlers and Views
 
-### 7.1 - Inject the `UserService` into your Main Handler.
+### Inject the `UserService` into your Main Handler.
 
 Add the injection into your `/handlers/Main.cfc` 
 
@@ -606,7 +573,7 @@ Add the injection into your `/handlers/Main.cfc`
 property name="userService"		inject="UserService";
 ```
 
-### 7.2 Use the `userService.list()` call to retrieve the user list
+### Use the `userService.list()` call to retrieve the user list
 
 Call the userService.list() function and store it in a prc variable.
 
@@ -621,11 +588,11 @@ function index(event,rc,prc){
 Hit `/` in your browser, and you'll get an error - `Messages: variable [USERSERVICE] doesn't exist.`  What happened? Who can tell me why are we getting this error?
 
 
-### 7.3 - Reinit the Framework
+### Reinit the Framework
 
 Hit '/?fwreinit=1' and now you will not see the error.
 
-### 7.4 - Check the List call is working
+### Check the List call is working
 
 Add a writeDump in the handler, to ensure the call is succeeding.
 
@@ -645,7 +612,7 @@ SQL:
 select * from users 
 ```
 
-### 7.5 - Access the data from the View
+### Access the data from the View
 
 Remove the `writeDump` from the handler.
 
