@@ -2084,13 +2084,13 @@ Now Test it out in the browser
 
 ## 13. Add 👊 and 💩 actions
 
-#### 13.1.1 - Migrate `bumps` table
+### Migrations `bumps`
 
 ```
 migrate create create_bumps_table
 ```
 
-#### 13.1.2 - Fill the file you just create with the following functions
+Fill the file you just create with the following functions
 
 ```js
 component {
@@ -2123,12 +2123,13 @@ component {
 }
 ```
 
-#### 13.2.1 - Migrate `poops` table
+### Migrations `poops`
+
 ```
 migrate create create_poops_table
 ```
 
-#### 13.2.2 - Fill the file you just create with the following functions
+Fill the file you just create with the following functions
 
 ```js
 component {
@@ -2161,17 +2162,18 @@ component {
 }
 ```
 
-### 13.3 - Now run the function `up`
+Now migrate the migrations:
 
 ```
 migrate up
 ```
 
-### 13.4 - Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+### View Partial Updates
 
-```
+Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+
+```html
 // /views/_partials/_rant.cfm
-
 <div class="card-footer">
     <button class="btn btn-outline-dark">
         #args.rant.getBumps().len()# 👊
@@ -2182,9 +2184,9 @@ migrate up
 </div>
 ```
 
-### 13.5 - Update `Rant.cfc`
+### Model: `ReactionService.cfc`
 
-#### 13.5.1 - Create `ReactionService.cfc` in `models/services/`
+Let's build out the model to take care of our reaction services:
 
 ```bash
 coldbox create model name="ReactionService" methods="getBumpsForRant,getPoopsForRant"
@@ -2197,7 +2199,6 @@ Then update the model
 component {
 
     property name="populator" inject="wirebox:populator";
-    property name="wirebox" inject="wirebox";
 
     function newBump() provider="Bump";
     function newPoop() provider="Poop";
@@ -2231,12 +2232,14 @@ component {
 }
 ```
 
-#### 13.5.2 - Inject `reactionService` and create the following functions in the `Rant` object
+### Model: `Rant`
+
+Inject `reactionService` and create the following functions in the `Rant` object
 
 ```js
 // models/Rant.cfc
 
-property name="reactionService" inject="id";
+property name="reactionService" inject="ReactionService";
 
 function getBumps() {
     return reactionService.getBumpsForRant( this );
@@ -2247,54 +2250,7 @@ function getPoops() {
 }
 ```
 
-### 13.6 - Reinitialize the framework
-
-### 13.7 - Try the site, and realize its broken, but why?
-
-```js
-Event: rants.index
-Routed URL: rants/
-Layout: N/A (Module: )
-View: N/A
-Timestamp: 04/13/2018 09:54:07 AM
-Type: Builder.DSLDependencyNotFoundException
-Messages: The DSL Definition {REF={null}, REQUIRED={true}, ARGNAME={}, DSL={id}, JAVACAST={null}, NAME={reactionService}, TYPE={any}, VALUE={null}, SCOPE={variables}} did not produce any resulting dependency The target requesting the dependency is: 'Rant'
-```
-
-This is a WireBox DSL injection error. Saying the RANT module is having trouble asking for the reactionService
-
-
-
-
-## 14 - Wirebox Conventions vs Configuration
-
-Dependency Injection is Magic - Not really
-
-Did you notice anything different when we created the Service??
-We created a services folder inside of Models, to organize our Models better.
-
-Wirebox is very powerful, but it is not magic, it runs by conventions, and you can configure it to run differently if you have differing opinions on the conventions.
-
-So you have to tell it what you want it to do if you want to do something more. In this case, instead of just using model paths (automatic convention), we can tell Wirebox to map models and all of its subfolders.
-
-Note - This recursive search of the models folder is the default in modules, and this convention will be modified for the main models folder very soon in ColdBox.
-
-### 14.1 - Open the WireBox.cfc
-
-Located in the /config folder.
-
-### 14.2 - Scroll to the bottom of the file and insert the following
-
-```js
-// Map Bindings below
-mapDirectory( "models" );
-```
-
-This will make the models folder recursively, now allowing you to organize your folders however you see fit.
-
-### 14.3 - Reinitialize the framework
-
-### 14.4 - Test out the site... no errors now.
+Reinit and try it out on the site!
 
 ## 15 - Make Rant Reactions Functional
 
