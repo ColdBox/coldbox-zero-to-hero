@@ -1135,8 +1135,6 @@ Let's start building out the code:
 // handlers/Sessions.cfc
 component {
 
-    property name="messagebox" inject="MessageBox@cbmessagebox";
-
     /**
 	* new
 	*/
@@ -1144,13 +1142,13 @@ component {
 		event.setView( "sessions/new" );
 	}
 
-    /**
+	/**
 	* create
 	*/
 	function create( event, rc, prc ){
 		try {
-			auth().authenticate( rc.username, rc.password )
-			messagebox.success( "Welcome back #rc.username#" );
+			auth().authenticate( rc.username ?: "", rc.password ?: "" );
+			messagebox.success( "Welcome back #encodeForHTML( rc.username )#" );
             return relocate( uri = "/" );
         }
         catch ( InvalidCredentials e ) {
@@ -1164,8 +1162,7 @@ component {
 	*/
 	function delete( event, rc, prc ){
 		auth().logout();
-		messagebox.info( "Bye Bye! See ya soon!" );
-        return relocate( uri = "/" );
+		relocate( uri="/" );
 	}
 
 }
@@ -1222,32 +1219,30 @@ component {
 Add the new methods to the `/models/UserService.cfc`
 
 ```js
-    // What is this FUNKYNESS!!!
-    User function new() provider="User"{}
+   // What is this FUNKYNESS!!!
+    User function new() provider="User";
 
-	User function retrieveUserById( id ) {
+	User function retrieveUserById( required id ) {
         return populator.populateFromQuery(
             new(),
-            queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ id ] ),
-            1
+            queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ arguments.id ] )
         );
     }
 
-    User function retrieveUserByUsername( username ) {
+    User function retrieveUserByUsername( required username ) {
         return populator.populateFromQuery(
             new(),
-            queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ] ),
-            1
+            queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ arguments.username ] )
         );
     }
 
-    boolean function isValidCredentials( username, password ) {
-		var oUser = retrieveUserByUsername( username );
+    boolean function isValidCredentials( required username, required password ) {
+		var oUser = retrieveUserByUsername( arguments.username );
         if( !oUser.isLoaded() ){
             return false;
 		}
-		
-        return bcrypt.checkPassword( password, oUser.getPassword() );
+
+        return bcrypt.checkPassword( arguments.password, oUser.getPassword() );
     }
 ```
 
