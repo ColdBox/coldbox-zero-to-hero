@@ -1381,13 +1381,13 @@ Now register and you will be automatically logged in.
 
 ## 10 - Rants
 
-### 10.1 - Create rants migrations
+### Migrations
 
 ```sh
 migrate create create_rants_table
 ```
 
-#### 10.1.1 - In the file that was created by the previous command, put this piece of code in there
+In the file that was created by the previous command, put this piece of code in there
 
 ```js
 component {
@@ -1411,13 +1411,174 @@ component {
 
 ```
 
-#### 10.1.2 - Now, migrate your rants
+Now, migrate your rants
 
 ```
 migrate up
 ```
 
-### 10.2 - Create a Rant object in the models folder
+### BDD
+
+Now, let's do some BDD as we have to build the CRUD for rants. Let's start by generating the tests, handlers and supporting files:
+
+```bash
+coldbox create handler name="rants" actions="index,new,create"
+# delete the create view, it's not necessary
+delete views/rants/create.cfm --force
+```
+
+Open the integration tests and start coding:
+
+```js
+component extends="tests.resources.BaseIntegrationSpec"{
+	
+	property name="query" 		inject="provider:QueryBuilder@qb";
+	property name="bcrypt" 		inject="@BCrypt";
+	property name="auth" 		inject="authenticationService@cbauth";
+
+	/*********************************** LIFE CYCLE Methods ***********************************/
+
+	function beforeAll(){
+		super.beforeAll();
+		query.from( "users" )
+			.insert( values = {
+				username : "testuser",
+				email : "testuser@tests.com",
+				password : bcrypt.hashPassword( "password" )
+			} );
+	}
+
+	function afterAll(){
+		// do your own stuff here
+		super.afterAll();
+		query.from( "users" )
+			.where( "username", "=", "testuser" )
+			.delete();
+	}
+
+	/*********************************** BDD SUITES ***********************************/
+	
+	function run(){
+
+		describe( "rants Suite", function(){
+
+			beforeEach(function( currentSpec ){
+				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+				setup();
+			});
+
+			it( "can display all rants", function(){
+				var event = get( route="/rants", params={} );
+				// expectations go here.
+				expect( event.getPrivateValue( "aRants") ).toBeArray();
+				expect( event.getRenderedContent() ).toInclude( "All Rants" );
+			});
+
+			it( "can display the rants index when no rants exists", function(){
+				prepareMock( getInstance( "RantService" ) )
+					.$( "getAll", [] );
+				var event = get( route="/rants", params={} );
+				
+				getWireBox().clearSingletons();
+
+				expect( event.getPrivateValue( "aRants") ).toBeEmpty();
+				expect( event.getRenderedContent() ).toInclude( "No rants yet" );
+			});
+
+			it( "can display the new rant form", function(){
+				var event = get( route="/rants/new" );
+				// expectations go here.
+				expect( event.getRenderedContent() ).toInclude( "Rant About It" );
+			});
+
+			it( "can stop a rant from being created from an invalid user", function(){
+				expect( function(){
+					var event = post( route="rants.create", params={
+						body = "Test Rant"
+					} );
+				}).toThrow( type="NoUserLoggedIn" );
+			});
+			
+			it( "can create a rant from a valid user", function(){
+
+				// Log in user
+				auth.authenticate( "testuser", "password" );
+
+				var event = post( route="rants.create", params={
+					body = "Test Rant"
+				} );
+
+				expect( event.getValue( "relocate_URI" ) ).toBe( "/rants" );
+			});
+
+		
+		});
+
+	}
+
+}
+```
+
+### Resources Router
+
+Add the rants resources in the `Router.cfc` file
+
+```js
+// config/Router.cfc
+resources( "rants" );
+```
+
+### Event Handler
+
+Let's build it out.
+
+```js
+// handlers/rants.cfc
+
+/**
+* I am a new handler
+*/
+component{
+	
+	property name="rantService" 	inject;
+	property name="messagebox" 		inject="MessageBox@cbmessagebox";
+		
+	/**
+	* index
+	*/
+	function index( event, rc, prc ){
+		prc.aRants = rantService.getAll()
+		event.setView( "rants/index" );
+	}
+
+	/**
+	* new
+	*/
+	function new( event, rc, prc ){
+		event.setView( "rants/new" );
+	}
+
+	/**
+	* create
+	*/
+	function create( event, rc, prc ){
+		var oRant = populateModel( "Rant" );
+
+		oRant.setUserId( auth().getUserId() );
+
+		rantService.create( oRant );
+
+		messagebox.info( "Rant created!" );
+		relocate( URI="/rants" );
+	}
+
+
+	
+}
+```
+
+
+### Model: `Rant`
 
 Run the following to create your Rant object with a constructor and a few methods `getUser(),isLoaded()` method we will fill out later.  Please note the unit test is created as well.
 
@@ -1539,7 +1700,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 }
 ```
 
-### 10.3 - Create `RantService.cfc`
+### Model: `RantService`
 
 Let's create our rant service and work on it with a few methods: `getAll(),create(),new()`
 
@@ -1557,7 +1718,6 @@ component singleton accessors="true"{
 	
 	// Properties
 	property name="populator" inject="wirebox:populator";
-    property name="wirebox"   inject="wirebox";
 
 	/**
 	 * Constructor
@@ -1625,74 +1785,7 @@ describe( "RantService Suite", function(){
 
 Why not create more unit tests?
 
-### 10.4 - Rants CRUD
-
-#### 10.4.1 - Add the rants resources in the `Router.cfc` file
-
-```js
-// config/Router.cfc
-resources( "rants" );
-```
-
-#### 10.4.2 - Create the rants handler and views
-
-Go into CommandBox and type away:
-
-```bash
-coldbox create handler name="rants" actions="index,new,create"
-# delete the create view, it's not necessary
-delete views/rants/create.cfm --force
-```
-
-Now open the handler and let's do some modifications:
-
-
-```js
-// handlers/rants.cfc
-/**
-* I am a new handler
-*/
-component{
-	
-	property name="rantService" 	inject;
-	property name="messagebox" 		inject="MessageBox@cbmessagebox";
-		
-	/**
-	* index
-	*/
-	function index( event, rc, prc ){
-		prc.aRants = rantService.getAll()
-		event.setView( "rants/index" );
-	}
-
-	/**
-	* new
-	*/
-	function new( event, rc, prc ){
-		event.setView( "rants/new" );
-	}
-
-	/**
-	* create
-	*/
-	function create( event, rc, prc ){
-		var oRant = populateModel( "Rant" );
-
-		oRant.setUserId( auth().getUserId() );
-
-		rantService.create( oRant );
-
-		messagebox.info( "Rant created!" );
-		relocate( URI="/rants" );
-	}
-
-
-	
-}
-
-```
-
-#### 10.4.3 - Modify the index view
+### The `index` view
 
 ```html
 <!-- views/rants/index.cfm -->
@@ -1716,7 +1809,9 @@ component{
 </cfoutput>
 ```
 
-#### 10.4.4 - Set the default event to `rants.index`
+### Set the default event to `rants.index`
+
+We want our rants to be the homepage instead of the default one.
 
 ```js
 // inside the coldbox struct
@@ -1730,7 +1825,7 @@ Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox
 
 Reinit the framework, then you'll see the Rant index.
 
-#### 10.4.5 - Modify the `new` view
+### The `new` view
 
 ```html
 <!-- views/rants/new.cfm -->
@@ -1749,7 +1844,7 @@ Reinit the framework, then you'll see the Rant index.
 </cfoutput>
 ```
 
-#### 10.4.6 - Update the main layout
+### Update the main layout
 
 ```html
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
@@ -1786,99 +1881,6 @@ Reinit the framework, then you'll see the Rant index.
 Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
 We need to secure the form, to ensure the user is logged in before they can send a rant.
-
-Now, let's do some BDD Testing:
-
-```js
-component extends="tests.resources.BaseIntegrationSpec"{
-	
-	property name="query" 		inject="provider:QueryBuilder@qb";
-	property name="bcrypt" 		inject="@BCrypt";
-	property name="auth" 		inject="authenticationService@cbauth";
-
-	/*********************************** LIFE CYCLE Methods ***********************************/
-
-	function beforeAll(){
-		super.beforeAll();
-		query.from( "users" )
-			.insert( values = {
-				username : "testuser",
-				email : "testuser@tests.com",
-				password : bcrypt.hashPassword( "password" )
-			} );
-	}
-
-	function afterAll(){
-		// do your own stuff here
-		super.afterAll();
-		query.from( "users" )
-			.where( "username", "=", "testuser" )
-			.delete();
-	}
-
-	/*********************************** BDD SUITES ***********************************/
-	
-	function run(){
-
-		describe( "rants Suite", function(){
-
-			beforeEach(function( currentSpec ){
-				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
-				setup();
-			});
-
-			it( "can display all rants", function(){
-				var event = get( route="/rants", params={} );
-				// expectations go here.
-				expect( event.getPrivateValue( "aRants") ).toBeArray();
-				expect( event.getRenderedContent() ).toInclude( "All Rants" );
-			});
-
-			it( "can display the rants index when no rants exists", function(){
-				prepareMock( getInstance( "RantService" ) )
-					.$( "getAll", [] );
-				var event = get( route="/rants", params={} );
-				
-				getWireBox().clearSingletons();
-
-				expect( event.getPrivateValue( "aRants") ).toBeEmpty();
-				expect( event.getRenderedContent() ).toInclude( "No rants yet" );
-			});
-
-			it( "can display the new rant form", function(){
-				var event = get( route="/rants/new" );
-				// expectations go here.
-				expect( event.getRenderedContent() ).toInclude( "Rant About It" );
-			});
-
-			it( "can stop a rant from being created from an invalid user", function(){
-				expect( function(){
-					var event = post( route="rants.create", params={
-						body = "Test Rant"
-					} );
-				}).toThrow( type="NoUserLoggedIn" );
-			});
-			
-			it( "can create a rant from a valid user", function(){
-
-				// Log in user
-				auth.authenticate( "testuser", "password" );
-
-				var event = post( route="rants.create", params={
-					body = "Test Rant"
-				} );
-
-				expect( event.getValue( "relocate_URI" ) ).toBe( "/rants" );
-			});
-
-		
-		});
-
-	}
-
-}
-```
-
 
 ## 11 - Install `cbsecurity` by running the following command
 
