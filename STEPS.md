@@ -1882,70 +1882,50 @@ Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
 We need to secure the form, to ensure the user is logged in before they can send a rant.
 
-## 11 - Install `cbsecurity` by running the following command
+## 11 - Securing our App
 
-```sh
-install cbsecurity
-```
-
-### 11.1 - Configure `cbsecurity`, add the settings in your `ColdBox.cfc` as a root level struct
+Configure `cbsecurity`, add the settings in your `ColdBox.cfc` under the `moduleSettings`. You can find the keys here: https://forgebox.io/view/cbSecurity
 
 ```js
-// config/ColdBox.cfc
-"cbsecurity" = {
-    "rulesFile" = "/config/security.json.cfm",
-    "rulesSource" = "json",
-    "validatorModel" = "UserService"
+cbsecurity = {
+	// The global invalid authentication event or URI or URL to go if an invalid authentication occurs
+	"invalidAuthenticationEvent"	: "login",
+	// Default Auhtentication Action: override or redirect when a user has not logged in
+	"defaultAuthenticationAction"	: "redirect",
+	// The global invalid authorization event or URI or URL to go if an invalid authorization occurs
+	"invalidAuthorizationEvent"		: "login",
+	// Default Authorization Action: override or redirect when a user does not have enough permissions to access something
+	"defaultAuthorizationAction"	: "redirect",
+	// You can define your security rules here or externally via a source
+	"rules"							: [
+        {
+            "whitelist": "",
+            "securelist": "rants/new",
+            "match": "url"
+        }
+    ],
+	// The validator is an object that will validate rules and annotations and provide feedback on either authentication or authorization issues.
+	"validator"						: "CBAuthValidator@cbsecurity",
+	// The WireBox ID of the authentication service to use in cbSecurity which must adhere to the cbsecurity.interfaces.IAuthService interface.
+	"authenticationService"  		: "authenticationService@cbauth",
+	// WireBox ID of the user service to use
+	"userService"             		: "UserService",
+	// Activate handler/action based annotation security
+	"handlerAnnotationSecurity"		: true,
+	// Activate security rule visualizer, defaults to false by default
+	"enableSecurityVisualizer"		: true
 };
 ```
 
-### 11.2 - Create a `security.json.cfm` file inside the config folder
-```js
-// config/security.json
-
-[
-    {
-        "whitelist": "",
-        "securelist": "rants/new",
-        "match": "url",
-        "roles": "",
-        "redirect": "login"
-    }
-]
-```
-
-### 11.3 - Create the `userValidator` function in `UserService.cfc`
-
-```js
-// models/UserService.cfc
-
-property name="authenticationService" inject="AuthenticationService@cbauth";
-
-function userValidator( rule, controller ) {
-    return authenticationService.isLoggedIn();
-}
-```
-
-Then let's change this function to add a messagebox:
-
-```js
-var isLoggedIn = authenticationService.isLoggedIn();
-
-if( !isLoggedIn ){
-    controller.getWireBox().getInstance( "messagebox@cbMessageBox" )
-        .error( "You don't have access, please log in." );
-}
-
-return isLoggedIn;
-```
-
-### 11.4 - Reinit the framework
+Reinit the framework
 
 `coldbox reinit`
 
-### 11.5 - Hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
+Check out the security visualizer: http://127.0.0.1:42518/cbsecurity
 
-### 11.6 - Now log in and make sure you see the rant page.
+Now, hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
+
+Now log in and make sure you see the rant page.
 
 ## 12 - View a user's rants
 
