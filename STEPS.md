@@ -2203,7 +2203,7 @@ component {
     function newBump() provider="Bump";
     function newPoop() provider="Poop";
 
-    function getBumpsForRant( rant ) {
+    function getBumpsForRant( required rant ) {
         return queryExecute(
             "SELECT * FROM `bumps` WHERE `rantId` = ?",
             [ rant.getId() ],
@@ -2216,7 +2216,7 @@ component {
         } );
     }
 
-    function getPoopsForRant( rant ) {
+    function getPoopsForRant( required rant ) {
         return queryExecute(
             "SELECT * FROM `poops` WHERE `rantId` = ?",
             [ rant.getId() ],
@@ -2254,9 +2254,9 @@ Reinit and try it out on the site!
 
 ## 15 - Make Rant Reactions Functional
 
-### 15.1 - Make buttons clickable
+### Make buttons clickable
 
-#### 15.1.1 - Update your the footer of `_rant.cfm`
+Update your the footer of `_rant.cfm`
 
 ```html
 // views/_partials/_rant.cfm
@@ -2301,11 +2301,98 @@ Reinit and try it out on the site!
 </div>
 ```
 
-### 15.2 - Update your `User.cfc`, inject the `reactionService` and add the following functions
+### Routing
+
+```js
+route( "rants/:id/bumps" )
+	.withAction( { "POST" = "create", "DELETE" = "delete" } )
+	.toHandler( "Bumps" );
+route( "rants/:id/poops" )
+	.withAction( { "POST" = "create", "DELETE" = "delete" } )
+	.toHandler( "Poops" );
+```
+
+### Create `bumps` handler
+
+```bash
+coldbox create handler name="bumps" actions="create,delete"
+```
+
+```js
+// handlers/bumps.cfc
+component {
+
+    property name="reactionService" inject="id";
+
+    function create( event, rc, prc ) {
+        reactionService.bump( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+    function delete( event, rc, prc ) {
+        reactionService.unbump( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+}
+```
+
+### Create `poops` handler
+
+```bash
+coldbox create handler name="poops" actions="create,delete"
+```
+
+```js
+// handlers/poops.cfc
+component {
+
+    property name="reactionService" inject="id";
+
+    function create( event, rc, prc ) {
+        reactionService.poop( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+    function delete( event, rc, prc ) {
+        reactionService.unpoop( rc.id, auth().getUserId() );
+        relocate( "rants" );
+    }
+
+}
+```
+
+
+### Model: Create `Bump`
+
+```js
+// models/Bump.cfc
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+### Model: Create `Poop`
+
+```js
+// models/Poop.cfc
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+### Model: Update your `User.cfc`
+
+inject the `reactionService` and add the following functions
 
 ```js
 // models/User.cfc
-
 property name="reactionService" inject="id";
 
 function hasBumped( rant ) {
@@ -2327,7 +2414,9 @@ function hasPooped( rant ) {
 }
 ```
 
-### 15.3 - Update your `ReactionService.cfc`, add the following functions
+### Model: Update your `ReactionService.cfc`
+
+add the following functions:
 
 ```js
 // models/services/ReactionService.cfc
@@ -2357,70 +2446,7 @@ function getPoopsForUser( user ) {
         )
     } );
 }
-```
 
-### 15.4 - Create new handlers
-
-#### 15.4.1 - Add the routes before the resources
-
-```js
-addRoute( "rants/:id/bumps", "Bumps", { "POST" = "create", "DELETE" = "delete" } );
-addRoute( "rants/:id/poops", "Poops", { "POST" = "create", "DELETE" = "delete" } );
-```
-
-#### 15.4.2 - Create `bumps` handler
-
-```bash
-coldbox create handler name="bumps" actions="create,delete"
-```
-
-```js
-// handlers/bumps.cfc
-component {
-
-    property name="reactionService" inject="id";
-
-    function create( event, rc, prc ) {
-        reactionService.bump( rc.id, auth().getUserId() );
-        relocate( "rants" );
-    }
-
-    function delete( event, rc, prc ) {
-        reactionService.unbump( rc.id, auth().getUserId() );
-        relocate( "rants" );
-    }
-
-}
-```
-
-#### 15.4.3 - Create `poops` handler
-
-```bash
-coldbox create handler name="poops" actions="create,delete"
-```
-
-```js
-// handlers/poops.cfc
-component {
-
-    property name="reactionService" inject="id";
-
-    function create( event, rc, prc ) {
-        reactionService.poop( rc.id, auth().getUserId() );
-        relocate( "rants" );
-    }
-
-    function delete( event, rc, prc ) {
-        reactionService.unpoop( rc.id, auth().getUserId() );
-        relocate( "rants" );
-    }
-
-}
-```
-
-### 15.5 - Update your `ReactionService.cfc` with the following functions
-
-```js
 // models/services/ReactionService.cfc
 function bump( rantId, userId ) {
     queryExecute(
@@ -2451,35 +2477,8 @@ function unpoop( rantId, userId ) {
 }
 ```
 
-### 15.6 - Add the Bump Model
 
-```js
-// models/Bump.cfc
-component accessors="true" {
-
-    property name="userId";
-    property name="rantId";
-
-}
-```
-
-### 15.7 - Add the Poop Model
-
-```js
-// models/Poop.cfc
-component accessors="true" {
-
-    property name="userId";
-    property name="rantId";
-
-}
-```
-
-### 15.8 - Reinialize the Framework and Test the Site
-
-### 15.9 - You're done!!
-
-
+Reinialize the Framework and Test the Site
 
 ## 16 - Extra Credit
 
