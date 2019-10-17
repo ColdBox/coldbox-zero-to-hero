@@ -1929,19 +1929,51 @@ Now log in and make sure you see the rant page.
 
 ## 12 - View a user's rants
 
-### 12.1 - Create a users profile page, for that we need to create a route in our `Router.cfc` file
+### BDD
+
+We want to be able to view a user's page with their appropriate rants. So the first thing to do is to add some rants to our database so we seed it with data. So login in and create some rants in the system using your username.
+
+Then let's generate a `users` handler to present them:
+
+`coldbox create handler name="users" actions="show"`
+
+And let's work on the BDD for it:
+
+```js
+describe( "users Suite", function(){
+
+    beforeEach(function( currentSpec ){
+        // Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+        setup();
+    });
+
+    it( "can relocate to a 404 if you pass an invalid user", function(){
+        var event = GET( "/users/invalid" );
+        expect( event.getValue( "relocate_uri" ) ).toBe( "404" );
+    });
+
+    it( "can show the rants for a specific user", function(){
+        var event = GET( "/users/lmajano" );
+        // expectations go here.
+        expect( event.getPrivateValue( "user" ).isLoaded() ).toBeTrue();
+        expect( event.getRenderedContent() ).toInclude( "<h4>Rants</h4>" );
+    });
+
+});
+```
+
+### Router
 
 ```js
 // config/Router.cfc
 get( "/users/:username" ).to( "users.show" );
 ```
 
-
-### 12.2 - Create a `users` handler
+### Event Handler
 
 `coldbox create handler name="users" actions="show"`
 
-Now work on the BDD and implementation
+Here is the implementation
 
 ```js
 // handlers/users.cfc
@@ -1950,9 +1982,7 @@ component {
     property name="userService" inject;
 
     function show( event, rc, prc ) {
-        event.paramValue( "username", "" );
-
-        prc.user = userService.retrieveUserByUsername( rc.username );
+        prc.user = userService.retrieveUserByUsername( rc.username ?: "" );
         if ( !prc.user.isLoaded() ) {
             relocate( "404" );
         }
@@ -1962,65 +1992,15 @@ component {
 }
 ```
 
+### Model `User.cfc` updates
 
-### 12.3 - Create a `404.cfm` view
+To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service. Start by injecting the `rantService`
 
-```sh
-// views/404.cfm
-Whoops!  That page doesn't exist.
-```
-
-### 12.4 - Create a `show.cfm` view
-
-```html
-// views/users/show.cfm
-<cfoutput>
-    <h1>#prc.user.getUsername()#</h1>
-    <h4>Rants</h4>
-    <ul>
-        <cfloop array="#prc.user.getRants()#" item="rant">
-            #renderView( "_partials/_rant", { rant = rant } )#
-        </cfloop>
-    </ul>
-</cfoutput>
-```
-
-### 12.5 - Create a `views/_partials/_rant.cfm` view
-
-```html
-<cfoutput>
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
-            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
-            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
-        </div>
-        <div class="panel card-body">
-            #args.rant.getBody()#
-        </div>
-    </div>
-</cfoutput>
-```
-
-### 12.6 - Edit the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
-
-```html
-<cfloop array="#prc.rants#" item="rant">
-    #renderView( "_partials/_rant", { rant = rant } )#
-</cfloop>
-```
-
-### 12.7 - Update your `User.cfc` Model
-
-To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service.
-
-#### 12.7.1 - Inject the rantService
-
-```
+```js
 property name="rantService" inject;
 ```
 
-#### 12.7.2 - Create a `getRants` function
+Then create a `getRants()` function
 
 ```js
 function getRants() {
@@ -2028,7 +2008,9 @@ function getRants() {
 }
 ```
 
-#### 12.7.3 - Create a `getForUserId` function in `RantService`
+### Model `UserService` retrieve for a user
+
+Now let's update the rant service to get rants for a specific user via a `getForUserId` function:
 
 ```js
 function getForUserId( required userId ) {
@@ -2045,13 +2027,60 @@ function getForUserId( required userId ) {
 }
 ```
 
-### 12.8 - Reinitialize the application
+Now we are ready for the views
 
-`coldbox reinit`
+### The `404.cfm` view
 
-### 12.9 - Test it out in the browser
+Run the following command: `coldbox create view 404` to create the view
 
+```sh
+// views/404.cfm
+<h1>Whoops!  That page doesn't exist.</h1>
+```
 
+### The `show.cfm` view
+
+```html
+// views/users/show.cfm
+<cfoutput>
+    <h1>#prc.user.getUsername()#</h1>
+    <h4>Rants</h4>
+    <ul>
+        <cfloop array="#prc.user.getRants()#" item="rant">
+            #renderView( "_partials/_rant", { rant = rant } )#
+        </cfloop>
+    </ul>
+</cfoutput>
+```
+
+#### The `views/_partials/_rant.cfm` view
+
+```html
+<cfoutput>
+    <div class="card mb-3">
+        <div class="card-header">
+            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
+            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
+            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+        </div>
+        <div class="panel card-body">
+            #args.rant.getBody()#
+        </div>
+    </div>
+</cfoutput>
+```
+
+### Update the `rants/index` View
+
+Update the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
+
+```html
+<cfloop array="#prc.rants#" item="rant">
+    #renderView( "_partials/_rant", { rant = rant } )#
+</cfloop>
+```
+
+Now Test it out in the browser
 
 ## 13. Add 👊 and 💩 actions
 
