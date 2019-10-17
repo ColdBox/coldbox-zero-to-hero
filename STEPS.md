@@ -680,39 +680,86 @@ Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test
 
 ```js
 
-it( "can show the user registration form", function(){
-    var event = get( route="registration.new", params={} );
-    // expectations go here.
-    expect( event.getRenderedContent() ).toInclude( "Register for SoapBox" );
-});
+component extends="tests.resources.BaseIntegrationSpec"{
 
-it( "can register a user", function() {
-    expect( 
-        queryExecute( 
-            "select * from users where username = :username", 
-            { username : "testadmin" }, 
-            { returntype = "array" } 
-        );
-    ).toBeEmpty();
+	/*********************************** BDD SUITES ***********************************/
 
-    var event = post( "/registration", {
-        "username" = "testadmin",
-        "email" = "testadmin@ortussolutions.com",
-        "password" = "mypass1234",
-        "passwordConfirmation" = "mypass1234"
-    } );
+	function run(){
 
-    expect( event.getValue( "relocate_URI", "" ) ).toBe( "/" );
+		feature( "User Registrations", function(){
 
-    var users = query.from( "users" ).get();
-    expect( users ).toBeArray();
-    expect( users[ 1 ].username ).toBe( "testadmin" );
-} );
+			beforeEach(function( currentSpec ){
+				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+				setup();
+			});
+
+			it( "should present a new registration screen", function(){
+				var event = GET( "registration/new" );
+				// expectations go here.
+				expect( event.getRenderedContent() ).toInclude( "Register for SoapBox" );
+			});
+
+			story( "I want to register users", function(){
+
+				given( "valid data", function(){
+					then( "I should register a new user", function() {
+						expect(
+							queryExecute(
+								"select * from users where username = :username",
+								{ username : "testadmin" },
+								{ returntype = "array" }
+							)
+						).toBeEmpty();
+
+						var event = POST( "/registration", {
+							username : "testadmin",
+							email : "testadmin@test.com",
+							password : "password",
+							passwordConfirmation : "password"
+						} );
+
+						// expectations go here.
+						expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
+
+						expect(
+							queryExecute(
+								"select * from users where username = :username",
+								{ username : "testadmin" },
+								{ returntype = "array" }
+							)
+						).notToBeEmpty();
+					})
+				});
+
+				xgiven( "invalid registration data", function(){
+					then( "I should show a validation error", function() {
+						fail( "implement" );
+					})
+				});
+
+				xgiven( "a non-unique email", function(){
+					then( "I should show a validation error", function() {
+						fail( "implement" );
+					})
+				});
+
+				xgiven( "a non-unique username", function(){
+					then( "I should show a validation error", function() {
+						fail( "implement" );
+					})
+				});
+
+			} );
+
+
+		});
+
+	}
+
+}
 ```
 
-Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test will run and error as expected. `The event: registration is not a valid registered event.`
-
-Next we'll write the production code to make this test pass.
+Now let's move to implementation.
 
 ### Resourceful Routes
 
@@ -920,11 +967,9 @@ What happens if you run the tests again? Where is your user?
 
 ## 9 - Build the Login & Logout Flow
 
-### 9.1 - Build the Login Form
+### Make Messages Prettier
 
-#### 9.1.1 - Install CBMessageBox via Commandbox
-
-We used flash, but that's too much work, lets go nuts and reuse a module:
+We used flash, but that's too much work, lets go nuts and reuse a module `cbmessagebox` which will produce Bootstrap compliant messages.
 
 `install cbmessagebox && coldbox reinit`
 
@@ -950,129 +995,24 @@ And the display code in the `layouts/Main.cfm` to this:
     #flash.get( "notice" ).message#
     </div>
 </cfif>
+```
 
 to this
 
-
-#getInstance( "messagebox@cbMessageBox" ).renderit()#
-
-```
-
-#### 9.1.2 - Add the following into your existing `/config/Router.cfc` file
-
-```js
-// config/Router.cfc
-function configure(){
-    setFullRewrites( true );
-    resources("registration");
-    
-    route( "/login" )
-        .withAction( { "POST" = "create", "GET" = "new" } )
-        .toHandler( "sessions" );
-
-    delete( "/logout" ).to( "sessions.delete" );
-    
-	route( ":handler/:action?" ).end();
-}
-```
-
-Check them out in the route visualizer!
-
-Hit the url: http://127.0.0.1:42518/login
-You will see an error `Messages: The event: login is not a valid registered event.`
-Changes to Routes require a framework reinit.
-
-Hit the url: http://127.0.0.1:42518/login?fwreinit=1
-You will now see an error `Messages: The event: Sessions.new is not a valid registered event.`
-
-Now we'll build the sessions handler, and the new action.
-
-#### 9.1.3 - Create a new `/handler/Sessions.cfc` handler
-
-Issue the following: `coldbox create handler name="sessions" actions="new,create,delete"` This will also create the tests.
-
-```js
-// handlers/Sessions.cfc
-component {
-
-    property name="messagebox" inject="MessageBox@cbmessagebox";
-
-    /**
-	* new
-	*/
-	function new( event, rc, prc ){
-		event.setView( "sessions/new" );
-	}
-
-    /**
-	* create
-	*/
-	function create( event, rc, prc ){
-		event.setView( "sessions/create" );
-	}
-
-	/**
-	* delete
-	*/
-	function delete( event, rc, prc ){
-		event.setView( "sessions/delete" );
-	}
-
-}
-```
-
-Hit the url: http://127.0.0.1:42518/login
-You will see the empty shell pages, let's update them.
-
-
-#### 9.1.4 - Create a new view `/views/sessions/new.cfm`
-
 ```html
-<!-- views/sessions/new.cfm -->
-<cfoutput>
-    <div class="card">
-        <h4 class="card-header">Log In</h4>
-        <form class="form panel card-body" method="POST" action="#event.buildLink( "login" )#">
-            <div class="form-group">
-                <label for="username" class="control-label">Username</label>
-                <input id="username" name="username" type="text" class="form-control" placeholder="Username" />
-            </div>
-            <div class="form-group">
-                <label for="password" class="control-label">Password</label>
-                <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Log In</button>
-            </div>
-        </form>
-    </div>
-</cfoutput>
+#getInstance( "messagebox@cbMessageBox" ).renderit()#
 ```
 
-#### 9.1.5 - Hit http://127.0.0.1:42518/login in your browser
-You can now see the login screen. Let's build the login action next.
+### Security using cbSecurity and cbAuth
 
-### 9.2 - Build the Login Action
+Install cbSecurity which includes cbAuth.  We will use the modules to provide security to our app and also authentication services.
 
-#### 9.2.1 - Install CBAuth and Configure
+`install cbsecurity`
 
-#### 9.2.2 - Install CBAuth
+- https://www.forgebox.io/view/cbauth
+- https://www.forgebox.io/view/cbsecurity
 
-`install cbauth`
-
-#### 9.2.3 - Config CBAuth - add this code to the Module Setting struct in the `/config/Coldbox.cfc` file.
-
-Specify a userServiceClass in your `config/ColdBox.cfc` inside `moduleSettings.cbauth.userServiceClass.` This component needs to have three methods:
-
-```js
-function isValidCredentials( username, password )
-function retrieveUserByUsername( username )
-function retrieveUserById( id )
-```
-
-Additionally, the `User` component returned by the retrieve methods needs to respond to `getId()`.
-
-https://www.forgebox.io/view/cbauth
+Then you need to configure the module in the `moduleSettings` Setting struct in the `/config/Coldbox.cfc` file.  Look at the cbSecurity and cbAuth docs for the settings.  
 
 ```js
 moduleSettings = {
@@ -1082,154 +1022,27 @@ moduleSettings = {
 };
 ```
 
-#### 9.2.4 - Create a User Object
-
-Create a new Model `coldbox create model name="User" properties="id,username,email,password"`
+And cbAuth requires us to create the following functions so authentication can occur for us:
 
 ```js
-/**
-* I am a new Model Object
-*/
-component accessors="true"{
-	
-	// Properties
-	property name="id" type="string";
-	property name="username" type="string";
-	property name="email" type="string";
-	property name="password" type="string";
-	
-
-	/**
-	 * Constructor
-	 */
-	User function init(){
-		
-		return this;
-    }
-    
-    boolean function isLoaded(){
-		return ( !isNull( variables.id ) && len( variables.id ) );
-	}
-
-}
+function isValidCredentials( username, password )
+function retrieveUserByUsername( username )
+function retrieveUserById( id )
 ```
 
-#### 9.2.5 - Update the User Service
+Additionally, the `User` component returned by the retrieve methods needs to respond to `getId()`. WOW! We have no `User` class yet, so I guess we will also have to model it.  Ok, now it's time for some BDD modeling:
 
-We need to update our User Service for CBAuth to function. It requires 3 functions and 1 for good luck:
+### BDD Time!
 
-**Explain `wirebox.getInstance` and `populator`**
-
-Inject the new wirebox items into `/models/UserService.cfc`
-
-```js
-component {
-
-    // To populate objects from data
-    property name="populator" inject="wirebox:populator";
-    // To create new User instances
-    property name="wirebox" inject="wirebox";
-    // For encryption
-    property name="bcrypt" inject="@BCrypt";
-```
-
-Add the new methods to the `/models/UserService.cfc`
-
-```js
-    User function new() provider="User"{}
-
-	User function retrieveUserById( id ) {
-        return populator.populateFromQuery(
-            new(),
-            queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ id ] ),
-            1
-        );
-    }
-
-    User function retrieveUserByUsername( username ) {
-        return populator.populateFromQuery(
-            new(),
-            queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ] ),
-            1
-        );
-    }
-
-    boolean function isValidCredentials( username, password ) {
-		var oUser = retrieveUserByUsername( username );
-        if( !oUser.isLoaded() ){
-            return false;
-		}
-		
-        return bcrypt.checkPassword( password, oUser.getPassword() );
-    }
-```
-
-#### 9.2.6 - Update Sessions.cfc for login and logout actions
-
-Update the `/handlers/Sessions.cfc` by injection cbauth
-
-```js
-// handlers/sessions.cfc
-    property name="auth" inject="authenticationService@cbauth";
-```
-
-Update the `/handlers/Sessions.cfc` by adding new methods
-
-```js
-    /**
-	* create
-	*/
-	function create( event, rc, prc ){
-		try {
-			auth.authenticate( rc.username, rc.password )
-			messagebox.success( "Welcome back #rc.username#" );
-            return relocate( uri = "/" );
-        }
-        catch ( InvalidCredentials e ) {
-            messagebox.warn( e.message );
-            return relocate( uri = "/login" );
-        }
-	}
-
-	/**
-	* delete
-	*/
-	function delete( event, rc, prc ){
-		auth.logout();
-		messagebox.info( "Bye Bye! See ya soon!" );
-        return relocate( uri = "/" );
-	}
-```
-
-
-#### 9.2.7 - Update the main layout to show and hide the register / login / logout buttons.
-
-```html
-<ul class="navbar-nav ml-auto">
-    <cfif auth().isLoggedIn()>
-        <form method="POST" action="#event.buildLink( "logout" )#">
-            <input type="hidden" name="_method" value="DELETE" />
-            <button type="submit" class="btn btn-link nav-link">Log Out</button>
-        </form>
-    <cfelse>
-        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
-        <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
-    </cfif>
-</ul>
-```
-
-Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
-
-#### 9.2.8 - Build out the integration tests for the login/doLogin and logout
-
-Take the time now to build out the integration tests
+Issue the following: `coldbox create handler name="sessions" actions="new,create,delete"`. This is our start so we can create the functionality for login page, do login, and logout.  We will again start with our BDD tests:
 
 ```js
 // sessionsTest.cfc
-component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
+component extends="tests.resources.BaseIntegrationSpec"{
 	
 	property name="query" 		inject="provider:QueryBuilder@qb";
-	property name="bcrypt" 		inject="@BCrypt";
+    property name="bcrypt" 		inject="@BCrypt";
+    property name="cbAuth"      inject="authenticationService@cbauth";
 
 	function beforeAll(){
 		super.beforeAll();
@@ -1269,7 +1082,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 				var event = post( route="/login", params={ username="testuser", password="password"} );
 				// expectations go here.
 				expect( event.getValue( "relocate_URI") ).toBe( "/" );
-				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeTrue();
+				expect( cbAuth.isLoggedIn() ).toBeTrue();
 			});
 
 			it( "can show an invalid message for an invalid user", function(){
@@ -1281,7 +1094,7 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 			it( "can logout a user", function(){
 				var event = delete( route="/logout" );
 				// expectations go here.
-				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeFalse();
+				expect( cbAuth.isLoggedIn() ).toBeFalse();
 				expect( event.getValue( "relocate_URI") ).toBe( "/" );
 			});
 		
@@ -1292,9 +1105,209 @@ component extends="tests.resources.BaseIntegrationSpec" appMapping="/"{
 }
 ```
 
-### 9.3 - Refactor Registration to use the User Object
+### Router
 
-#### 9.3.1 - Update UserService `create` function to use User object
+Add the following into your existing `/config/Router.cfc` file
+
+```js
+// config/Router.cfc
+function configure(){
+    setFullRewrites( true );
+    resources("registration");
+    
+    route( "/login" )
+        .withAction( { "POST" = "create", "GET" = "new" } )
+        .toHandler( "sessions" );
+
+    delete( "/logout" ).to( "sessions.delete" );
+    
+	route( ":handler/:action?" ).end();
+}
+```
+
+Check them out in the route visualizer!
+
+### Event Handler
+
+Let's start building out the code:
+
+```js
+// handlers/Sessions.cfc
+component {
+
+    property name="messagebox" inject="MessageBox@cbmessagebox";
+
+    /**
+	* new
+	*/
+	function new( event, rc, prc ){
+		event.setView( "sessions/new" );
+	}
+
+    /**
+	* create
+	*/
+	function create( event, rc, prc ){
+		try {
+			auth().authenticate( rc.username, rc.password )
+			messagebox.success( "Welcome back #rc.username#" );
+            return relocate( uri = "/" );
+        }
+        catch ( InvalidCredentials e ) {
+            messagebox.warn( e.message );
+            return relocate( uri = "/login" );
+        }
+	}
+
+	/**
+	* delete
+	*/
+	function delete( event, rc, prc ){
+		auth().logout();
+		messagebox.info( "Bye Bye! See ya soon!" );
+        return relocate( uri = "/" );
+	}
+
+}
+```
+
+### Model: `User`
+
+Create a new Model `coldbox create model name="User" properties="id,username,email,password"`
+
+```js
+/**
+* I am a new Model Object
+*/
+component accessors="true"{
+	
+	// Properties
+	property name="id" type="string";
+	property name="username" type="string";
+	property name="email" type="string";
+	property name="password" type="string";
+	
+	/**
+	 * Constructor
+	 */
+	User function init(){
+		
+		return this;
+    }
+    
+    boolean function isLoaded(){
+		return ( !isNull( variables.id ) && len( variables.id ) );
+	}
+
+}
+```
+
+### Model: `UserService`
+
+We need to update our User Service for CBAuth to function. It requires 3 functions and 1 for good luck:
+
+**Explain `wirebox.getInstance` and `populator`**
+
+Inject the new wirebox items into `/models/UserService.cfc`
+
+```js
+component {
+
+    // To populate objects from data
+    property name="populator" inject="wirebox:populator";
+    // For encryption
+    property name="bcrypt" inject="@BCrypt";
+```
+
+Add the new methods to the `/models/UserService.cfc`
+
+```js
+    // What is this FUNKYNESS!!!
+    User function new() provider="User"{}
+
+	User function retrieveUserById( id ) {
+        return populator.populateFromQuery(
+            new(),
+            queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ id ] ),
+            1
+        );
+    }
+
+    User function retrieveUserByUsername( username ) {
+        return populator.populateFromQuery(
+            new(),
+            queryExecute( "SELECT * FROM `users` WHERE `username` = ?", [ username ] ),
+            1
+        );
+    }
+
+    boolean function isValidCredentials( username, password ) {
+		var oUser = retrieveUserByUsername( username );
+        if( !oUser.isLoaded() ){
+            return false;
+		}
+		
+        return bcrypt.checkPassword( password, oUser.getPassword() );
+    }
+```
+
+### Login View
+
+Update the view  `/views/sessions/new.cfm`
+
+```html
+<!-- views/sessions/new.cfm -->
+<cfoutput>
+    <div class="card">
+        <h4 class="card-header">Log In</h4>
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "login" )#">
+            <div class="form-group">
+                <label for="username" class="control-label">Username</label>
+                <input id="username" name="username" type="text" class="form-control" placeholder="Username" />
+            </div>
+            <div class="form-group">
+                <label for="password" class="control-label">Password</label>
+                <input id="password" name="password" type="password" class="form-control" placeholder="Password" />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </div>
+        </form>
+    </div>
+</cfoutput>
+```
+
+Hit http://127.0.0.1:42518/login in your browser. You can now see the login screen. Let's build the login action next.
+
+
+
+### Layout NavBar
+
+Update the main layout to show and hide the register / login / logout buttons.
+
+```html
+<ul class="navbar-nav ml-auto">
+    <cfif auth().isLoggedIn()>
+        <form method="POST" action="#event.buildLink( "logout" )#">
+            <input type="hidden" name="_method" value="DELETE" />
+            <button type="submit" class="btn btn-link nav-link">Log Out</button>
+        </form>
+    <cfelse>
+        <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
+        <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
+    </cfif>
+</ul>
+```
+
+Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
+
+
+
+### Registration Refactoring
+
+Refactor the Registration to use the User Object, we have gone OOP
+
+#### Update UserService `create` function to use User object
 
 ```js
 function create( required user ){
@@ -1315,7 +1328,7 @@ function create( required user ){
 }
 ```
 
-#### 9.3.2 - Update Registration.cfc handler to use User Object
+#### Update Registration.cfc handler to use User Object
 
 Replace the Create function with the following
 
@@ -1334,7 +1347,7 @@ Also note that your tests don't change. Run Them!
 * [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
 * [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
 
-#### 9.3.3 - Let's make the user listing friendly
+#### Let's make the user listing friendly
 
 Let's update our dump to just a simple listing in order to try out the HTML Helper and make it pretty:
 
@@ -1350,33 +1363,26 @@ Open the `main/index.cfm` and remove the dump and use the following instead:
 </cfoutput>
 ```
 
-### 9.4 - Test the login and logout.
+### Test the login and logout.
 
-#### 9.4.1 - Test login and login
+Try to register and login/logout visually confirming the tests.
 
-Hit the url: http://127.0.0.1:42518/?fwreinit=1
-
-#### 9.4.2 - Auto login user when registering
+### Auto login user when registering
 
 When registering, it might be nice to automatically log the user in.
-Replace the Create function with the following code
+Replace the `Create` function with the following code
 
 ```js
-property name="auth" inject="authenticationService@cbauth";
-
 function create( event, rc, prc ) {
-    var user = populateModel( "User" );
-    userService.create( user );
-    auth.login( user );
+    prc.oUser = userService.create( populateModel( "User" ) );
+    
+    auth().login( prc.oUser );
+    
     relocate( uri = "/" );
 }
 ```
 
 Now register and you will be automatically logged in.
-
-### 9.5 Tests
-
-Did you do the tests, if not, let's go do them folks!
 
 ## 10 - Rants
 
