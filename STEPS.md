@@ -2174,6 +2174,7 @@ Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cf
 
 ```html
 // /views/_partials/_rant.cfm
+<cfprocessingdirective pageEncoding="utf-8">
 <div class="card-footer">
     <button class="btn btn-outline-dark">
         #args.rant.getBumps().len()# 👊
