@@ -950,7 +950,7 @@ numeric function create(
         }
     );
 
-    return local.result;
+    return local.result.generatedkey;
 }
 ```
 
