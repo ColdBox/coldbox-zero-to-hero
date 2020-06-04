@@ -258,14 +258,17 @@ This adds the following to your `box.json` file:
 
 ```js
 "cfmigrations":{
-    "schema":"${DB_DATABASE}",
+    "migrationsDirectory":"resources/database/migrations",
+    "schema":"${DB_SCHEMA}",
     "connectionInfo":{
+        "bundleName":"${DB_BUNDLENAME}",
+        "bundleVersion":"${DB_BUNDLEVERSION}",
         "password":"${DB_PASSWORD}",
         "connectionString":"${DB_CONNECTIONSTRING}",
         "class":"${DB_CLASS}",
         "username":"${DB_USER}"
     },
-    "defaultGrammar":"AutoDiscover"
+    "defaultGrammar":"AutoDiscover@qb"
 }
 ```
 
@@ -279,13 +282,20 @@ To make our migration setup more secure, we're going to use environment variable
 install commandbox-dotenv
 ```
 
-### Create a `/.env` file. Fill it in appropraitely. (We'll fill it in with our Docker credentials from before.)
+### Update the existing `/.env` file. Fill it in appropraitely. (We'll fill it in with our Docker credentials from before.)
+
+This assumes you are using MySQL with CommandBox 5 or greater, which the newer version of Lucee requires a BundleName and BundleVersion and a new class for the driver.
 
 ```sh
+DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:3306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true
+DB_CLASS=com.mysql.cj.jdbc.Driver
+DB_BUNDLENAME=com.mysql.cj
+DB_BUNDLEVERSION=8.0.15
+DB_DRIVER=MySQL
+DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_DATABASE=soapbox
-DB_CLASS=org.gjt.mm.mysql.Driver
-DB_CLASS=com.mysql.jdbc.Driver
-DB_CONNECTIONSTRING=jdbc:mysql://localhost:3306/soapbox?useUnicode=true\&characterEncoding=UTF-8\&useLegacyDatetimeCode=true\&useSSL=false
+DB_SCHEMA=soapbox
 DB_USER=root
 DB_PASSWORD=soapbox
 ```
@@ -295,7 +305,7 @@ Once the `.env` file is seeded, reload CommandBox so it can pickup the environme
 ### Test our environment variable with an echo command
 
 ```sh
-echo ${DB_USER}
+echo ${DB_BUNDLEVERSION}
 ```
 
 You should see no output, because DotEnv has not loaded the variables from our file.
@@ -304,10 +314,10 @@ You should see no output, because DotEnv has not loaded the variables from our f
 
 ```sh
 r
-echo ${DB_USER}
+echo ${DB_BUNDLEVERSION}
 ```
 
-You should now see `root`, your `DB_USER` output when you run that `echo` command.
+You should now see `8.0.15`, your `DB_BUNDLEVERSION` output when you run that `echo` command.
 
 ### Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
 
@@ -336,7 +346,7 @@ component {
     function up( schema ) {
         queryExecute( "
             CREATE TABLE `users` (
-                `id` INTEGER UNSIGNED NOT **NULL** AUTO_INCREMENT,
+                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
                 `username` VARCHAR(255) NOT NULL UNIQUE,
                 `email` VARCHAR(255) NOT NULL UNIQUE,
                 `password` VARCHAR(255) NOT NULL,
@@ -440,7 +450,6 @@ component extends="coldbox.system.testing.BaseTestCase" {
         // Check if migrations ran before all tests
         if ( ! request.keyExists( "migrationsRan" ) ) {
             migrationService.setMigrationsDirectory( "/root/resources/database/migrations" );
-	        migrationService.setDefaultGrammar( "MySQLGrammar" );
             migrationService.setDatasource( "soapbox" );
             migrationService.runAllMigrations( "down" );
             migrationService.runAllMigrations( "up" );
