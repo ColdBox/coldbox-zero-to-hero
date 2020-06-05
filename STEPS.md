@@ -1980,8 +1980,6 @@ get( "/users/:username" ).to( "users.show" );
 
 ### Event Handler
 
-`coldbox create handler name="users" actions="show"`
-
 Here is the implementation
 
 ```js
