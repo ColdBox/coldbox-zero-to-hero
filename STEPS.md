@@ -2015,7 +2015,7 @@ function getRants() {
 }
 ```
 
-### Model `UserService` retrieve for a user
+### Model `RantService` retrieve for a user
 
 Now let's update the rant service to get rants for a specific user via a `getForUserId` function:
 
