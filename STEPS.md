@@ -2082,7 +2082,7 @@ Run the following command: `coldbox create view 404` to create the view
 Update the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
 
 ```html
-<cfloop array="#prc.rants#" item="rant">
+<cfloop array="#prc.aRants#" item="rant">
     #renderView( "_partials/_rant", { rant = rant } )#
 </cfloop>
 ```
