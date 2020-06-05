@@ -1502,7 +1502,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 
 			it( "can stop a rant from being created from an invalid user", function(){
 				expect( function(){
-					var event = post( route="rants.create", params={
+					var event = post( route="rants", params={
 						body = "Test Rant"
 					} );
 				}).toThrow( type="NoUserLoggedIn" );
@@ -1513,7 +1513,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 				// Log in user
 				auth.authenticate( "testuser", "password" );
 
-				var event = post( route="rants.create", params={
+				var event = post( route="rants", params={
 					body = "Test Rant"
 				} );
 
@@ -1841,7 +1841,7 @@ Reinit the framework, then you'll see the Rant index.
 <cfoutput>
     <div class="card">
         <h4 class="card-header">Start a Rant</h4>
-        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants.create" )#">
+        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants" )#">
             <div class="form-group">
                 <textarea name="body" class="form-control" placeholder="What's on your mind?" rows="10"></textarea>
             </div>
