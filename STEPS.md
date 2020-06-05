@@ -2262,7 +2262,7 @@ function getPoops() {
 
 Reinit and try it out on the site!
 
-## 15 - Make Rant Reactions Functional
+## 14 - Make Rant Reactions Functional
 
 ### Make buttons clickable
 
@@ -2490,7 +2490,7 @@ function unpoop( rantId, userId ) {
 
 Reinialize the Framework and Test the Site
 
-## 16 - Extra Credit
+## 15 - Extra Credit
 
 + Don't let a user poop and bump the same rant
 + When you bump or poop from the user profile page - take the user back to that page, not the main rant page. Ie - return them to where they started
@@ -2503,15 +2503,15 @@ Other Ideas:
 + Domain Names in CommandBox
 
 
-### 17.1 - Install `qb`
+### 16.1 - Install `qb`
 
 ```sh
 install qb
 ```
 
-### 17.2 - Configure `qb`
+### 16.2 - Configure `qb`
 
-#### 13.2.1 - Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
+#### 16.2.1 - Add the following settings to your `/config/Coldbox.cfc` file. You can place this modules setting struct under the settings struct.
 
 ```js
 // config/ColdBox.cfc
