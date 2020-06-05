@@ -2229,10 +2229,10 @@ component {
             "SELECT * FROM `poops` WHERE `rantId` = ?",
             [ rant.getId() ],
             { returntype = "array" }
-        ).map( function( bump ) {
+        ).map( function( poop ) {
             return populator.populateFromStruct(
                 newPoop(),
-                bump
+                poop
             )
         } );
     }
