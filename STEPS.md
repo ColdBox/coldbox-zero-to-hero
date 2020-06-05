@@ -2060,7 +2060,7 @@ Run the following command: `coldbox create view 404` to create the view
 </cfoutput>
 ```
 
-#### The `views/_partials/_rant.cfm` view
+#### Create the `views/_partials/_rant.cfm` view
 
 ```html
 <cfoutput>
