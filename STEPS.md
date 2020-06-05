@@ -1025,8 +1025,8 @@ Then you need to configure the module in the `moduleSettings` Setting struct in 
 
 ```js
 moduleSettings = {
-    "cbauth" = {
-        "userServiceClass" = "UserService"
+    "cbauth" : {
+        "userServiceClass" : "UserService"
     }
 };
 ```
