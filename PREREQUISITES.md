@@ -1,5 +1,11 @@
 # Prerequisites
 
+## Join the BoxTeam Slack Channel
+
+Visit boxteam.herokuapp.com and invite yourself to the Slack.
+
+## Download Software
+
 Please have the following software on your computer before the workshop. If everyone is downloading the software at once, it will slow everyone down, and we want to make the most of our time together.
 
 ## A Modern Computer
@@ -10,17 +16,17 @@ Please make sure you have a computer that is modern. No running windows 95, 7 or
 
 * https://git-scm.com
 
-## [Java](https://www.java.com/en/) (Version 8)
+### [Java](https://www.java.com/en/) (Version 8)
 
 This can be downloaded bundled with CommandBox if needed
 * https://www.java.com/en/
 * https://www.ortussolutions.com/products/commandbox
 
-## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 4.\*)
+### [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 4.\*)
 
 * https://www.ortussolutions.com/products/commandbox#download
 
-### CommandBox Modules
+#### CommandBox Modules
 
 Once CommandBox is installed we will need to install some global modules. Start by opening a box shell by typing `box`.  Once in the shell you can type:
 
@@ -28,7 +34,7 @@ Once CommandBox is installed we will need to install some global modules. Start 
 install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig
 ```
 
-## MySQL Server (5.7)
+### MySQL Server (5.7)
 
 You need to have a running MySQL Server locally.
 If you don't have one already on your system, you can get started easily with

@@ -2,6 +2,11 @@
 
 (All commands assume we are in the `box` shell unless stated otherwise.)
 
+
+
+
+
+
 ## 1 - Create the base app
 
 ### Create a folder for your app on your hard drive called `soapbox`
@@ -61,6 +66,11 @@ testbox watch **.cfc
 ```
 
 `ctl-c` will escape and stop the watching.
+
+
+
+
+
 
 ## 2 - Intro to ColdBox MVC
 
@@ -159,6 +169,11 @@ it( "can render the about page", function(){
 
 ### Assignment: Change `prc.welcome` in the `handlers/main.cfc` and update the integration tests to pass.
 
+
+
+
+
+
 ## 3 - Layouts
 
 ### Copy in simple bootstrap theme / layout to replace the existing `/layouts/main.cfm` layout.
@@ -241,6 +256,11 @@ body {
     box-shadow: 0 15px 30px 0 rgba(0, 0, 0, 0.11), 0 5px 15px 0 rgba(0, 0, 0, 0.08);
 }
 ```
+
+
+
+
+
 
 ## 4 - Database and CBMigrations
 
@@ -412,6 +432,11 @@ You will need to restart your server whenever you add, remove, or change environ
 Hit `/` in your browser
 Hit `/tests/runner.cfm` in your browser
 
+
+
+
+
+
 ## 5 - Setup the Test Harness and Base Spec
 
 ### Install `cfmigrations` as a dev dependency. 
@@ -480,6 +505,11 @@ component extends="coldbox.system.testing.BaseTestCase" {
 
 Let's run the tests again!
 
+
+
+
+
+
 ## 6 - Intro to Models - User Service
 
 Models are at the core of ColdBox. We could teach you how to write legacy style code, but we want to teach the `right` way from the start. We still start with creating a `User Service` that will be managing users in our SoapBox.
@@ -531,7 +561,7 @@ Run your tests `/tests/runner.cfm`
 
 Lets test the `list()` function exists
 
-Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to the following `it` block.
+Update the `/tests/specs/unit/UserServiceTest.cfc`, adding the content to the following `it` block.
 
 ```js
 it( "can list all users", function() {
@@ -553,7 +583,7 @@ Run the tests and you'll see you tests pass.
 
 ### Lets make the `list()` function return the data
 
-Update the `/tests/specs/integration/UserServiceTest.cfc`, adding the content to the following `it` block. This will check the return type, to ensure the return is an array.
+Update the `/tests/specs/unit/UserServiceTest.cfc`, adding the content to the following `it` block. This will check the return type, to ensure the return is an array.
 
 ```js
 it( "can list all users", function() {
@@ -571,6 +601,11 @@ function list(){
 ```
 
 Run the tests, and the test should pass.
+
+
+
+
+
 
 ## 7 - Using Models in Handlers and Views
 
@@ -635,6 +670,11 @@ Reload your `/` page, and you'll see the layout ( which wasn't present in the ha
 
 Now we can build our registration flow.
 
+
+
+
+
+
 ## 8 - Building the Registration Flow
 
 Let's begin by creating the registration flow by generating our `registration` handler:
@@ -672,7 +712,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
             });
             
             it( "can register a user", function(){
-				var event = post( route="registration.create", params={} );
+				var event = post( route="registration", params={} );
 				// expectations go here.
 				expect( false ).toBeTrue();
 			});
@@ -973,6 +1013,11 @@ Check your tests, they should all pass again.
 **SELF DIRECTED** (20 minutes)
 
 What happens if you run the tests again? Where is your user?
+
+
+
+
+
 
 ## 9 - Build the Login & Logout Flow
 
@@ -1387,6 +1432,11 @@ function create( event, rc, prc ) {
 ```
 
 Now register and you will be automatically logged in.
+
+
+
+
+
 
 ## 10 - Rants
 
@@ -1891,6 +1941,11 @@ Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
 We need to secure the form, to ensure the user is logged in before they can send a rant.
 
+
+
+
+
+
 ## 11 - Securing our App
 
 Configure `cbsecurity`, add the settings in your `ColdBox.cfc` under the `moduleSettings`. You can find the keys here: https://forgebox.io/view/cbSecurity
@@ -1935,6 +1990,11 @@ Check out the security visualizer: http://127.0.0.1:42518/cbsecurity
 Now, hit the page while logged out. if you hit `start a rant` link, you should redirect to the login page
 
 Now log in and make sure you see the rant page.
+
+
+
+
+
 
 ## 12 - View a user's rants
 
@@ -2088,6 +2148,10 @@ Update the `views/rants/index.cfm` file and replace the content of the loop to r
 ```
 
 Now Test it out in the browser
+
+
+
+
 
 ## 13. Add 👊 and 💩 actions
 
@@ -2259,6 +2323,10 @@ function getPoops() {
 ```
 
 Reinit and try it out on the site!
+
+
+
+
 
 ## 14 - Make Rant Reactions Functional
 
@@ -2488,6 +2556,11 @@ function unpoop( rantId, userId ) {
 
 Reinialize the Framework and Test the Site
 
+
+
+
+
+
 ## 15 - Extra Credit
 
 + Don't let a user poop and bump the same rant
@@ -2499,6 +2572,10 @@ Reinialize the Framework and Test the Site
 Other Ideas:
 + Environments in ColdBox.cfc
 + Domain Names in CommandBox
+
+
+
+
 
 
 ### 16.1 - Install `qb`
