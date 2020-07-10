@@ -1189,6 +1189,8 @@ Let's start building out the code:
 // handlers/Sessions.cfc
 component {
 
+    // DI 
+    property name="messagebox" 		inject="MessageBox@cbmessagebox";
     /**
 	* new
 	*/
