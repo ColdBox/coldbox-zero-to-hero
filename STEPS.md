@@ -82,7 +82,7 @@ testbox watch **.cfc
 
 ```js
 function development(){
-    coldbox.customErrorTemplate = "/coldbox/system/includes/BugReport.cfm";
+    coldbox.customErrorTemplate = "/coldbox/system/exceptions/Whoops.cfm";
     coldbox.handlersIndexAutoreload = true;
     coldbox.reinitPassword = "";
     coldbox.handlerCaching = false;
