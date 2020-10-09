@@ -1491,6 +1491,8 @@ delete views/rants/create.cfm --force
 Open the integration tests and start coding:
 
 ```js
+//tests/specs/integration/rantsTest.cfc
+
 component extends="tests.resources.BaseIntegrationSpec"{
 	
 	property name="query" 		inject="provider:QueryBuilder@qb";
@@ -1651,6 +1653,7 @@ coldbox create model name="Rant" properties="id,body,createdDate:date,modifiedDa
 Let's open the model and modify it a bit
 
 ```js
+//models/Rant.cfc
 /**
 * I am a new Rant Object
 */
@@ -1697,6 +1700,7 @@ component accessors="true"{
 Work on the unit test, what will you test?
 
 ```js
+//tests/specs/unit/RantTest.cfc
 /**
 * The base model test case will use the 'model' annotation as the instantiation path
 * and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
@@ -1773,6 +1777,7 @@ coldbox create model name="RantService" persistence="singleton" methods="getAll,
 Now open it and let's modify it a bit for our purposes.  Also update the unit tests.
 
 ```js
+//models/RantService.cfc
 /**
 * I am a new Model Object
 */
@@ -1836,6 +1841,8 @@ component singleton accessors="true"{
 ```
 
 ```js
+//tests/specs/unit/RantServiceTest.cfc
+
 describe( "RantService Suite", function(){
 			
     it( "can be created", function(){
@@ -1877,6 +1884,7 @@ Why not create more unit tests?
 We want our rants to be the homepage instead of the default one.
 
 ```js
+//config/ColdBox.cfc
 // inside the coldbox struct
 coldbox = {
     defaultEvent = "rants.index",
@@ -1910,6 +1918,7 @@ Reinit the framework, then you'll see the Rant index.
 ### Update the main layout
 
 ```html
+<!--- /layouts/Main.cfc --->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
     <a class="navbar-brand" href="#event.buildLink( url = "/" )#">
         <i class="fas fa-bullhorn mr-2"></i>
