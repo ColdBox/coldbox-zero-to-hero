@@ -1961,9 +1961,20 @@ We need to secure the form, to ensure the user is logged in before they can send
 
 ## 11 - Securing our App
 
+We're going to use CBSecurity to help secure our app.
+
+### Install CBSecurity
+
+`install cbsecurity`
+
+### Configure CBSecurity
+
 Configure `cbsecurity`, add the settings in your `ColdBox.cfc` under the `moduleSettings`. You can find the keys here: https://forgebox.io/view/cbSecurity
 
+
 ```js
+//config/Coldbox.cfc
+// in the module settings struct
 cbsecurity = {
 	// The global invalid authentication event or URI or URL to go if an invalid authentication occurs
 	"invalidAuthenticationEvent"	: "login",
