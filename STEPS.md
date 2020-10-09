@@ -1553,6 +1553,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 			});
 
 			it( "can stop a rant from being created from an invalid user", function(){
+				auth.logout();
 				expect( function(){
 					var event = post( route="rants", params={
 						body = "Test Rant"
@@ -1851,6 +1852,7 @@ Why not create more unit tests?
 ```html
 <!-- views/rants/index.cfm -->
 <cfoutput>
+    <h2>All Rants</h2>
     <cfif prc.aRants.isEmpty()>
         <h3>No rants yet</h3>
         <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start one now!</a>
