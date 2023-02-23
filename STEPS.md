@@ -197,7 +197,7 @@ it( "can render the about page", function(){
     </head>
     <body>
         <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
-            <a class="navbar-brand" href="#event.buildLink( url = "/" )#">
+            <a class="navbar-brand" href="#event.buildLink( "/" )#">
                 <i class="fas fa-bullhorn mr-2"></i>
                 SoapBox
             </a>
@@ -1920,7 +1920,7 @@ Reinit the framework, then you'll see the Rant index.
 ```html
 <!--- /layouts/Main.cfc --->
 <nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
-    <a class="navbar-brand" href="#event.buildLink( url = "/" )#">
+    <a class="navbar-brand" href="#event.buildLink( "/" )#">
         <i class="fas fa-bullhorn mr-2"></i>
         SoapBox
     </a>
