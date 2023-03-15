@@ -1,76 +1,3 @@
-# Steps to go from ColdBox Zero to Hero
-
-(All commands assume we are in the `box` shell unless stated otherwise.)
-
-
-
-
-
-
-## 1 - Create the base app
-
-### Create a folder for your app on your hard drive called `soapbox`
-
-### Scaffold out a new Coldbox application with TestBox included
-
-```sh
-coldbox create app soapbox
-```
-`
-
-### Start up a local server
-
-```sh
-start port=42518
-```
-
-### Open `http://localhost:42518/` in your browser. You should see the default ColdBox app template
-
-### Open `/tests` in your browser. You should see the TestBox test browser
-
-This is useful to find a specific test or group of tests to run _before_ running them.
-
-### Open `/tests/runner.cfm` in your browser. You should see the TestBox test runner for our project
-
-This is running all of our tests by default. We can create our own test runners as needed.
-
-All your tests should be passing at this point. 😉
-
-### Let's run the Tests via CommandBox
-
-```sh
-testbox run "http://localhost:42518/tests/runner.cfm"
-```
-
-### Lets add this url to our server.json
-
-We can set the testbox runner into our server.json, and then we can easily run the tests at a later stage without having to type out the whole url. To do so, we use the `package set` command.
-
-```sh
-package set testbox.runner="http://localhost:42518/tests/runner.cfm"
-testbox run
-```
-
-### Use CommandBox Test Watchers
-
-CommandBox now supports Test Watchers. This allows you to automatically run your tests run as you make changes to tests or cfcs. You can start CommandBox Test watchers with the following command
-
-```sh
-testbox watch
-```
-
-You can also control what files to watch.
-
-```sh
-testbox watch **.cfc
-```
-
-`ctl-c` will escape and stop the watching.
-
-
-
-
-
 
 ## 2 - Intro to ColdBox MVC
 
@@ -101,7 +28,7 @@ function development(){
 
 * Where does the `getSetting()` method come from?
 * Go back again to the UML Diagram of Major Classes (https://coldbox.ortusbooks.com/the-basics/models/super-type-usage-methods)
-* Reinit the framework 
+* Reinit the framework
 
 > http://localhost:42518?fwreinit=1
 
@@ -439,7 +366,7 @@ Hit `/tests/runner.cfm` in your browser
 
 ## 5 - Setup the Test Harness and Base Spec
 
-### Install `cfmigrations` as a dev dependency. 
+### Install `cfmigrations` as a dev dependency.
 
 CF Migrations is different than `commandbox-migrations`. It allows you to run the migrations from a running CFML engine and NOT CommandBox.  Usually, you can use them for testing purposes or delivering updates in your apps.  However, for today, this is a development dependency only.
 
@@ -485,7 +412,7 @@ component extends="coldbox.system.testing.BaseTestCase" {
     /**
      * This function is tagged as an around each handler.  All the integration tests we build
      * will be automatically rolledbacked
-     * 
+     *
      * @aroundEach
      */
     function wrapInTransaction( spec ) {
@@ -540,22 +467,22 @@ Hit the url: http://127.0.0.1:42518/tests/runner.cfm to run your tests. The test
 
 ```js
     function run() {
-        
+
         describe( "User Service", function() {
-			
+
 			it( "can be created", function(){
 				expect( model ).toBeComponent();
 			});
 
             it( "can list all users", function() {
 			} );
-			
+
         } );
 
     }
 ```
 
-Run your tests `/tests/runner.cfm` 
+Run your tests `/tests/runner.cfm`
 
 ### Lets create the `list()` function
 
@@ -611,7 +538,7 @@ Run the tests, and the test should pass.
 
 ### Inject the `UserService` into your Main Handler.
 
-Add the injection into your `/handlers/Main.cfc` 
+Add the injection into your `/handlers/Main.cfc`
 
 ```js
 property name="userService"		inject="UserService";
@@ -648,12 +575,12 @@ You'll see something like this
 
 ```sh
 Array (from Query)
-Template: /YourAppDirectory/models/UserService.cfc 
-Execution Time: 1.08 ms 
-Record Count: 0 
-Cached: No 
-SQL: 
-select * from users 
+Template: /YourAppDirectory/models/UserService.cfc
+Execution Time: 1.08 ms
+Record Count: 0
+Cached: No
+SQL:
+select * from users
 ```
 
 ### Access the data from the View
@@ -691,11 +618,11 @@ Open `tests/specs/integration/RegistrationTest.cfc` and modify
 
 ```js
 component extends="tests.resources.BaseIntegrationSpec"{
-	
+
 	property name="query" inject="provider:QueryBuilder@qb";
 
 	/*********************************** BDD SUITES ***********************************/
-	
+
 	function run(){
 
 		describe( "Registration Suite", function(){
@@ -710,14 +637,14 @@ component extends="tests.resources.BaseIntegrationSpec"{
 				// expectations go here.
 				expect( false ).toBeTrue();
             });
-            
+
             it( "can register a user", function(){
 				var event = post( route="registration", params={} );
 				// expectations go here.
 				expect( false ).toBeTrue();
 			});
 
-		
+
 		});
 
 	}
@@ -821,7 +748,7 @@ Update the `/config/Router.cfc` file - insert a resources definition.
 // config/Router.cfc
 function configure(){
     setFullRewrites( true );
-    
+
     resources( "registration" );
 
     route( ":handler/:action?" ).end();
@@ -951,7 +878,7 @@ We are adding the DI Injection for the BCrypt Module.
 
 ```js
 component singleton accessors="true"{
-	
+
 	// Properties
 	property name="bcrypt" inject="@BCrypt";
 ```
@@ -964,25 +891,25 @@ Create the `create` function, that has 3 arguments, and write the query, includi
 /**
  * Create a new user
  *
- * @email 
- * @username 
- * @password 
- * 
+ * @email
+ * @username
+ * @password
+ *
  * @return The created id of the user
  */
 numeric function create(
     required string email,
-    required string username, 
+    required string username,
     required string password
 ){
-    queryExecute( 
+    queryExecute(
         "
             INSERT INTO `users` ( `email`, `username`, `password` )
             VALUES ( ?, ?, ? )
         ",
-        [ 
-            arguments.email, 
-            arguments.username, 
+        [
+            arguments.email,
+            arguments.username,
             bcrypt.hashPassword( arguments.password )
         ],
         {
@@ -1066,7 +993,7 @@ Install cbSecurity which includes cbAuth.  We will use the modules to provide se
 - https://www.forgebox.io/view/cbauth
 - https://www.forgebox.io/view/cbsecurity
 
-Then you need to configure the module in the `moduleSettings` Setting struct in the `/config/Coldbox.cfc` file.  Look at the cbSecurity and cbAuth docs for the settings.  
+Then you need to configure the module in the `moduleSettings` Setting struct in the `/config/Coldbox.cfc` file.  Look at the cbSecurity and cbAuth docs for the settings.
 
 ```js
 moduleSettings = {
@@ -1093,7 +1020,7 @@ Issue the following: `coldbox create handler name="sessions" actions="new,create
 ```js
 // sessionsTest.cfc
 component extends="tests.resources.BaseIntegrationSpec"{
-	
+
 	property name="query" 		inject="provider:QueryBuilder@qb";
     property name="bcrypt" 		inject="@BCrypt";
     property name="cbAuth"      inject="authenticationService@cbauth";
@@ -1116,7 +1043,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 	}
 
 	/*********************************** BDD SUITES ***********************************/
-	
+
 	function run(){
 
 		describe( "sessions Suite", function(){
@@ -1151,7 +1078,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 				expect( cbAuth.isLoggedIn() ).toBeFalse();
 				expect( event.getValue( "relocate_URI") ).toBe( "/" );
 			});
-		
+
 		});
 
 	}
@@ -1168,13 +1095,13 @@ Add the following into your existing `/config/Router.cfc` file
 function configure(){
     setFullRewrites( true );
     resources("registration");
-    
+
     route( "/login" )
         .withAction( { "POST" = "create", "GET" = "new" } )
         .toHandler( "sessions" );
 
     delete( "/logout" ).to( "sessions.delete" );
-    
+
 	route( ":handler/:action?" ).end();
 }
 ```
@@ -1189,7 +1116,7 @@ Let's start building out the code:
 // handlers/Sessions.cfc
 component {
 
-    // DI 
+    // DI
     property name="messagebox" 		inject="MessageBox@cbmessagebox";
     /**
 	* new
@@ -1233,21 +1160,21 @@ Create a new Model `coldbox create model name="User" properties="id,username,ema
 * I am a new Model Object
 */
 component accessors="true"{
-	
+
 	// Properties
 	property name="id" type="string";
 	property name="username" type="string";
 	property name="email" type="string";
 	property name="password" type="string";
-	
+
 	/**
 	 * Constructor
 	 */
 	User function init(){
-		
+
 		return this;
     }
-    
+
     boolean function isLoaded(){
 		return ( !isNull( variables.id ) && len( variables.id ) );
 	}
@@ -1426,9 +1353,9 @@ Replace the `Create` function with the following code
 ```js
 function create( event, rc, prc ) {
     prc.oUser = userService.create( populateModel( "User" ) );
-    
+
     auth().login( prc.oUser );
-    
+
     relocate( uri = "/" );
 }
 ```
@@ -1452,7 +1379,7 @@ In the file that was created by the previous command, put this piece of code in 
 
 ```js
 component {
-    
+
     function up( schema, queryBuilder ) {
         schema.create( "rants", function( table ){
             table.increments( "id" );
@@ -1494,7 +1421,7 @@ Open the integration tests and start coding:
 //tests/specs/integration/rantsTest.cfc
 
 component extends="tests.resources.BaseIntegrationSpec"{
-	
+
 	property name="query" 		inject="provider:QueryBuilder@qb";
 	property name="bcrypt" 		inject="@BCrypt";
 	property name="auth" 		inject="authenticationService@cbauth";
@@ -1520,7 +1447,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 	}
 
 	/*********************************** BDD SUITES ***********************************/
-	
+
 	function run(){
 
 		describe( "rants Suite", function(){
@@ -1541,7 +1468,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 				prepareMock( getInstance( "RantService" ) )
 					.$( "getAll", [] );
 				var event = get( route="/rants", params={} );
-				
+
 				getWireBox().clearSingletons();
 
 				expect( event.getPrivateValue( "aRants") ).toBeEmpty();
@@ -1562,7 +1489,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 					} );
 				}).toThrow( type="NoUserLoggedIn" );
 			});
-			
+
 			it( "can create a rant from a valid user", function(){
 
 				// Log in user
@@ -1575,7 +1502,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 				expect( event.getValue( "relocate_URI" ) ).toBe( "/rants" );
 			});
 
-		
+
 		});
 
 	}
@@ -1603,10 +1530,10 @@ Let's build it out.
 * I am a new handler
 */
 component{
-	
+
 	property name="rantService" 	inject;
 	property name="messagebox" 		inject="MessageBox@cbmessagebox";
-		
+
 	/**
 	* index
 	*/
@@ -1637,7 +1564,7 @@ component{
 	}
 
 
-	
+
 }
 ```
 
@@ -1661,14 +1588,14 @@ component accessors="true"{
 
 	// DI
 	property name="userService" inject;
-	
+
 	// Properties
 	property name="id"           type="string" default = "";
 	property name="body"         type="string" default = "";
 	property name="createdDate"  type="date";
 	property name="modifiedDate" type="date";
 	property name="userID"       type="string" default = "";
-	
+
 
 	/**
 	 * Constructor
@@ -1677,7 +1604,7 @@ component accessors="true"{
 		variables.createdDate = now();
 		return this;
 	}
-	
+
 	/**
 	* getUser
 	*/
@@ -1707,7 +1634,7 @@ Work on the unit test, what will you test?
 * responsibility to update the model annotation instantiation path and init your model.
 */
 component extends="tests.resources.BaseIntegrationSpec"{
-	
+
 	property name="query" 		inject="provider:QueryBuilder@qb";
 	property name="bcrypt" 		inject="@BCrypt";
 
@@ -1717,7 +1644,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 		super.beforeAll();
 
 		model = getInstance( "Rant" );
-		
+
 		cleanUserFixture();
 		testUserId = query.from( "users" )
 			.insert( values = {
@@ -1741,15 +1668,15 @@ component extends="tests.resources.BaseIntegrationSpec"{
 	}
 
 	/*********************************** BDD SUITES ***********************************/
-	
+
 	function run(){
 
 		describe( "Rant Suite", function(){
-			
+
 			it( "can create the Rant", function(){
-				
+
 				expect(	model ).toBeComponent();
-				
+
 			});
 
 			it( "should getUser", function(){
@@ -1782,7 +1709,7 @@ Now open it and let's modify it a bit for our purposes.  Also update the unit te
 * I am a new Model Object
 */
 component singleton accessors="true"{
-	
+
 	// Properties
 	property name="populator" inject="wirebox:populator";
 
@@ -1790,7 +1717,7 @@ component singleton accessors="true"{
 	 * Constructor
 	 */
 	RantService function init(){
-		
+
 		return this;
 	}
 
@@ -1798,7 +1725,7 @@ component singleton accessors="true"{
 	 * Provider of Rant objects
 	 */
 	Rant function new() provider="Rant"{}
-	
+
 	/**
 	 * Get all rants
 	 */
@@ -1833,7 +1760,7 @@ component singleton accessors="true"{
             { result = "local.result" }
         );
         rant.setId( result.GENERATED_KEY );
-		
+
 		return rant;
 	}
 
@@ -1844,7 +1771,7 @@ component singleton accessors="true"{
 //tests/specs/unit/RantServiceTest.cfc
 
 describe( "RantService Suite", function(){
-			
+
     it( "can be created", function(){
         expect( model ).toBeComponent();
     });

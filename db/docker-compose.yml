@@ -1,0 +1,13 @@
+version: "3"
+services:
+    mysql:
+        image: mysql:8
+        ports:
+            - 4306:3306
+            - 43060Tables:33060
+        environment:
+            MYSQL_ROOT_PASSWORD: soapbox
+            MYSQL_DATABASE: soapbox
+        volumes:
+            # Store the data locally
+          - ./data:/var/lib/mysql

@@ -2,7 +2,7 @@
 
 ## Join the BoxTeam Slack Channel
 
-Visit boxteam.herokuapp.com and invite yourself to the Slack.
+Visit https://boxteam.ortussolutions.com to join our slack team.
 
 ## Download Software
 
@@ -16,13 +16,14 @@ Please make sure you have a computer that is modern. No running windows 95, 7 or
 
 * https://git-scm.com
 
-### [Java](https://www.java.com/en/) (Version 8)
+### [Java](https://adoptium.net/) (Version 11)
 
 This can be downloaded bundled with CommandBox if needed
-* https://www.java.com/en/
+
+* https://adoptium.net/
 * https://www.ortussolutions.com/products/commandbox
 
-### [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 4.\*)
+### [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 5.\*)
 
 * https://www.ortussolutions.com/products/commandbox#download
 
@@ -84,7 +85,7 @@ You can use any client you would like. Here are a few we like ourselves:
 * [TablePlus](https://tableplus.io/) (Cross Platform, Commercial / Free Trial)
 * [Data Grip](https://www.jetbrains.com/datagrip/) (Cross Platform, Commercial / Free Trial)
 
-## IDE 
+## IDE
 
 We recommend the following IDEs for development for this workshop
 

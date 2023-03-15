@@ -1,2 +1,7 @@
-scratchpad
-/app/*
+# Dependencies
+src/coldbox
+src/modules/**
+src/testbox
+
+# DB Data
+db/data

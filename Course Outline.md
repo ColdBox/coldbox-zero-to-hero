@@ -1,47 +1,46 @@
 # ColdBox From Zero to Hero (CBOX-120)
 
-ColdBox from Zero To Hero Description 
-
-In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 5. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points and much more.
+In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 7. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points, integratino testing and much more.
 
 ## Prerequisites
 
 - Latest CommandBox CLI
-- A local database server (MySql 5.7 is recommended)
+- A local database server (MySql 8 is recommended)
 - Basic to Intermediate ColdFusion (CFML) Knowledge
 
 ## Course Outline
 
-This course will focus on building a real twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox 5 features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
+This course will focus on building a real twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
+
+### Steps to go from ColdBox Zero to Hero
+
+(All commands assume we are in the `box` shell unless stated otherwise.)
 
 ### 1. Course Introduction
 
 - Introductions
 - Software Pre-Requisites
 - Course Expectations
+- How many have used ColdBox/MVC before?
+- How many have used BDD/TDD approaches before?
 
 ### 2. App Skeleton
 
-What we will do:
-
-- Scaffold a ColdBox Template using CommandBox
-- Build and configure the Test Harness
-- Build and configure Test Runners
+- Scaffold our application
+- Configure the Test Harness
+- Run our initial tests
 - CommandBox Test Watchers
 
-Steps: 1
+Steps: [Start](steps/step-1.md)
 
-Concepts & Tools:
-
-
-### 3. Intro to ColdBox MVC
+### 3. Intro to MVC
 
 What we will do:
 
-- ColdBox.cfc Intro 
+- ColdBox.cfc Intro
 - Development Settings
 - Discovering application router
-- Handlers
+- Discovering Handlers
 - What is the Request Context
 - Views/Layouts by convention
 - Reiniting your application
