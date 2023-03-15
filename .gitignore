@@ -1,7 +1,12 @@
 # Dependencies
 src/coldbox
-src/modules/**
+src/modules
 src/testbox
+
+# Completed App
+app/coldbox
+app/modules
+app/testbox
 
 # DB Data
 db/data
