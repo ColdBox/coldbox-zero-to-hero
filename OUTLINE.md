@@ -45,9 +45,7 @@ What we will do:
 - Views/Layouts by convention
 - Reiniting your application
 
-Steps: 2
-
-Concepts & Tools:
+Steps: [Start](steps/step-2.md)
 
 ### 4. Layouts
 
@@ -55,7 +53,7 @@ What we will do:
 
 - Create a bootstrap theme layout for our app
 
-Steps: 3
+Steps: [Start](steps/step-3.md)
 
 ### 5. Database Migrations
 
@@ -68,7 +66,9 @@ Steps: 3
 - Configure application and test harness for database access
 - Setup Test Harness and Base Spec
 
-Steps: 4,5
+Steps:
+ - [Start 4](steps/step-4.md)
+ - [Start 5](steps/step-5.md)
 
 ### 6. Intro to Models
 
@@ -79,7 +79,9 @@ Steps: 4,5
 - Call the list() method from our Main Handler and dump the data
 - Access the data returned from your main.index view.
 
-Steps: 6,7
+Steps:
+ - [Start 6](steps/step-6.md)
+ - [Start 7](steps/step-7.md)
 
 ### 7. Building the Registration Flow
 
@@ -89,9 +91,8 @@ What we will do:
 - Install bcrypt
 - Write the registration code as a ColdBox resource with appropriate spec and model methods
 
-Steps: 8
-
-Concepts & Tools:
+Steps:
+ - [Start 8](steps/step-8.md)
 
 
 ### 8. Login & Logout Flow
@@ -114,7 +115,8 @@ What we will do:
 - Customize Messagebox
 - Leverage Messagebox for messages
 
-Steps: 9
+Steps:
+ - [Start 9](steps/step-9.md)
 
 ### 9. Rants
 
@@ -130,7 +132,8 @@ What we will do:
 - Change application default event to the rants
 - Update the main layout for adding a rant
 
-Steps: 10
+Steps:
+ - [Start 10](steps/step-10.md)
 
 ### 10. Security
 
@@ -139,7 +142,8 @@ Steps: 10
 - Update the User Service for user validation
 - Confirm security
 
-Steps: 11
+Steps:
+ - [Start 11](steps/step-11.md)
 
 ### 11. View User Rants
 
@@ -149,7 +153,8 @@ Steps: 11
 - Create the handler
 - Create a reusable viewlet for our rants
 
-Steps: 12
+Steps:
+ - [Start 12](steps/step-12.md)
 
 ### 12. Add Rant Actions
 
@@ -160,7 +165,9 @@ Steps: 12
 - Update the rant viewlet
 - Learn about Wirebox Convention vs Configuration
 
-Steps: 13, 14
+Steps:
+ - [Start 13](steps/step-13.md)
+ - [Start 14](steps/step-14.md)
 
 ### 13. Make Reactions Functional
 
@@ -173,7 +180,8 @@ Steps: 13, 14
 - Create the integration tests
 - Implement the handlers
 
-Steps: 15
+Steps:
+ - [Start 15](steps/step-15.md)
 
 ### 14. Extra Credit
 
