@@ -1,6 +1,8 @@
-## 2 - Intro to ColdBox MVC
+# 2 - Intro to ColdBox MVC
 
-### Development Settings
+Open the `config/Coldbox.cfc` so we can start configuring our [application](../src/config/Coldbox.cfc):
+
+## Development Settings
 
 * Configure the `configure()` method for production
 * Verify the `environment` structures
@@ -8,16 +10,36 @@
 
 ```js
 function development(){
-    coldbox.customErrorTemplate = "/coldbox/system/exceptions/Whoops.cfm";
+    coldbox.debugMode               = true;
+    coldbox.customErrorTemplate     = "/coldbox/system/exceptions/Whoops.cfm";
     coldbox.handlersIndexAutoreload = true;
-    coldbox.reinitPassword = "";
-    coldbox.handlerCaching = false;
-    coldbox.viewCaching = false;
-    coldbox.eventCaching = false;
+    coldbox.reinitPassword          = "";
+    coldbox.handlerCaching          = false;
+    coldbox.viewCaching             = false;
+    coldbox.eventCaching            = false;
 }
 ```
 
-* Open the `layouts/Main.cfm` and add a tag for the environment
+### Reiniting The Framework
+
+Please note that every time we make changes to the `config` folder we will most likely need to reinitialize our application. ColdBox caches the contents of this file upon startup. So if you need the changes to take effect you must reinitialize the application.  But how you say?
+
+* Hard Reset : issue a server reset command in CommandBox: `server restart`
+* ColdBox CLI Reinit : issue a ColdBox reinit via CommandBox: `coldbox reinit`
+* ColdBox URL Reinit : use the `http://localhost:42518?fwreinit=1` url action in your app
+
+> You can secure the `fwreinit` by using the `reinitPassword` setting in your configuration. https://coldbox.ortusbooks.com/getting-started/configuration/coldbox.cfc/configuration-directives/coldbox#development-settings
+
+What is cached?
+
+* Configuration
+* Singletons
+* Handlers
+* View/Event Caching
+
+## Visualizing The Settings - FrameworkSuperType Intro
+
+* Open the `layouts/Main.cfm` and add a tag for the environment so we can see it.
 
 ```html
 <div class="badge badge-info">
@@ -27,33 +49,28 @@ function development(){
 
 * Where does the `getSetting()` method come from?
 * Go back again to the UML Diagram of Major Classes (https://coldbox.ortusbooks.com/the-basics/models/super-type-usage-methods)
-* Reinit the framework
-
-> http://localhost:42518?fwreinit=1
-
-* What is cached?
-* Singletons
-* Handlers
-* View/Event Caching
-
-```bash
-coldbox reinit
-```
-
-* Change the environments, test the label
+* Visualize the label
 
 
-### Show routes file. Explain routing by convention.
 
-### Explain `event`, `rc`, and `prc`.
+## Routing 
 
-### Show `Main.index`.
+Open the `config/Router.cfc`.
 
-### Explain views. Point out view conventions.
+## Handlers
 
-### Briefly touch on layouts.
+Open `Main.index`  let's discover the request context object and request collections:
 
-### Show how `rc` and `prc` are used in the views.
+* `event` - Request Context Object
+* `rc` - Public request collection
+* `prc` - Private request collection 
+
+## Views
+
+* Introduction to the `event.setView()` command.
+* Remove that line and see that eveerything still works by convention.
+* Open the views and check out the `rc` and `prc` scopes
+
 
 ### Add an about page
 
@@ -61,25 +78,27 @@ coldbox reinit
 coldbox create view about/index
 ```
 
-#### Add an `views/about/index.cfm`. Hit the url `/about/index` and it works!
+Hit the url `/about/index` and it works!  This is virtual views!
 
 ```html
 <cfoutput>
     <h1>About us!</h1>
 </cfoutput>
 ```
-#### Add an `about` handler, change to non-existent view, does it work?
+
+Add an `about` handler, change to non-existent view, does it work?
 
 ```bash
-coldbox create handler name="about" actions="index" views=false
+coldbox create handler name="about" actions="index" noViews
 ```
 
-#### Set it back to the `index` view, does it work?
+* Set it back to the `index` view, does it work?
+* Execute the tests, we have more tests now
+* Time to open our tests cases and get even more familiar with testing
+    * Go over unit and integration differences
+    * Go over the TestBox BDD Testing DSL
+    * Add tests for our about page
 
-#### Execute the tests, we have more tests now
-
-* Explain Integration Testing, BDD Specs, Expectations
-* Fix the tests
 
 ```js
 it( "can render the about page", function(){
@@ -90,6 +109,13 @@ it( "can render the about page", function(){
     expect(	event.getRenderedContent() ).toInclude( "About Us" );
 });
 ```
+
+Remebmer that in integration testing mode you can execute the live virtual application:
+
+* Execute events
+* Execute routes
+* Execute RESTFul Routes
+
 
 ### Assignment: Add a Links page
 

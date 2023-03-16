@@ -12,24 +12,22 @@ In this workshop you will be introduced to the latest version of the most popula
 
 This course will focus on building a real twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
 
-### Steps to go from ColdBox Zero to Hero
-
-(All commands assume we are in the `box` shell unless stated otherwise.)
+> (All commands assume we are in the `box` shell unless stated otherwise.)
 
 ### 1. Course Introduction
 
-- Introductions
-- Software Pre-Requisites
-- Course Expectations
-- How many have used ColdBox/MVC before?
-- How many have used BDD/TDD approaches before?
+- [ ] Introductions
+- [ ] Software Pre-Requisites
+- [ ] Course Expectations
+- [ ] How many have used ColdBox/MVC before?
+- [ ] How many have used BDD/TDD approaches before?
 
 ### 2. App Skeleton
 
-- Scaffold our application
-- Configure the Test Harness
-- Run our initial tests
-- CommandBox Test Watchers
+- [ ] Scaffold our application
+- [ ] Configure the Test Harness
+- [ ] Run our initial tests
+- [ ] CommandBox Test Watchers
 
 Steps: [Start](steps/step-1.md)
 
@@ -37,13 +35,13 @@ Steps: [Start](steps/step-1.md)
 
 What we will do:
 
-- ColdBox.cfc Intro
-- Development Settings
-- Discovering application router
-- Discovering Handlers
-- What is the Request Context
-- Views/Layouts by convention
-- Reiniting your application
+- [ ] ColdBox.cfc Intro
+- [ ] Development Settings
+- [ ] Discovering application router
+- [ ] Discovering Handlers
+- [ ] What is the Request Context
+- [ ] Views/Layouts by convention
+- [ ] Reiniting your application
 
 Steps: [Start](steps/step-2.md)
 
