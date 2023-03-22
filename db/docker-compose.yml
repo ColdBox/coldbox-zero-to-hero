@@ -4,7 +4,7 @@ services:
         image: mysql:8
         ports:
             - 4306:3306
-            - 43060Tables:33060
+            - 43060:33060
         environment:
             MYSQL_ROOT_PASSWORD: soapbox
             MYSQL_DATABASE: soapbox
