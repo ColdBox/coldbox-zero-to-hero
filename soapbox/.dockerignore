@@ -1,0 +1,7 @@
+# All the files to ignore from the docker image
+.engine
+.github
+.vscode
+.DS_Store
+.dockerignore
+tests

@@ -7,8 +7,10 @@ Create a folder for your app on your hard drive called `soapbox`.  Our just use 
 
 ```sh
 cd src
-coldbox create app soapbox
+coldbox create app name=soapbox skeleton=cbtemplate-advanced-script@be
 ```
+
+Also run a `coldbox create app ?` to see all the different ways to generate an app.  You can also use `coldbox create app-wizard ?` and follow our lovely wizard.
 
 ## Start up a local server
 
@@ -54,4 +56,4 @@ You can also control what files to watch via the command or via the `testbox` st
 testbox watch **.cfc
 ```
 
-`ctl-c` will escape and stop the watching.  Start it up again and now go open the `handlers/Main.cfc` that was generated: [Open](../src/handlers/Main.cfc:8).  Change the `setView()` and introduce a bug by renaming it to `setVView()`. Save the file and check out the watcher! 
+`ctl-c` will escape and stop the watching.  Start it up again and now go open the `handlers/Main.cfc` that was generated: [Open](../src/handlers/Main.cfc:8).  Change the `setView()` and introduce a bug by renaming it to `setVView()`. Save the file and check out the watcher!
