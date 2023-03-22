@@ -199,3 +199,5 @@ Here are some assignments for you:
 * Change `prc.welcome` in the `handlers/Main.cfc` to your liking.
 * Run the tests
 * Fix the tests
+* Let's see how [CFFormat](https://www.forgebox.io/view/commandbox-cfformat) can format our source code automatically for us.  Open the shell and type: `run-script format:watch`.  This starts a watcher for our source code.  Every time we make a change and save, it will automatically format it for us.
+  * The magic rules are done by the `.cfformat` file in the web root.
