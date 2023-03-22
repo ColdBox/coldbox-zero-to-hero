@@ -27,8 +27,8 @@ component {
 	// The root application mapping
 	rootPath                    = reReplaceNoCase( this.mappings[ "/tests" ], "tests(\\|/)", "" );
 	this.mappings[ "/root" ]    = this.mappings[ "/cbapp" ] = rootPath;
-	this.mappings[ "/coldbox" ] = rootPath & "lib/vendor/coldbox";
-	this.mappings[ "/testbox" ] = rootPath & "lib/vendor/testbox";
+	this.mappings[ "/coldbox" ] = rootPath & "coldbox";
+	this.mappings[ "/testbox" ] = rootPath & "testbox";
 
 	/**
 	 * Fires on every test request. It builds a Virtual ColdBox application for you

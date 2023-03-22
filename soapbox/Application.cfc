@@ -59,7 +59,7 @@ component {
 	 * - coldbox : Where ColdBox library is installed
 	 */
 	this.mappings[ "/cbapp" ]   = COLDBOX_APP_ROOT_PATH;
-	this.mappings[ "/coldbox" ] = COLDBOX_APP_ROOT_PATH & "lib/vendor/coldbox";
+	this.mappings[ "/coldbox" ] = COLDBOX_APP_ROOT_PATH & "coldbox";
 
 	/**
 	 * --------------------------------------------------------------------------

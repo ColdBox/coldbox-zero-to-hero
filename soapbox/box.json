@@ -24,8 +24,8 @@
         "commandbox-cfformat":"*"
     },
     "installPaths":{
-        "coldbox":"lib/vendor/coldbox/",
-        "testbox":"lib/vendor/testbox/"
+        "coldbox":"coldbox/",
+        "testbox":"testbox/"
     },
     "dependencies":{
         "coldbox":"be"

@@ -33,6 +33,8 @@ component {
 		} );
 
 		// @app_routes@
+		route( "about", "about.index" );
+		//route( "/about" ).as( "about" ).to( "about.index" ); Same as above
 
 		// Conventions-Based Routing
 		route( ":handler/:action?" ).end();

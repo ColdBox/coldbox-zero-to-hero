@@ -28,7 +28,7 @@
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 					<li class="nav-item">
 						<a
-							class="nav-link #event.getCurrentEvent() eq "about.index" ? 'active' : ''#"
+							class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
 							href="#event.buildLink( 'about' )#"
 							>
 							About
