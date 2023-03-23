@@ -1,11 +1,11 @@
 # 4 - Database and Migrations
 
-Just like you can version your source code, we can also version the database structure, data and execution by using database migrations.  The migrations project is divided into two modules that work together in unison.
+Just like you can version your source code, we can also version the database structure, and data by using database migrations.  The migrations project is divided into two modules that work together in unison.
 
 - **CommandBox Migrations** (`commandbox-migrations`) which is the CLI module that will allow you to init, run, remove, etc migrations from your CLI using CommandBox: https://forgebox.io/view/commandbox-migrations
 - **CFMigrations** (`cfmigrations`) which is the module that powers all the migrations system.  The CommandBox Migrations module actually uses this module as a dependency.  You can also use the migrations programmatically in your ColdBox applications as a module: https://forgebox.io/view/cfmigrations
 
-Migrations are a way of providing version control for your application's schema. Changes to schema are kept in timestamped files that are ran in order `up` and `down`.In the `up` function, you describe the changes to apply your migration. In the `down` function, you describe the changes to undo your migration.
+Migrations are a way of providing version control for your application's database schema. Changes to the schema are kept in timestamped files that are ran in order `up` and `down`.  In the `up` function, you describe the changes to apply your migration. In the `down` function, you describe the changes to undo your migration.
 
 ```js
 component {
@@ -68,7 +68,7 @@ We will use this file as is and just create the necessary environment variables 
 
 ```sh
 # Database Information
-DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:3306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true
+DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:4306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true
 DB_CLASS=com.mysql.jdbc.Driver
 DB_BUNDLENAME=com.mysql.cj
 DB_BUNDLEVERSION=8.0.30
@@ -76,7 +76,7 @@ DB_DRIVER=MySQL
 DB_HOST=127.0.0.1
 DB_PORT=4306
 DB_DATABASE=soapbox
-DB_USER=soapbox
+DB_USER=root
 DB_PASSWORD=soapbox
 ```
 
@@ -95,6 +95,7 @@ It should output `8.0.30`.  If it doesn't, then try reloading the CommandBox she
 We have provided a MySQL container for this project: [`db/docker-compose.yml`](../db/docker-compose.yml).  Just make sure you have docker installed and execute:
 
 ```bash
+cd db
 docker compose up
 ```
 
@@ -157,7 +158,7 @@ db-mysql-1  | 2023-03-22T18:13:40.228577Z 0 [Warning] [MY-011810] [Server] Insec
 db-mysql-1  | 2023-03-22T18:13:40.482956Z 0 [System] [MY-010931] [Server] /usr/sbin/mysqld: ready for connections. Version: '8.0.23'  socket: '/var/run/mysqld/mysqld.sock'  port: 3306  MySQL Community Server - GPL.
 ```
 
-### VSCode SQL Tools
+## VSCode SQL Tools
 
 We highly encourage you install the SQL Tools module from VSCode: https://vscode-sqltools.mteixeira.dev/en/home/.  We have included in the project in the `.vscode` folder a connection already for this container: [`.vscode/settings.json`](../.vscode/settings.json)
 
@@ -184,67 +185,65 @@ We highly encourage you install the SQL Tools module from VSCode: https://vscode
 
 > Please note the port has an extra 0 at the end.  This is needed by any tool connecting to MySQL using their new authentication protocols.
 
+Just open the tools, double click the `soapbox` connection and if succesful then we are ready to init our database.
 
-### Install cfmigrations using `migrate install`. (This will also test that you can connect to your database.)
+## Install Migrations
 
-```sh
-migrate install
+Now let's install the migrations table in our database: `migrate install`.  If this is successful then our credentials in our `.env` are correct.  If not, check the console for debugging information.
+
+```bash
+❯ migrate install
+Migration table installed!
 ```
 
 If the table does not exist, this will create the table in your db. If you refresh your db, you should see the table. If you run the command again, it will let you know it is already installed. Try it!
 
-### Create a users migration
+## Create the `users` migration
 
 ```sh
 migrate create create_users_table
 ```
 
-All migration resources are CFCs and are stored under `resources/database/migrations/**.cfc`.  Make sure these are in version control. They can save your life!
+All migration resources are stored by default under `resources/database/migrations/**.cfc`.  Make sure these are in version control. They can save your life!  The migration file was created by the last command, and the file location was output by commandbox.  If you are using VS Code, you can just `Ctrl|cmd` + Click to open the file.
 
-### Fill in the migration.
-
-The migration file was created by the last command, and the file location was output by commandbox.
-If you are using VS Code, you can just `Ctrl` + Click to open the file.
+Let's now create the `users` table.  In the example below you can see a MySQL specific query execution and also a DB agnostic creation using the Schema Builder.  The Schema Builder is the best approach as it abstracts the database.
 
 ```java
 component {
 
     function up( schema ) {
-        queryExecute( "
-            CREATE TABLE `users` (
-                `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
-                `username` VARCHAR(255) NOT NULL UNIQUE,
-                `email` VARCHAR(255) NOT NULL UNIQUE,
-                `password` VARCHAR(255) NOT NULL,
-                `createdDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                `modifiedDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                CONSTRAINT `pk_users_id` PRIMARY KEY (`id`)
-            )
-        " );
+        // queryExecute( "
+        //     CREATE TABLE `users` (
+        //         `id` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+        //         `username` VARCHAR(255) NOT NULL UNIQUE,
+        //         `email` VARCHAR(255) NOT NULL UNIQUE,
+        //         `password` VARCHAR(255) NOT NULL,
+        //         `createdDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        //         `modifiedDate` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        //         CONSTRAINT `pk_users_id` PRIMARY KEY (`id`)
+        //     )
+        // " );
 
-        // schema.create( "users", function( table ) {
-        //     table.increments( "id" );
-        //     table.string( "username" ).unique();
-        //     table.string( "email" ).unique();
-        //     table.string( "password" );
-        //     table.timestamp( "createdDate" );
-        //     table.timestamp( "modifiedDate" );
-        // } );
+        schema.create( "users", function( table ) {
+            table.increments( "id" )
+            table.string( "name" )
+            table.string( "email" ).unique()
+            table.string( "password" )
+            table.timestamps()
+        } );
     }
 
     function down( schema ) {
-        queryExecute( "DROP TABLE `users`" );
-
-        // schema.drop( "users" );
+        //queryExecute( "DROP TABLE `users`" );
+        schema.drop( "users" )
     }
 
 }
 ```
 
-* Go over file and describe the options you can have to create the schemas.
-* QB Schema Builder Docs: https://qb.ortusbooks.com/schema-builder/schema-builder
+> QB Schema Builder Docs: https://qb.ortusbooks.com/schema-builder/schema-builder, your new best friend.
 
-### Run the migration up.
+Now let's run it!
 
 ```sh
 migrate up
@@ -262,18 +261,21 @@ This will add the datasource to your CFML engine.  There are other ways, but thi
 this.datasource = "soapbox";
 ```
 
-### Refresh your app, and you will see an error.
+## Reinit Server
 
-`Could not find a Java System property or Env setting with key [DB_CLASS].`
+We are ready for more coding. However, before we do that our web server has no clue we changed the `.env` environment variables.  A restart should fix that!
 
-This is because although we reloaded the CLI so migrations is able to read those values... we did not restart our server, so Java does not have those variables.
+```bash
+server restart
+```
 
-`server restart`
-
-Now when you restart, Java is passed all of those variables automatically by the DotEnv module, and now this will work.
 You will need to restart your server whenever you add, remove, or change environment variables.
 
-### Ensure your app and your tests are running
+## Ensure Application
 
-Hit `/` in your browser
-Hit `/tests/runner.cfm` in your browser
+Verify that we did not break our app:
+
+- Let's use another cool command: `server open` to open the webroot
+- But we can also use it to open any URI: `server open tests/runner.cfm`
+
+Everything should be <span style="color: green">Green!</span>
