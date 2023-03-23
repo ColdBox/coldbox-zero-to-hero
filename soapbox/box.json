@@ -21,11 +21,14 @@
         "testbox":"be",
         "commandbox-dotenv":"*",
         "commandbox-cfconfig":"*",
-        "commandbox-cfformat":"*"
+        "commandbox-cfformat":"*",
+		"commandbox-migrations": "^4.0.0",
+        "cfmigrations":"^4.0.0"
     },
     "installPaths":{
         "coldbox":"coldbox/",
-        "testbox":"testbox/"
+        "testbox":"testbox/",
+        "cfmigrations":"modules/cfmigrations/"
     },
     "dependencies":{
         "coldbox":"be"

@@ -35,7 +35,18 @@ Let's start by installing the migrations in CommandBox
 install commandbox-migrations
 ```
 
-You should see a list of available commands with `migrate ?`. Explore them.
+- You should see a list of available commands with `migrate ?`. Explore them.
+- Add the dependency to the `devDependencies` in the `box.json`: `"commandbox-migrations": "^4.0.0"`
+
+```js
+"devDependencies":{
+    "testbox":"be",
+    "commandbox-dotenv":"*",
+    "commandbox-cfconfig":"*",
+    "commandbox-cfformat":"*",
+    "commandbox-migrations": "^4.0.0"
+},
+```
 
 ## Initalize Migrations With `migrate init`
 

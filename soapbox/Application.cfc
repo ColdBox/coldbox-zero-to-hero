@@ -66,7 +66,7 @@ component {
 	 * ORM + Datasource Settings
 	 * --------------------------------------------------------------------------
 	 */
-	this.datasource = "coldbox";
+	this.datasource = "soapbox";
 
 	/**
 	 * Fires when the application starts

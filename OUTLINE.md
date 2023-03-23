@@ -73,16 +73,16 @@ Steps: [Start](steps/step-3.md)
 
 ### 5. Database Migrations
 
-- Intro to Migrations
-- Installation of migration modules
-- Migration Commands
-- Intro to CommandBox Environment Variables
-- Configure our environment variables
-- Creating and running our first migration
-- Configure application and test harness for database access
-- Setup Test Harness and Base Spec
+- [ ] Intro to Migrations
+- [ ] Installation of migration modules
+- [ ] Migration Commands
+- [ ] Configure our environment variables
+- [ ] Creating and running our first migration
+- [ ] Configure application and test harness for database access
+- [ ] Setup Test Harness and Base Spec
 
 Steps:
+
  - [Start 4](steps/step-4.md)
  - [Start 5](steps/step-5.md)
 
