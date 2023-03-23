@@ -8,7 +8,20 @@ In this workshop you will be introduced to the latest version of the most popula
 - A local database server (MySql 8 is recommended)
 - Basic to Intermediate ColdFusion (CFML) Knowledge
 
+## Software Versions
+
+This course at this time is using the following dependencies:
+
+- ColdBox 7.x
+- CBSecurity 3.x
+- CBDebugger 4.x
+- CommandBox Migrations 4.x
+
+**There could be the case that some of the steps fail if you are using future versions of these modules.  Please update accordingly or look for the specific updated version of this course as a branch.**
+
 ## Course Outline
+
+![SoapBox](steps/images/soapbox.png)
 
 This course will focus on building a real twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
 
@@ -40,8 +53,10 @@ What we will do:
 - [ ] Discovering application router
 - [ ] Discovering Handlers
 - [ ] What is the Request Context
+- [ ] what is the Framework Super Type
 - [ ] Views/Layouts by convention
 - [ ] Reiniting your application
+- [ ] Creating views and testing them
 
 Steps: [Start](steps/step-2.md)
 
@@ -49,7 +64,10 @@ Steps: [Start](steps/step-2.md)
 
 What we will do:
 
-- Create a bootstrap theme layout for our app
+- [ ] Adding custom css
+- [ ] Adding navigation to our layout
+- [ ] View partials
+- [ ] Refactoring our layout to use partials
 
 Steps: [Start](steps/step-3.md)
 
