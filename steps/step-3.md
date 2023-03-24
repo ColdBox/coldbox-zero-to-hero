@@ -128,7 +128,7 @@ Our layout should end up like this:
 
 	<!---Container And Views --->
 	<main class="flex-shrink-0">
-		#renderView()#
+		#view()#
 	</main>
 
 	<!--- Footer --->
@@ -214,7 +214,7 @@ Then we can add partials into our layout:
 
 <!---Container And Views --->
 <main class="flex-shrink-0">
-    #renderView()#
+    #view()#
 </main>
 
 <!--- Footer --->
@@ -264,7 +264,7 @@ This is the final layout for this section
 
 	<!---Container And Views --->
 	<main class="flex-shrink-0">
-		#renderView()#
+		#view()#
 	</main>
 
 	<!--- Footer --->

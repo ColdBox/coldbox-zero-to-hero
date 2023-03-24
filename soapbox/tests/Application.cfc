@@ -31,6 +31,13 @@ component {
 	this.mappings[ "/testbox" ] = rootPath & "testbox";
 
 	/**
+	 * --------------------------------------------------------------------------
+	 * ORM + Datasource Settings
+	 * --------------------------------------------------------------------------
+	 */
+	this.datasource = "soapbox";
+
+	/**
 	 * Fires on every test request. It builds a Virtual ColdBox application for you
 	 *
 	 * @targetPage The requested page
@@ -41,11 +48,6 @@ component {
 		// New ColdBox Virtual Application Starter
 		request.coldBoxVirtualApp= new coldbox.system.testing.VirtualApp( appMapping = "/root" );
 
-		// If hitting the runner or specs, prep our virtual app
-		if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
-			request.coldBoxVirtualApp.startup();
-		}
-
 		// Reload for fresh results
 		if ( structKeyExists( url, "fwreinit" ) ) {
 			if ( structKeyExists( server, "lucee" ) ) {
@@ -55,7 +57,42 @@ component {
 			request.coldBoxVirtualApp.restart();
 		}
 
+		// If hitting the runner or specs, prep our virtual app
+		if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
+			request.coldBoxVirtualApp.startup();
+			seedDatabase();
+		}
+
 		return true;
+	}
+
+	private function seedDatabase(){
+		var controller       = request.coldBoxVirtualApp.getController();
+		var migrationService = controller
+			.getWireBox()
+			.getInstance(
+				name         : "MigrationService@cfmigrations",
+				initArguments: {
+					migrationsDirectory : "/root/resources/database/migrations",
+					seedsDirectory      : "/root/resources/database/seeds",
+					properties          : {
+						datasource     : "soapbox",
+						defaultGrammar : "AutoDiscover@qb",
+						schema         : "soapbox"
+					}
+				}
+			);
+
+		var sTime = getTickCount();
+		systemOutput( "Refreshing Database...", true );
+		migrationService.reset();
+		systemOutput( "Database Refreshed in #numberFormat( getTickCount() - sTime )#", true );
+
+		var sTime = getTickCount();
+		systemOutput( "Running Database Migrations...", true );
+		migrationService.install( runAll: true );
+		migrationService.seed( "TestFixtures" );
+		systemOutput( "Database Migrations loaded in #numberFormat( getTickCount() - sTime )#", true );
 	}
 
 	/**

@@ -116,7 +116,7 @@ Run the following command: `coldbox create view 404` to create the view
     <h4>Rants</h4>
     <ul>
         <cfloop array="#prc.user.getRants()#" item="rant">
-            #renderView( "_partials/_rant", { rant = rant } )#
+            #view( "_partials/_rant", { rant = rant } )#
         </cfloop>
     </ul>
 </cfoutput>
@@ -145,7 +145,7 @@ Update the `views/rants/index.cfm` file and replace the content of the loop to r
 
 ```html
 <cfloop array="#prc.aRants#" item="rant">
-    #renderView( "_partials/_rant", { rant = rant } )#
+    #view( "_partials/_rant", { rant = rant } )#
 </cfloop>
 ```
 

@@ -89,11 +89,10 @@ Steps:
 ### 6. Intro to Models
 
 - Scaffold a `UserService`
-- Add our list story to our integration test
-- Implement the list() method to retrieve all users
-- Inject our UserService into our Main Handler
-- Call the list() method from our Main Handler and dump the data
-- Access the data returned from your main.index view.
+- Add our `list` story to our integration test
+- Implement the `list()` method to retrieve all users
+- Inject our `UserService` into our Main Handler
+- Access the data returned from a model
 
 Steps:
  - [Start 6](steps/step-6.md)
