@@ -147,4 +147,4 @@ And now we got data, verify the database!
 
 ## Automated Seeding
 
-Now that we know our seeder works and we can add data to our database for testing, let's automate it in our test harness.  Open the `BaseIntegrationSpec.cfc` and let's
+Now that we know our seeder works and we can add data to our database for testing, let's automate it in our test harness.  Open the `BaseIntegrationSpec.cfc` and let's.
