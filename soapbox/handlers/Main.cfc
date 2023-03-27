@@ -3,13 +3,13 @@ component extends="coldbox.system.EventHandler" {
 	// Long-format
 	// property name="userService"		inject="UserService";
 	// Short-format
-	// property name="userService" inject;
+	property name="userService" inject;
 
 	/**
 	 * Default Action
 	 */
 	function index( event, rc, prc ){
-		// prc.aUsers         = userService.list();
+		prc.aUsers         = userService.list();
 		prc.welcomeMessage = "Welcome to ColdBox!";
 		event.setView( "main/index" );
 	}

@@ -1,6 +1,6 @@
 <cfoutput>
 
-<!--- #html.table( data : prc.aUsers, class : "table table-striped", excludes : "password,id" )# --->
+#html.table( data : prc.aUsers, class : "table table-striped", excludes : "password,id" )#
 
 <div class="text-center card shadow-sm bg-light border border-5 border-white">
 	<div class="card-body">

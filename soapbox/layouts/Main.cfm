@@ -28,11 +28,16 @@
 	data-spy="scroll"
 	data-target=".navbar"
 	data-offset="50"
-	style="padding-top: 60px"
 	class="d-flex flex-column h-100"
 >
 	<!---Top NavBar --->
 	<header>
+		<cfif flash.exists( "notice" )>
+			<div class="alert alert-#flash.get( "notice" ).type#" role="alert">
+				#flash.get( "notice" ).message#
+			</div>
+		</cfif>
+
 		#view( "partials/navigation" )#
 	</header>
 

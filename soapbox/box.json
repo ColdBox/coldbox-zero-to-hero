@@ -22,26 +22,30 @@
         "commandbox-dotenv":"*",
         "commandbox-cfconfig":"*",
         "commandbox-cfformat":"*",
-		"commandbox-migrations": "^4.0.0",
-        "cfmigrations":"^4.0.0"
+        "commandbox-migrations":"^4.0.0",
+        "cfmigrations":"^4.0.0",
+        "route-visualizer":"^2.0.0+6"
     },
     "installPaths":{
         "coldbox":"coldbox/",
         "testbox":"testbox/",
-        "cfmigrations":"modules/cfmigrations/"
+        "cfmigrations":"modules/cfmigrations/",
+        "route-visualizer":"modules/route-visualizer/",
+        "BCrypt":"modules/BCrypt/"
     },
     "dependencies":{
-        "coldbox":"be"
+        "coldbox":"be",
+        "BCrypt":"^3.1.0+4"
     },
     "scripts":{
-		"format":"cfformat run config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc --overwrite",
+        "format":"cfformat run config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc --overwrite",
         "format:check":"cfformat check config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc ./.cfformat.json",
         "format:watch":"cfformat watch path='config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc' settingsPath='.cfformat.json'",
         "docker:build":"!docker build --no-cache -t my-coldbox-app -f ./build/Dockerfile ./",
         "docker:run":"!docker run -it -p 8080:8080 my-coldbox-app",
         "docker:bash":"!docker run -it my-coldbox-app /bin/bash",
         "docker:stack":"!docker compose -f build/docker-compose.yaml ${1}"
-	},
+    },
     "testbox":{
         "runner":"/tests/runner.cfm"
     }

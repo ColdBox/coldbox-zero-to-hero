@@ -105,11 +105,9 @@ Steps:
 
 ### 7. User Registration
 
-What we will do:
-
-- Create the registration spec
-- Install bcrypt
-- Write the registration code as a ColdBox resource with appropriate spec and model methods
+- [ ] Create the registration spec
+- [ ] Install bcrypt
+- [ ] Write the registration code as a ColdBox resource with appropriate spec and model methods
 
 Steps:
 

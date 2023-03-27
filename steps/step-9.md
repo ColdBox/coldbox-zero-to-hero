@@ -203,37 +203,6 @@ component {
 }
 ```
 
-### Model: `User`
-
-Create a new Model `coldbox create model name="User" properties="id,username,email,password"`
-
-```js
-/**
-* I am a new Model Object
-*/
-component accessors="true"{
-
-	// Properties
-	property name="id" type="string";
-	property name="username" type="string";
-	property name="email" type="string";
-	property name="password" type="string";
-
-	/**
-	 * Constructor
-	 */
-	User function init(){
-
-		return this;
-    }
-
-    boolean function isLoaded(){
-		return ( !isNull( variables.id ) && len( variables.id ) );
-	}
-
-}
-```
-
 ### Model: `UserService`
 
 We need to update our User Service for CBAuth to function. It requires 3 functions and 1 for good luck:
@@ -331,32 +300,6 @@ Update the main layout to show and hide the register / login / logout buttons.
 
 Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
 
-
-
-### Registration Refactoring
-
-Refactor the Registration to use the User Object, we have gone OOP
-
-#### Update UserService `create` function to use User object
-
-```js
-function create( required user ){
-    queryExecute(
-        "
-            INSERT INTO `users` (`email`, `username`, `password`)
-            VALUES (?, ?, ?)
-        ",
-        [
-            user.getEmail(),
-            user.getUsername(),
-            bcrypt.hashPassword( user.getPassword() )
-        ],
-        { result = "local.result" }
-    );
-    user.setId( result.generatedKey );
-    return user;
-}
-```
 
 #### Update Registration.cfc handler to use User Object
 

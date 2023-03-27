@@ -32,9 +32,14 @@ component {
 			return { "error" : false, "data" : "Welcome to my awesome API!" };
 		} );
 
-		// @app_routes@
+		// About Page
 		route( "about", "about.index" );
-		//route( "/about" ).as( "about" ).to( "about.index" ); Same as above
+		// route( "/about" ).as( "about" ).to( "about.index" ); Same as above
+
+		// Registration Flow
+		resources( resource: "registration", only: "new,create" );
+
+		// @app_routes@
 
 		// Conventions-Based Routing
 		route( ":handler/:action?" ).end();
