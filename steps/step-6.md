@@ -118,6 +118,7 @@ Open the seeder: [resources/database/seeds/TestFixtures.cfc](../src/resources/da
 ```js
 component {
 
+	// The bcrypt equivalent of the word test.
 	bcrypt_test = "$2y$10$sgnxdXfMuffDAs3GkxRbVuwYsAg07nvly8Rr5uZ5zcnPAKz8kJnvS";
 
     function run( qb, mockdata ) {
@@ -129,7 +130,7 @@ component {
                 "email": "email",
                 "password": "oneOf:#bcrypt_test#"
             )
-		)
+		);
     }
 
 }
@@ -143,8 +144,135 @@ To run this seeder, just do:
 migrate seed run TestFixtures
 ```
 
-And now we got data, verify the database!
+And now we got data, verify the database that these records where created.
 
 ## Automated Seeding
 
-Now that we know our seeder works and we can add data to our database for testing, let's automate it in our test harness.  Open the `BaseIntegrationSpec.cfc` and let's.
+Now that we know our seeder works and we can add data to our database for testing, let's automate it in our test harness.  Open the `BaseIntegrationSpec.cfc` and let's remove all the code concering the migrations.  We will refactor this to the `/tests/Application.cfc` so it's done once per test run.  The final code should be:
+
+```js
+/**
+ * Base test bundle for our application
+ *
+ * @see https://coldbox.ortusbooks.com/testing/testing-coldbox-applications/integration-testing
+ */
+component extends="coldbox.system.testing.BaseTestCase" autowire {
+
+	/**
+	 * --------------------------------------------------------------------------
+	 * Dependency Injections
+	 * --------------------------------------------------------------------------
+	 */
+
+	/**
+	 * --------------------------------------------------------------------------
+	 * Integration testing controls
+	 * --------------------------------------------------------------------------
+	 * - We want the ColdBox virtual application to load once per request and get destroyed at the end of the request.
+	 */
+	this.loadColdBox   = true;
+	this.unloadColdBox = false;
+
+	/**
+	 * Run Before all tests
+	 */
+	function beforeAll(){
+		super.beforeAll();
+	}
+
+	/**
+	 * This function is tagged as an around each handler.  All the integration tests we build
+	 * will be automatically rolledbacked so we don't corrupt the database with our tests
+	 *
+	 * @aroundEach
+	 */
+	function wrapInTransaction( spec ){
+		transaction action="begin" {
+			try {
+				arguments.spec.body();
+			} catch ( any e ) {
+				rethrow;
+			} finally {
+				transaction action="rollback";
+			}
+		}
+	}
+
+}
+```
+
+Now let's open the [`tests/Application.cfc`](../src/tests/Application.cfc) and let's add our migrations code by adding a new private function called `seedDatabase()`:
+
+```js
+private function seedDatabase(){
+    var controller       = request.coldBoxVirtualApp.getController();
+    var migrationService = controller
+        .getWireBox()
+        .getInstance(
+            name         : "MigrationService@cfmigrations",
+            initArguments: {
+                migrationsDirectory : "/root/resources/database/migrations",
+                seedsDirectory      : "/root/resources/database/seeds",
+                properties          : {
+                    datasource     : "soapbox",
+                    defaultGrammar : "AutoDiscover@qb",
+                    schema         : "soapbox"
+                }
+            }
+        );
+
+    var sTime = getTickCount();
+    systemOutput( "Refreshing Database...", true );
+    migrationService.reset();
+    migrationService.install( runAll: true );
+    systemOutput( "Database Refreshed in #numberFormat( getTickCount() - sTime )#", true );
+
+    var sTime = getTickCount();
+    systemOutput( "Seeding Database...", true );
+    migrationService.seed( "TestFixtures" );
+    systemOutput( "Database seeded in #numberFormat( getTickCount() - sTime )#", true );
+}
+```
+
+Now let's change up the `onRequestStart()` to this:
+
+```js
+public boolean function onRequestStart( targetPage ){
+    // Set a high timeout for long running tests
+    setting requestTimeout   ="9999";
+    // New ColdBox Virtual Application Starter
+    request.coldBoxVirtualApp= new coldbox.system.testing.VirtualApp( appMapping = "/root" );
+
+    // Reload for fresh results
+    if ( structKeyExists( url, "fwreinit" ) ) {
+        if ( structKeyExists( server, "lucee" ) ) {
+            pagePoolClear();
+        }
+        // ormReload();
+        request.coldBoxVirtualApp.restart();
+    }
+
+    // If hitting the runner or specs, prep our virtual app
+    if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
+        request.coldBoxVirtualApp.startup();
+        seedDatabase();
+    }
+
+    return true;
+}
+```
+
+We moved our `restart` code right before we call any tests or runners and then after the virtual application starts up, we call the `seedDatabase()` function. Ok, this will completely refresh our database structure and run our migrations before each tests.  Go execute the tests and let's see if they work!
+
+## Refactor Tests
+
+Ok, now that we have our first fixture data, let's update our `list()` test:
+
+```js
+it( "can list all users", function() {
+    var aResults = model.list();
+    expect( aResults ).toBeArray().notToBeEmpty();
+} );
+```
+
+Verify it.

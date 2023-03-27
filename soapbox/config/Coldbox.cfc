@@ -138,7 +138,11 @@ component {
 		 *
 		 * }
 		 */
-		moduleSettings = {};
+		moduleSettings = {
+			cfmigrations : {
+				"managers" : { "default" : { "properties" : { "defaultGrammar" : "AutoDiscover@qb" } } }
+			}
+		};
 
 		/**
 		 * --------------------------------------------------------------------------

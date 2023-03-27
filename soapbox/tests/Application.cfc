@@ -86,13 +86,13 @@ component {
 		var sTime = getTickCount();
 		systemOutput( "Refreshing Database...", true );
 		migrationService.reset();
+		migrationService.install( runAll: true );
 		systemOutput( "Database Refreshed in #numberFormat( getTickCount() - sTime )#", true );
 
 		var sTime = getTickCount();
-		systemOutput( "Running Database Migrations...", true );
-		migrationService.install( runAll: true );
+		systemOutput( "Seeding Database...", true );
 		migrationService.seed( "TestFixtures" );
-		systemOutput( "Database Migrations loaded in #numberFormat( getTickCount() - sTime )#", true );
+		systemOutput( "Database seeded in #numberFormat( getTickCount() - sTime )#", true );
 	}
 
 	/**
