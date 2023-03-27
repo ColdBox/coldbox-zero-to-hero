@@ -88,17 +88,22 @@ Steps:
 
 ### 6. Intro to Models
 
-- Scaffold a `UserService`
-- Add our `list` story to our integration test
-- Implement the `list()` method to retrieve all users
-- Inject our `UserService` into our Main Handler
-- Access the data returned from a model
+- [ ] Generate our first model
+- [ ] Write our unit tests
+- [ ] Automate our testing
+- [ ] Add our `list` story to our test
+- [ ] Implement the `list()` method to retrieve all users
+- [ ] Introduction to Database Seeders
+- [ ] Creating our Test Fixtures
+- [ ] Automatic database seeding
+- [ ] How to use models in handlers and views
 
 Steps:
+
  - [Start 6](steps/step-6.md)
  - [Start 7](steps/step-7.md)
 
-### 7. Building the Registration Flow
+### 7. User Registration
 
 What we will do:
 
@@ -107,6 +112,7 @@ What we will do:
 - Write the registration code as a ColdBox resource with appropriate spec and model methods
 
 Steps:
+
  - [Start 8](steps/step-8.md)
 
 

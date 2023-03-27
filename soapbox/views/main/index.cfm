@@ -1,4 +1,7 @@
 <cfoutput>
+
+<!--- #html.table( data : prc.aUsers, class : "table table-striped", excludes : "password,id" )# --->
+
 <div class="text-center card shadow-sm bg-light border border-5 border-white">
 	<div class="card-body">
 		<div>
@@ -36,7 +39,7 @@
 					<cfloop list="#getSetting("RegisteredHandlers")#" index="handler">
 						<a href="#event.buildLink( handler )#" class="list-group-item list-group-item-action d-flex gap-2 py-3" title="Run Event">
 							<div class="rounded-circle flex-shrink-0 text-success px-1">
-								<i class="bi bi-play-btn" aria-hidden="true"></i> 
+								<i class="bi bi-play-btn" aria-hidden="true"></i>
 							</div>
 							<div class="d-flex gap-2 w-100 justify-content-between">#handler#</div>
 						</a>
@@ -58,11 +61,11 @@
 					<cfloop collection="#getSetting("Modules")#" item="thisModule">
 						<a href="#event.buildLink( getModuleConfig( thisModule ).inheritedEntryPoint )#" class="list-group-item list-group-item-action d-flex gap-2 py-3" title="Run Event">
 							<div class="rounded-circle flex-shrink-0 text-success px-1">
-								<i class="bi bi-play-btn" aria-hidden="true"></i> 
+								<i class="bi bi-play-btn" aria-hidden="true"></i>
 							</div>
 							<div class="d-flex gap-2 w-100 justify-content-between">#thisModule#</div>
 						</a>
-						
+
 					</cfloop>
 				</div>
 			</div>
