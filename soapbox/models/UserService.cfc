@@ -8,7 +8,6 @@ component singleton accessors="true" {
 	// To populate objects from data
 	property name="populator" inject="wirebox:populator";
 
-
 	/**
 	 * Constructor
 	 */

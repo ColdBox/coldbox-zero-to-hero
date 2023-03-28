@@ -135,26 +135,27 @@ Steps:
 What we will do:
 
 - [ ] Create new migration for rants
-- [ ] Scaffold a rant resource
+- [ ] Scaffold a `rant` resource
 - [ ] Update the resource route
-- [ ] Update the Rant object
-- [ ] Update the Rantservice
+- [ ] Update the `Rant` object
+- [ ] Update the `RantService`
 - [ ] Create the basic unit tests for both and talk about the pragmatism of unit test vs BDD
-- [ ] Build and Test the CRUD setup.
+- [ ] Build and Test the CRUD setup
 - [ ] Change application default event to the rants
 - [ ] Update the main layout for adding a rant
 
 Steps:
+
  - [Start 10](steps/step-10.md)
 
 ### 10. Security
 
-- Installing cbsecurity
-- Create the security rules
-- Update the User Service for user validation
-- Confirm security
+- [ ] Create the security rules
+- [ ] Update the User Service for user validation
+- [ ] Confirm security
 
 Steps:
+
  - [Start 11](steps/step-11.md)
 
 ### 11. View User Rants

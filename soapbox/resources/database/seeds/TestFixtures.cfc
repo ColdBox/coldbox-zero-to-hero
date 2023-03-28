@@ -4,16 +4,28 @@ component {
 	bcrypt_test = "$2a$12$5d31nX1hRnkvP/8QMkS/yOuqHpPZSGGDzH074MjHk6u2tYOG5SJ5W";
 
 	function run( qb, mockdata ){
-		qb.table( "users" )
-			.insert(
-				mockdata.mock(
-					$num      = 25,
-					"id"      : "autoincrement",
-					"name"    : "name",
-					"email"   : "email",
-					"password": "oneOf:#bcrypt_test#"
-				)
-			);
+		// Create Users
+		var aUsers = mockdata.mock(
+			$num      = 25,
+			"id"      : "autoincrement",
+			"name"    : "name",
+			"email"   : "email",
+			"password": "oneOf:#bcrypt_test#"
+		);
+		qb.newQuery()
+			.table( "users" )
+			.insert( aUsers );
+
+		// Create Rants
+		var aRants = mockdata.mock(
+			$num     = 25,
+			"id"     : "autoincrement",
+			"body"   : "sentence:1:3",
+			"userId" : "num:1:25"
+		);
+		qb.newQuery()
+			.table( "rants" )
+			.insert( aRants );
 	}
 
 }

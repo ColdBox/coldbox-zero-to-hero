@@ -1,8 +1,10 @@
-## 10 - Rants
+# 10 - Rants
 
-### Migrations
+Let's move on to our rant blogging now.
 
-```sh
+## Migrations
+
+```bash
 migrate create create_rants_table
 ```
 
@@ -32,201 +34,294 @@ component {
 
 Now, migrate your rants
 
-```
+```bash
 migrate up
 ```
 
-### BDD
+## Seeder
 
-Now, let's do some BDD as we have to build the CRUD for rants. Let's start by generating the tests, handlers and supporting files:
+Let's update our `TestFixtures` seeder with some rant goodness!
+
+```js
+component {
+
+	// The bcrypt equivalent of the word test.
+	bcrypt_test = "$2a$12$5d31nX1hRnkvP/8QMkS/yOuqHpPZSGGDzH074MjHk6u2tYOG5SJ5W";
+
+	function run( qb, mockdata ){
+		// Create Users
+		var aUsers = mockdata.mock(
+			$num      = 25,
+			"id"      : "autoincrement",
+			"name"    : "name",
+			"email"   : "email",
+			"password": "oneOf:#bcrypt_test#"
+		);
+		qb.newQuery()
+			.table( "users" )
+			.insert( aUsers );
+
+		// Create Rants
+		var aRants = mockdata.mock(
+			$num     = 25,
+			"id"     : "autoincrement",
+			"body"   : "sentence:1:3",
+			"userId" : "num:1:25"
+		);
+		qb.newQuery()
+			.table( "rants" )
+			.insert( aRants );
+	}
+
+}
+```
+
+See something different? Let's see who can spot it?  Run your tests!
+
+## BDD
+
+Now, let's do some BDD as we have to build the CRUD for rants.  Our stories will be done as we progress.
 
 ```bash
-coldbox create handler name="rants" actions="index,new,create"
+coldbox create resources rants
 # delete the create view, it's not necessary
-delete views/rants/create.cfm --force
+delete views/rants/create.cfm,views/rants/delete.cfm --force
 ```
 
 Open the integration tests and start coding:
 
 ```js
-//tests/specs/integration/rantsTest.cfc
+/**
+ * 	ColdBox Integration Test
+ *
+ * 	The 'appMapping' points by default to the '/root ' mapping created in  the test folder Application.cfc.  Please note that this
+ * 	Application.cfc must mimic the real one in your root, including ORM  settings if needed.
+ *
+ *	The 'execute()' method is used to execute a ColdBox event, with the  following arguments
+ *	- event : the name of the event
+ *	- private : if the event is private or not
+ *	- prePostExempt : if the event needs to be exempt of pre post interceptors
+ *	- eventArguments : The struct of args to pass to the event
+ *	- renderResults : Render back the results of the event
+ *
+ * You can also use the HTTP executables: get(), post(), put(), path(), delete(), request()
+ **/
+component extends="tests.resources.BaseIntegrationSpec" {
 
-component extends="tests.resources.BaseIntegrationSpec"{
-
-	property name="query" 		inject="provider:QueryBuilder@qb";
-	property name="bcrypt" 		inject="@BCrypt";
-	property name="auth" 		inject="authenticationService@cbauth";
+	// DI
+	property name="qb"     inject="QueryBuilder@qb";
+	property name="bcrypt" inject="@BCrypt";
+	property name="auth"   inject="authenticationService@cbauth";
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
 		super.beforeAll();
-		query.from( "users" )
-			.insert( values = {
-				username : "testuser",
-				email : "testuser@tests.com",
-				password : bcrypt.hashPassword( "password" )
-			} );
+		// do your own stuff here
+		variables.testUser     = qb.from( "users" ).first();
+		variables.testPassword = "test";
 	}
 
 	function afterAll(){
 		// do your own stuff here
 		super.afterAll();
-		query.from( "users" )
-			.where( "username", "=", "testuser" )
-			.delete();
 	}
 
 	/*********************************** BDD SUITES ***********************************/
 
 	function run(){
-
-		describe( "rants Suite", function(){
-
-			beforeEach(function( currentSpec ){
+		feature( "Crud for rants", function(){
+			beforeEach( function( currentSpec ){
 				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
 				setup();
-			});
+				auth.logout();
+			} );
 
 			it( "can display all rants", function(){
-				var event = get( route="/rants", params={} );
-				// expectations go here.
-				expect( event.getPrivateValue( "aRants") ).toBeArray();
+				var event = get( "/rants" );
+				expect( event.getPrivateValue( "aRants" ) ).toBeArray();
 				expect( event.getRenderedContent() ).toInclude( "All Rants" );
-			});
+			} );
 
 			it( "can display the rants index when no rants exists", function(){
-				prepareMock( getInstance( "RantService" ) )
-					.$( "getAll", [] );
-				var event = get( route="/rants", params={} );
+				prepareMock( getInstance( "RantsService" ) ).$( "list", [] );
+				var event = get( "/rants" );
 
 				getWireBox().clearSingletons();
 
-				expect( event.getPrivateValue( "aRants") ).toBeEmpty();
+				expect( event.getPrivateValue( "aRants" ) ).toBeEmpty();
 				expect( event.getRenderedContent() ).toInclude( "No rants yet" );
-			});
+			} );
 
 			it( "can display the new rant form", function(){
-				var event = get( route="/rants/new" );
-				// expectations go here.
-				expect( event.getRenderedContent() ).toInclude( "Rant About It" );
-			});
+				var event = get( "/rants/new" );
+				expect( event.getRenderedContent() ).toInclude( "Start a Rant" );
+			} );
 
 			it( "can stop a rant from being created from an invalid user", function(){
-				auth.logout();
 				expect( function(){
-					var event = post( route="rants", params={
-						body = "Test Rant"
-					} );
-				}).toThrow( type="NoUserLoggedIn" );
-			});
+					var event = post( route = "rants", params = { body : "Test Rant" } );
+				} ).toThrow( type = "NoUserLoggedIn" );
+			} );
 
 			it( "can create a rant from a valid user", function(){
-
 				// Log in user
-				auth.authenticate( "testuser", "password" );
-
-				var event = post( route="rants", params={
-					body = "Test Rant"
-				} );
-
-				expect( event.getValue( "relocate_URI" ) ).toBe( "/rants" );
-			});
-
-
-		});
-
+				auth.authenticate( testUser.email, testPassword );
+				var event = post( route = "rants", params = { body : "Test Rant" } );
+				var prc   = event.getPrivateCollection();
+				expect( prc.oRant.isLoaded() ).toBeTrue();
+				expect( prc.oRant.getBody() ).toBe( "Test Rant" );
+				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
+			} );
+		} );
 	}
 
 }
 ```
 
-### Resources Router
+## Resources Router
 
 Add the rants resources in the `Router.cfc` file
 
 ```js
-// config/Router.cfc
 resources( "rants" );
 ```
 
-### Event Handler
+## Event Handler
 
 Let's build it out.
 
 ```js
-// handlers/rants.cfc
-
 /**
-* I am a new handler
-*/
-component{
+ * Manage rants
+ * It will be your responsibility to fine tune this template, add validations, try/catch blocks, logging, etc.
+ */
+component extends="coldbox.system.EventHandler" {
 
-	property name="rantService" 	inject;
-	property name="messagebox" 		inject="MessageBox@cbmessagebox";
+	// DI
+	property name="rantsService" inject;
 
 	/**
-	* index
-	*/
+	 * Display a list of rants
+	 */
 	function index( event, rc, prc ){
-		prc.aRants = rantService.getAll()
+		prc.aRants = rantsService.list()
 		event.setView( "rants/index" );
 	}
 
 	/**
-	* new
-	*/
+	 * Return an HTML form for creating a rant
+	 */
 	function new( event, rc, prc ){
+		param rc.body = "";
 		event.setView( "rants/new" );
 	}
 
 	/**
-	* create
-	*/
+	 * Create a rant
+	 */
 	function create( event, rc, prc ){
-		var oRant = populateModel( "Rant" );
+		prc.oRant = populateModel( "Rant" ).setUserId( auth().getUserId() );
 
-		oRant.setUserId( auth().getUserId() );
-
-		rantService.create( oRant );
-
-		messagebox.info( "Rant created!" );
-		relocate( URI="/rants" );
+		validate( prc.oRant )
+			.onSuccess( ( result ) => {
+				rantsService.create( prc.oRant );
+				cbMessageBox().info( "Rant created!" );
+				relocate( "rants" );
+			} )
+			.onError( ( result ) => {
+				cbMessageBox().error( result.getAllErrors() );
+				new ( argumentCollection = arguments );
+			} );
 	}
 
+	/**
+	 * Show a rant
+	 */
+	function show( event, rc, prc ){
+		event.paramValue( "id", 0 );
+		prc.oRant = rantsService.get( rc.id );
+		event.setView( "rants/show" );
+	}
 
+	/**
+	 * Edit a rant
+	 */
+	function edit( event, rc, prc ){
+		event.paramValue( "id", 0 );
+		prc.oRant = rantsService.get( rc.id );
+		event.setView( "rants/edit" );
+	}
+
+	/**
+	 * Update a rant
+	 */
+	function update( event, rc, prc ){
+		event.paramValue( "id", 0 );
+		prc.oRant = populateModel( rantService.get( rc.id ) );
+
+		validate( prc.oRant )
+			.onSuccess( ( result ) => {
+				rantsService.create( prc.oRant );
+				cbMessageBox().info( "Rant updated!" );
+				relocate( "rants" );
+			} )
+			.onError( ( result ) => {
+				cbMessageBox().error( result.getAllErrors() );
+				edit( argumentCollection = arguments );
+			} );
+	}
+
+	/**
+	 * Delete a rant
+	 */
+	function delete( event, rc, prc ){
+		event.paramValue( "id", 0 );
+		rantService.delete( rc.id );
+		cbMessageBox().info( "Rant deleted!" );
+		relocate( "rants" );
+	}
 
 }
 ```
 
+## Model: `Rant`
 
-### Model: `Rant`
-
-Run the following to create your Rant object with a constructor and a few methods `getUser(),isLoaded()` method we will fill out later.  Please note the unit test is created as well.
-
-```bash
-coldbox create model name="Rant" properties="id,body,createdDate:date,modifiedDate:date,userID" methods="getUser,isLoaded"
-```
-
-Let's open the model and modify it a bit
+Let's open the model and modify it a bit:
 
 ```js
-//models/Rant.cfc
 /**
-* I am a new Rant Object
-*/
-component accessors="true"{
+ * I model a rants
+ */
+component accessors="true" {
 
 	// DI
 	property name="userService" inject;
 
 	// Properties
-	property name="id"           type="string" default = "";
-	property name="body"         type="string" default = "";
+	property
+		name   ="id"
+		type   ="string"
+		default="";
+	property
+		name   ="body"
+		type   ="string"
+		default="";
 	property name="createdDate"  type="date";
 	property name="modifiedDate" type="date";
-	property name="userID"       type="string" default = "";
+	property
+		name   ="userID"
+		type   ="string"
+		default="";
 
+	// Validation Control
+	this.constraints = {
+		body   : { required : true },
+		userId : { required : true, type : "numeric" }
+	};
+
+	// Population Control
+	this.population = { excludes : "userId" };
 
 	/**
 	 * Constructor
@@ -237,20 +332,19 @@ component accessors="true"{
 	}
 
 	/**
-	* getUser
-	*/
-	function getUser(){
+	 * Get the user that created this rant
+	 */
+	User function getUser(){
 		// Lazy loading the relationship
-		return userService.retrieveUserById( getuserId() );
+		return userService.retrieveUserById( getUserId() );
 	}
 
 	/**
-	* isLoaded
-	*/
+	 * Verify if this is a persisted or new user
+	 */
 	boolean function isLoaded(){
-		return( !isNull( variables.id ) && len( variables.id ) );
+		return ( !isNull( variables.id ) && len( variables.id ) );
 	}
-
 
 }
 ```
@@ -258,149 +352,134 @@ component accessors="true"{
 Work on the unit test, what will you test?
 
 ```js
-//tests/specs/unit/RantTest.cfc
 /**
-* The base model test case will use the 'model' annotation as the instantiation path
-* and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
-* responsibility to update the model annotation instantiation path and init your model.
-*/
-component extends="tests.resources.BaseIntegrationSpec"{
-
-	property name="query" 		inject="provider:QueryBuilder@qb";
-	property name="bcrypt" 		inject="@BCrypt";
+ * The base model test case will use the 'model' annotation as the instantiation path
+ * and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
+ * responsibility to update the model annotation instantiation path and init your model.
+ */
+component extends="coldbox.system.testing.BaseModelTest" model="models.Rant" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
 		super.beforeAll();
 
-		model = getInstance( "Rant" );
+		// setup the model
+		super.setup();
 
-		cleanUserFixture();
-		testUserId = query.from( "users" )
-			.insert( values = {
-				username : "testuser",
-				email : "testuser@tests.com",
-				password : bcrypt.hashPassword( "password" )
-			} ).result.generatedKey;
-
-		model.setUserId( testUserId );
+		// init the model object
+		model.init();
 	}
 
 	function afterAll(){
-		cleanUserFixture();
 		super.afterAll();
-	}
-
-	function cleanUserFixture(){
-		query.from( "users" )
-			.where( "username", "=", "testuser" )
-			.delete();
 	}
 
 	/*********************************** BDD SUITES ***********************************/
 
 	function run(){
+		describe( "Rants Suite", function(){
+			it( "can be created", function(){
+				expect( model ).toBeComponent();
+			} );
 
-		describe( "Rant Suite", function(){
+			it( "can check if it's a new rant", function(){
+				expect( model.isLoaded() ).toBeFalse();
+			} );
 
-			it( "can create the Rant", function(){
-
-				expect(	model ).toBeComponent();
-
-			});
-
-			it( "should getUser", function(){
-				var oUser = model.getUser();
-
-				expect( oUser.getId() ).toBe( testUserId );
-			});
-
-
-		});
-
+			it( "can check if it's a persisted rant", function(){
+				expect( model.setId( 1 ).isLoaded() ).toBeTrue();
+			} );
+		} );
 	}
 
 }
 ```
 
-### Model: `RantService`
+## Model: `RantService`
 
-Let's create our rant service and work on it with a few methods: `getAll(),create(),new()`
-
-```bash
-coldbox create model name="RantService" persistence="singleton" methods="getAll,create,new"
-```
-
-Now open it and let's modify it a bit for our purposes.  Also update the unit tests.
+Let's work on our rant service now:
 
 ```js
-//models/RantService.cfc
 /**
-* I am a new Model Object
-*/
-component singleton accessors="true"{
+ * I manage rants
+ */
+component singleton accessors="true" {
 
-	// Properties
+	// To populate objects from data
 	property name="populator" inject="wirebox:populator";
 
 	/**
 	 * Constructor
 	 */
-	RantService function init(){
-
+	RantsService function init(){
 		return this;
 	}
 
 	/**
 	 * Provider of Rant objects
 	 */
-	Rant function new() provider="Rant"{}
+	Rant function new() provider="Rant"{
+	}
+
+	/**
+	 * Save a new or persisted rant
+	 */
+	Rant function save( required rant ){
+		arguments.rant.setModifiedDate( now() );
+		queryExecute(
+			"
+                INSERT IGNORE INTO `rants` (`body`, `modifiedDate`, `userId`)
+                VALUES (?, ?, ?)
+            ",
+			[
+				rant.getBody(),
+				{ value : rant.getModifiedDate(), type : "timestamp" },
+				rant.getUserId()
+			],
+			{ result : "local.result" }
+		);
+		return rant.isLoaded() ? rant : rant.setId( result.generatedKey );
+	}
+
+	/**
+	 * Delete a rant by id
+	 */
+	boolean function delete( required numeric rantId ){
+		return queryExecute( "DELETE FROM `rants` WHERE id = :id", { id : arguments.rantId } );
+	}
 
 	/**
 	 * Get all rants
 	 */
-	array function getAll(){
+	array function list(){
 		return queryExecute(
-            "SELECT * FROM `rants` ORDER BY `createdDate` DESC",
-            [],
-            { returntype = "array" }
-        ).map( function ( rant ) {
-            return populator.populateFromStruct(
-                new(),
-                rant
-            );
-        } );
+			"SELECT * FROM `rants` ORDER BY `createdDate` DESC",
+			[],
+			{ returntype : "array" }
+		).map( ( rant ) => populator.populateFromStruct( new (), rant ) );
 	}
 
 	/**
-	 * Create a rant
+	 * Get a specific rant by id. If not found, return an unpersisted new Rant
+	 *
+	 * @return A persisted rant by ID or a new rant
 	 */
-	function create( required rant ){
-		rant.setModifiedDate( now() );
-        queryExecute(
-            "
-                INSERT INTO `rants` (`body`, `modifiedDate`, `userId`)
-                VALUES (?, ?, ?)
-            ",
-            [
-                rant.getBody(),
-                { value = rant.getModifiedDate(), cfsqltype = "TIMESTAMP" },
-                rant.getUserId()
-            ],
-            { result = "local.result" }
-        );
-        rant.setId( result.GENERATED_KEY );
-
-		return rant;
+	Rant function get( required rantId ){
+		return queryExecute(
+			"SELECT * FROM `rants` where id = :id",
+			{ id : arguments.rantId },
+			{ returntype : "array" }
+		).reduce( ( result, rant ) => populator.populateFormStruct( result, rant ), new () );
 	}
 
 }
+
 ```
 
-```js
-//tests/specs/unit/RantServiceTest.cfc
+Now the unit test:
 
+```js
 describe( "RantService Suite", function(){
 
     it( "can be created", function(){
@@ -412,32 +491,50 @@ describe( "RantService Suite", function(){
 
 Why not create more unit tests?
 
-### The `index` view
+## The `index` view
 
 ```html
-<!-- views/rants/index.cfm -->
 <cfoutput>
-    <h2>All Rants</h2>
-    <cfif prc.aRants.isEmpty()>
-        <h3>No rants yet</h3>
-        <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start one now!</a>
-    <cfelse>
-        <a href="#event.buildLink( "rants.new" )#" class="btn btn-primary">Start a new rant!</a>
-        <cfloop array="#prc.aRants#" item="rant">
-            <div class="card mb-3">
-                <div class="card-header">
-                    <strong>#rant.getUser().getUsername()#</strong> said at #dateTimeFormat( rant.getCreatedDate(), "h:nn:ss tt" )# on #dateFormat( rant.getCreatedDate(), "mmm d, yyyy")#
-                </div>
-                <div class="panel card-body">
-                    #rant.getBody()#
-                </div>
-            </div>
-        </cfloop>
-    </cfif>
+<div class="container">
+	<h2>All Rants</h2>
+
+	<cfif prc.aRants.isEmpty()>
+		<div class="alert alert-info">
+			No rants yet, why not create some?
+		</div>
+		<a
+			href="#event.buildLink( "rants.new" )#"
+			class="btn btn-outline-primary">Start a Rant!</a>
+	<cfelse>
+		<a
+			href="#event.buildLink( "rants.new" )#"
+			class="btn btn-primary">Start a Rant!</a>
+
+		<div class="mt-3">
+			<cfloop array="#prc.aRants#" item="rant">
+				<div class="card mb-3">
+					<div class="card-header">
+						<strong>#rant.getUser().getEmail()#</strong>
+						said:
+					</div>
+					<div class="card-body">
+						#rant.getBody()#
+					</div>
+					<div class="card-footer">
+						<span class="badge text-bg-light">
+							#dateTimeFormat( rant.getCreatedDate(), "h:nn:ss tt" )#
+						on #dateFormat( rant.getCreatedDate(), "mmm d, yyyy")#
+						</span>
+					</div>
+				</div>
+			</cfloop>
+		</div>
+	</cfif>
+</div>
 </cfoutput>
 ```
 
-### Set the default event to `rants.index`
+## Default Event to `rants.index`
 
 We want our rants to be the homepage instead of the default one.
 
@@ -450,64 +547,122 @@ coldbox = {
 };
 ```
 
-Hit http://127.0.0.1:42518/ and you'll see the main.index with the dump. ColdBox settings require a framework reinit.
+Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdBox settings require a framework reinit.
 
-Reinit the framework, then you'll see the Rant index.
-
-### The `new` view
+## The `new` view
 
 ```html
-<!-- views/rants/new.cfm -->
 <cfoutput>
-    <div class="card">
-        <h4 class="card-header">Start a Rant</h4>
-        <form class="form panel card-body" method="POST" action="#event.buildLink( "rants" )#">
-            <div class="form-group">
-                <textarea name="body" class="form-control" placeholder="What's on your mind?" rows="10"></textarea>
-            </div>
-            <div class="form-group">
-                <button type="submit" class="btn btn-primary">Rant About It!</button>
-            </div>
-        </form>
-    </div>
+<div class="container">
+	<div class="card">
+
+		<div class="card-header">
+			<h4>Start a Rant</h4>
+		</div>
+
+		<div class="card-body">
+			#html.startForm( action : "rants" )#
+
+				#html.textarea(
+					name : "body",
+					class : "form-control",
+					rows : 10,
+					placeholder : "What's on your mind?",
+					groupWrapper : "div class='mb-3'",
+					value : rc.body
+				)#
+
+				<div class="d-flex justify-content-end">
+					<a href="#event.buildLink( 'rants' )#" class="btn btn-outline-secondary">Cancel</a>
+					<button type="submit" class="btn btn-outline-success ms-auto">Rant it!</button>
+				</div>
+
+			#html.endForm()#
+		</div>
+	</div>
+</div>
 </cfoutput>
+
 ```
 
-### Update the main layout
+## Update the Main Layout
 
 ```html
-<!--- /layouts/Main.cfc --->
-<nav class="navbar navbar-expand-lg navbar-light bg-light fixed-top main-navbar">
-    <a class="navbar-brand" href="#event.buildLink( "/" )#">
-        <i class="fas fa-bullhorn mr-2"></i>
-        SoapBox
-    </a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+	<div class="container-fluid">
 
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="##navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
+		<!---Brand --->
+		<a class="navbar-brand text-info" href="#event.buildLink( '' )#">
+			<i class="bi bi-boombox"></i>
+			<strong>SoapBox</strong>
+		</a>
 
-    <cfif auth().isLoggedIn()>
-    <ul class="navbar-nav">
-        <li><a href="#event.buildLink( "rants.new" )#" class="nav-link">Start a Rant</a></li>
-    </ul>
-    </cfif>
+		<!--- Mobile Toggler --->
+		<button
+			class="navbar-toggler"
+			type="button"
+			data-bs-toggle="collapse"
+			data-bs-target="##navbarSupportedContent"
+			aria-controls="navbarSupportedContent"
+			aria-expanded="false"
+			aria-label="Toggle navigation"
+		>
+			<span class="navbar-toggler-icon"></span>
+		</button>
 
-    <ul class="navbar-nav ml-auto">
-        <cfif auth().isLoggedIn()>
-            <form method="POST" action="#event.buildLink( "logout" )#">
-                <input type="hidden" name="_method" value="DELETE" />
-                <button type="submit" class="btn btn-link nav-link">Log Out</button>
-            </form>
-        <cfelse>
-            <a href="#event.buildLink( "registration.new" )#" class="nav-link">Register</a>
-            <a href="#event.buildLink( "login" )#" class="nav-link">Log In</a>
-        </cfif>
-    </ul>
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<!--- Left Aligned --->
+			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+				<!--- Logged In --->
+				<cfif !cbsecure().isLoggedIn()>
+					<li class="nav-item">
+						<a
+							class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
+							href="#event.buildLink( 'registration.new' )#"
+							>
+							Register
+						</a>
+					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link #event.routeIs( "login" ) ? 'active' : ''#"
+							href="#event.route( 'login' )#"
+							>
+							Log in
+						</a>
+					</li>
+				<cfelse>
+					<li class="nav-item">
+						<a href="#event.buildLink( "rants.new" )#" class="btn btn-outline-info">Start a Rant</a>
+					</li>
+				</cfif>
+			</ul>
 
+			<!--- Right Aligned --->
+			<div class="ms-auto d-flex">
+				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+					<li class="nav-item me-2">
+						<a
+							class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
+							href="#event.buildLink( 'about' )#"
+							>
+							About
+						</a>
+					</li>
+				</ul>
+				<cfif cbsecure().isLoggedIn()>
+					<form method="POST" action="#event.buildLink( "logout" )#">
+						<input type="hidden" name="_method" value="DELETE" />
+						<button class="btn btn-outline-success" type="submit">Log Out</button>
+					</form>
+				</cfif>
+			</div>
+		</div>
+	</div>
 </nav>
 ```
 
 Hit http://127.0.0.1:42518/ and click on Start a rant and you'll see the form.
 Log out and try, and you can still see the form. Try to create a rant and you'll see an error!
+
 We need to secure the form, to ensure the user is logged in before they can send a rant.

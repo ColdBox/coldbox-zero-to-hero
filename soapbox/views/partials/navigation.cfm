@@ -3,7 +3,7 @@
 	<div class="container-fluid">
 
 		<!---Brand --->
-		<a class="navbar-brand text-info" href="#event.buildLink( 'main' )#">
+		<a class="navbar-brand text-info" href="#event.buildLink( '' )#">
 			<i class="bi bi-boombox"></i>
 			<strong>SoapBox</strong>
 		</a>
@@ -37,10 +37,14 @@
 					<li class="nav-item">
 						<a
 							class="nav-link #event.routeIs( "login" ) ? 'active' : ''#"
-							href="#event.route( 'login' )#"
+							href="#event.buildLink( 'login' )#"
 							>
 							Log in
 						</a>
+					</li>
+				<cfelse>
+					<li class="nav-item">
+						<a href="#event.buildLink( "rants.new" )#" class="btn btn-outline-info">Start a Rant</a>
 					</li>
 				</cfif>
 			</ul>

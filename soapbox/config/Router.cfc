@@ -45,6 +45,9 @@ component {
 		// Logout
 		delete( "/logout" ).as( "logout" ).to( "sessions.delete" );
 
+		// Rants
+		resources( "rants" );
+
 		// @app_routes@
 
 		// Conventions-Based Routing

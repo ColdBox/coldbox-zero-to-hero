@@ -1,4 +1,4 @@
-## 11 - Securing our App
+# 11 - Securing our App
 
 We're going to use CBSecurity to help secure our app.
 
