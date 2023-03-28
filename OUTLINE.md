@@ -134,15 +134,15 @@ Steps:
 
 What we will do:
 
-- Create new migration for rants
-- Scaffold a rant resource
-- Update the resource route
-- Update the Rant object
-- Update the Rantservice
-- Create the basic unit tests for both and talk about pragmatism of unit test vs bdd
-- Build and Test the CRUD setup.
-- Change application default event to the rants
-- Update the main layout for adding a rant
+- [ ] Create new migration for rants
+- [ ] Scaffold a rant resource
+- [ ] Update the resource route
+- [ ] Update the Rant object
+- [ ] Update the Rantservice
+- [ ] Create the basic unit tests for both and talk about the pragmatism of unit test vs BDD
+- [ ] Build and Test the CRUD setup.
+- [ ] Change application default event to the rants
+- [ ] Update the main layout for adding a rant
 
 Steps:
  - [Start 10](steps/step-10.md)

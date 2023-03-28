@@ -16,7 +16,7 @@
  *******************************************************************************/
 component extends="tests.resources.BaseIntegrationSpec" {
 
-	property name="query"  inject="provider:QueryBuilder@qb";
+	property name="qb"     inject="QueryBuilder@qb";
 	property name="auth"   inject="authenticationService@cbauth";
 	property name="bcrypt" inject="@BCrypt";
 
@@ -24,8 +24,8 @@ component extends="tests.resources.BaseIntegrationSpec" {
 
 	function beforeAll(){
 		super.beforeAll();
-
-		variables.testUser     = query.from( "users" ).first();
+		setup();
+		variables.testUser     = qb.from( "users" ).first();
 		variables.testPassword = "test";
 	}
 
