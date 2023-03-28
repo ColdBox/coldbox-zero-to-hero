@@ -61,7 +61,7 @@ component {
 				// Default Auhtentication Action: override or redirect when a user has not logged in
 				"defaultAuthenticationAction" : "redirect",
 				// The global invalid authorization event or URI or URL to go if an invalid authorization occurs
-				"invalidAuthorizationEvent"   : "dashboard",
+				"invalidAuthorizationEvent"   : "rants",
 				// Default Authorization Action: override or redirect when a user does not have enough permissions to access something
 				"defaultAuthorizationAction"  : "redirect",
 				// Firewall database event logs.
@@ -83,9 +83,26 @@ component {
 					// This way you can add global roles, permissions, redirects, etc
 					"defaults" : {},
 					// You can store all your rules in this inline array
-					"inline"   : []
+					"inline"   : [
+						{
+							"whitelist"   : "",
+							"securelist"  : "rants/(new|create),poops,bumps",
+							"match"       : "url",
+							"roles"       : "",
+							"permissions" : ""
+						}
+					]
 				}
-			}
+			},
+			/**
+			 * --------------------------------------------------------------------------
+			 * Security Visualizer
+			 * --------------------------------------------------------------------------
+			 * This is a debugging panel that when active, a developer can visualize security settings and more.
+			 * You can use the `securityRule` to define what rule you want to use to secure the visualizer but make sure the `secured` flag is turned to true.
+			 * You don't have to specify the `secureList` key, we will do that for you.
+			 */
+			visualizer : { "enabled" : true, "secured" : true, "securityRule" : {} }
 		};
 	}
 

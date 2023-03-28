@@ -61,8 +61,15 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			} );
 
 			it( "can display the new rant form", function(){
+				// Log in user
+				auth.authenticate( testUser.email, testPassword );
 				var event = get( "/rants/new" );
 				expect( event.getRenderedContent() ).toInclude( "Start a Rant" );
+			} );
+
+			it( "can stop the display of the new rant form if you are not logged in", function(){
+				var event = post( "rants/new" );
+				expect( event.getValue( "relocate_event" ) ).toBe( "login" );
 			} );
 
 			it( "can stop a rant from being created from an invalid user", function(){

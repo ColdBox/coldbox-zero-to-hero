@@ -59,12 +59,12 @@ component extends="tests.resources.BaseIntegrationSpec" {
 							{
 								name                 : "BDD Test",
 								email                : "testadmin@soapbox.com",
-								password             : "password",
-								passwordConfirmation : "password"
+								password             : "passwordpassword",
+								passwordConfirmation : "passwordpassword"
 							}
 						);
 						var prc = event.getPrivateCollection();
-
+						expect()
 						// expectations go here.
 						expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
 						expect( prc.oUser.getEmail() ).toBe( "testadmin@soapbox.com" );
