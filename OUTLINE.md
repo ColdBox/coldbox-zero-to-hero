@@ -119,19 +119,12 @@ Steps:
 
 - [ ] Install `cbmessagebox` and make messages prettier
 - [ ] Create the specs
+- [ ] Install and configure `cbsecurity`/`cbauth`/etc
 - [ ] Create routes
-- [ ] Create the User Sessions handler
+- [ ] Create the user sessions handler
 - [ ] Create the user login screen
-- [ ] Install cbauth
-- [ ] Scaffold a User model
-- [ ] Update User Service for cbauth usage
-- [ ] Update specs for login/logout actions
-- [ ] Update handlers for login/logout actions
-- [ ] Update layouts for login usage
-- [ ] Update spec for registration with auto-login
+- [ ] Update User and User Service
 - [ ] Create auto-login with registration
-- [ ] Customize Messagebox
-- [ ] Leverage Messagebox for messages
 
 Steps:
 

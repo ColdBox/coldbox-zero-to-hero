@@ -27,6 +27,8 @@ component {
 		// 	}
 		// );
 
+		auth().login( prc.oUser );
+
 		cbMessageBox().success( "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!" );
 
 		relocate( URI: "/" );

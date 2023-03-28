@@ -84,7 +84,7 @@ component extends="coldbox.system.testing.BaseTestCase" autowire{
     function wrapInTransaction( spec ) {
         transaction action="begin" {
             try {
-                arguments.spec.body();
+                arguments.spec.body( argumentCollection = arguments );
             } catch ( any e ){
                 rethrow;
             } finally {

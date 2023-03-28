@@ -17,32 +17,20 @@
 component extends="tests.resources.BaseIntegrationSpec" {
 
 	property name="query"  inject="provider:QueryBuilder@qb";
+	property name="auth"   inject="authenticationService@cbauth";
 	property name="bcrypt" inject="@BCrypt";
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
 		super.beforeAll();
-		variables.testUserID = query
-			.from( "users" )
-			.insert(
-				values = {
-					username : "testuser",
-					email    : "testuser@tests.com",
-					password : bcrypt.hashPassword( "password" )
-				}
-			)
-			.result
-			.generatedKey;
+
+		variables.testUser     = query.from( "users" ).first();
+		variables.testPassword = "test";
 	}
 
 	function afterAll(){
-		// do your own stuff here
 		super.afterAll();
-		query
-			.from( "users" )
-			.where( "username", "=", "testuser" )
-			.delete();
 	}
 
 	/*********************************** BDD SUITES ***********************************/
@@ -52,33 +40,36 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			beforeEach( function( currentSpec ){
 				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
 				setup();
+				auth.logout();
 			} );
 
 			it( "can present the login screen", function(){
 				var event = get( route = "/login" );
-				// expectations go here.
-				expect( event.getRenderedContent() ).toInclude( "Log In" );
+				expect( event.getRenderedContent() ).toInclude( "SoapBox Log In" );
 			} );
 
 			it( "can log in a valid user", function(){
-				var event = post( route = "/login", params = { username : "testuser", password : "password" } );
-				// expectations go here.
+				var event = post( route = "/login", params = { email : testUser.email, password : testPassword } );
 				expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
-				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeTrue();
-				getInstance( "authenticationService@cbauth" ).logout();
+				expect( auth.isLoggedIn() ).toBeTrue();
 			} );
 
 			it( "can show an invalid message for an invalid user", function(){
-				var event = post( route = "/login", params = { username : "testuser", password : "bad" } );
-				// expectations go here.
-				expect( event.getValue( "relocate_URI" ) ).toBe( "/login" );
+				var event = post(
+					route  = "/login",
+					params = { username : "testuser@tests.com", password : "bad" }
+				);
+				expect( event.getValue( "relocate_event" ) ).toBe( "login" );
+				expect( auth.isLoggedIn() ).toBeFalse();
 			} );
 
 			it( "can logout a user", function(){
-				// getInstance( "authenticationService@cbauth" ).login()
+				auth.authenticate( testUser.email, testPassword );
+				expect( auth.isLoggedIn() ).toBeTrue();
+
 				var event = delete( route = "/logout" );
-				// expectations go here.
-				expect( getInstance( "authenticationService@cbauth" ).isLoggedIn() ).toBeFalse();
+
+				expect( auth.isLoggedIn() ).toBeFalse();
 				expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
 			} );
 		} );
