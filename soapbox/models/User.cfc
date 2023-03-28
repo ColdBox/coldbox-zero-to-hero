@@ -4,14 +4,31 @@
 component accessors="true" delegates="Authorizable@cbsecurity" {
 
 	// Properties
-	property name="id"           type="numeric";
-	property name="name"         type="string";
-	property name="email"        type="string";
-	property name="password"     type="string";
-	property name="createdDate"  type="date";
-	property name="modifiedDate" type="date";
-	property name="roles"        type="array";
-	property name="permissions"  type="array";
+	property name="id"              type="numeric";
+	property name="name"            type="string";
+	property name="email"           type="string";
+	property name="password"        type="string";
+	property name="confirmPassword" type="string";
+	property name="createdDate"     type="date";
+	property name="modifiedDate"    type="date";
+	property name="roles"           type="array";
+	property name="permissions"     type="array";
+
+	// Validation
+	this.constraints = {
+		name  : { required : true },
+		email : {
+			required : true,
+			type     : "email",
+			unique   : { table : "users" }
+		},
+		password        : { required : true, size : "10" },
+		confirmpassword : { required : true, sameAs : "password" }
+	};
+	this.constraintProfiles = {
+		"update"     : "name,email",
+		"passUpdate" : "password,confirmpassword"
+	}
 
 	/**
 	 * Constructor

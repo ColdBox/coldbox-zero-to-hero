@@ -16,7 +16,8 @@
 								placeholder : "Robert Box",
 								groupWrapper : "div class='mb-3'",
 								label : "Full Name",
-								labelClass : "form-label"
+								labelClass : "form-label",
+								value : rc.name
 							)#
 
 							#html.emailField(
@@ -25,7 +26,8 @@
 								placeholder : "email@soapbox.com",
 								groupWrapper : "div class='mb-3'",
 								label : "Email",
-								labelClass : "form-label"
+								labelClass : "form-label",
+								value : rc.email
 							)#
 
 							#html.passwordField(

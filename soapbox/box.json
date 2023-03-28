@@ -33,13 +33,15 @@
         "route-visualizer":"modules/route-visualizer/",
         "BCrypt":"modules/BCrypt/",
         "cbmessagebox":"modules/cbmessagebox/",
-        "cbsecurity":"modules/cbsecurity/"
+        "cbsecurity":"modules/cbsecurity/",
+        "cbvalidation":"modules/cbvalidation/"
     },
     "dependencies":{
         "coldbox":"be",
         "BCrypt":"^3.1.0+4",
         "cbmessagebox":"^4.0.0+58",
-        "cbsecurity":"^3.1.0+104"
+        "cbsecurity":"^3.1.0+104",
+        "cbvalidation":"^4.1.0+30"
     },
     "scripts":{
         "format":"cfformat run config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc --overwrite",

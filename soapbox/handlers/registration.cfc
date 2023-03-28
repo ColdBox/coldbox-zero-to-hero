@@ -10,6 +10,8 @@ component {
 	 * Show registration screen
 	 */
 	function new( event, rc, prc ){
+		param rc.name  = "";
+		param rc.email = "";
 		event.setView( "registration/new" );
 	}
 
@@ -17,21 +19,19 @@ component {
 	 * Register a new user
 	 */
 	function create( event, rc, prc ){
-		prc.oUser = userService.create( populateModel( "User" ) );
+		prc.oUser = populateModel( "User" );
 
-		// flash.put(
-		// 	"notice",
-		// 	{
-		// 		type    : "success",
-		// 		message : "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!"
-		// 	}
-		// );
-
-		auth().login( prc.oUser );
-
-		cbMessageBox().success( "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!" );
-
-		relocate( URI: "/" );
+		validate( prc.oUser )
+			.onError( ( results ) => {
+				cbMessageBox().error( results.getAllErrors() );
+				new ( argumentCollection = arguments );
+			} )
+			.onSuccess( ( results ) => {
+				userService.create( prc.oUser );
+				cbMessageBox().success( "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!" );
+				auth().login( prc.oUser );
+				relocate( URI: "/" );
+			} );
 	}
 
 }
