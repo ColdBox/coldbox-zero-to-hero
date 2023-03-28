@@ -19,13 +19,15 @@ component {
 	function create( event, rc, prc ){
 		prc.oUser = userService.create( populateModel( "User" ) );
 
-		flash.put(
-			"notice",
-			{
-				type    : "success",
-				message : "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!"
-			}
-		);
+		// flash.put(
+		// 	"notice",
+		// 	{
+		// 		type    : "success",
+		// 		message : "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!"
+		// 	}
+		// );
+
+		cbMessageBox().success( "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!" );
 
 		relocate( URI: "/" );
 	}

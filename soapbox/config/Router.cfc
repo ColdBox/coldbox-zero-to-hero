@@ -39,6 +39,12 @@ component {
 		// Registration Flow
 		resources( resource: "registration", only: "new,create" );
 
+		// Login Flow
+		GET( "/login" ).as( "login" ).to( "sessions.new" );
+		POST( "/login" ).to( "sessions.create" );
+		// Logout
+		delete( "/logout" ).as( "logout" ).to( "sessions.delete" );
+
 		// @app_routes@
 
 		// Conventions-Based Routing

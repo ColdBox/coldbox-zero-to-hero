@@ -24,20 +24,31 @@
 		<div class="collapse navbar-collapse" id="navbarSupportedContent">
 			<!--- Left Aligned --->
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-				<li class="nav-item">
-					<a
-						class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
-						href="#event.buildLink( 'registration.new' )#"
-						>
-						Register
-					</a>
-				</li>
+				<!--- Logged In --->
+				<cfif !cbsecure().isLoggedIn()>
+					<li class="nav-item">
+						<a
+							class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
+							href="#event.buildLink( 'registration.new' )#"
+							>
+							Register
+						</a>
+					</li>
+					<li class="nav-item">
+						<a
+							class="nav-link #event.routeIs( "login" ) ? 'active' : ''#"
+							href="#event.route( 'login' )#"
+							>
+							Log in
+						</a>
+					</li>
+				</cfif>
 			</ul>
 
 			<!--- Right Aligned --->
 			<div class="ms-auto d-flex">
 				<ul class="navbar-nav me-auto mb-2 mb-lg-0">
-					<li class="nav-item">
+					<li class="nav-item me-2">
 						<a
 							class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
 							href="#event.buildLink( 'about' )#"
@@ -46,6 +57,12 @@
 						</a>
 					</li>
 				</ul>
+				<cfif cbsecure().isLoggedIn()>
+					<form method="POST" action="#event.buildLink( "logout" )#">
+						<input type="hidden" name="_method" value="DELETE" />
+						<button class="btn btn-outline-success" type="submit">Log Out</button>
+					</form>
+				</cfif>
 			</div>
 		</div>
 	</div>

@@ -1,7 +1,7 @@
 /**
  * I am a user in SoapBox
  */
-component accessors="true" {
+component accessors="true" delegates="Authorizable@cbsecurity" {
 
 	// Properties
 	property name="id"           type="numeric";
@@ -10,11 +10,15 @@ component accessors="true" {
 	property name="password"     type="string";
 	property name="createdDate"  type="date";
 	property name="modifiedDate" type="date";
+	property name="roles"        type="array";
+	property name="permissions"  type="array";
 
 	/**
 	 * Constructor
 	 */
 	User function init(){
+		variables.roles       = [];
+		variables.permissions = [];
 		return this;
 	}
 

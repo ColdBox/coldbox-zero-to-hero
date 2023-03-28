@@ -9,10 +9,10 @@ Let's build our user registration system.  For this, let's review our user accep
 
 So what would we need to complete these stories, make an inventory:
 
-- A `User` object to model our user.  We already created a migration for it.
-- Update our `UserService` so we can retrieve new users and save new users
-- A handler and routing to control the display of our new registration form and the saving of such form.
-- Hmm, since we are storing users now, we don't want to store passwords in plain text, so I guess we need to update our story to showcase storing secure passwords.
+- [ ] A `User` object to model our user.  We already created a migration for it.
+- [ ] Update our `UserService` so we can retrieve new users (`new()`) and save new users (`create()`)
+- [ ] A handler and routing to control the display of our new registration form and the saving of such form.
+- [ ] Hmm, since we are storing users now, we don't want to store passwords in plain text, so I guess we need to update our story to showcase storing secure passwords.
 
 ```html
 - I want to be able to display the new user registration form
@@ -26,6 +26,8 @@ Let's instally `bcrypt` since it's already a nice ColdBox module:
 ```bash
 install bcrypt
 ```
+
+> You can configure this module to do many work factors or custom salts. Read the readme for much more information on how to configure this module: https://github.com/coldbox-modules/bcrypt#bcrypt-settings
 
 Now we have access to a `@BCrypt` model which has some [methods](https://github.com/coldbox-modules/bcrypt#bcrypt-mixins) we can use:
 
@@ -77,7 +79,7 @@ component accessors="true" {
 
 	// Properties
 	property name="id"           type="numeric";
-    property name="name"        type="string";
+    property name="name"         type="string";
 	property name="email"        type="string";
 	property name="password"     type="string";
 	property name="createdDate"  type="date";
@@ -219,7 +221,7 @@ This convention allows us to make very similar structures which can be easily gr
 
 ### Registration Resource
 
-Let's create our registration flow.  We won't use all of the resourceful actions, so we can use the `actions`argument to select which ones we want.
+Let's create our registration flow.  We won't use all of the resourceful actions, so we can use the `actions` argument to select which ones we want.
 
 ```bash
 coldbox create handler name="registration" actions="new,create"

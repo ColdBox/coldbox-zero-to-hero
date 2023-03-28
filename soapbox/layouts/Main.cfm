@@ -32,11 +32,12 @@
 >
 	<!---Top NavBar --->
 	<header>
-		<cfif flash.exists( "notice" )>
+		<!--- <cfif flash.exists( "notice" )>
 			<div class="alert alert-#flash.get( "notice" ).type#" role="alert">
 				#flash.get( "notice" ).message#
 			</div>
-		</cfif>
+		</cfif> --->
+		#cbMessageBox().renderit()#
 
 		#view( "partials/navigation" )#
 	</header>

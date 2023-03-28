@@ -105,6 +105,8 @@ Steps:
 
 ### 7. User Registration
 
+- [ ] Write our acceptance stories
+- [ ] Create our `User` and update methods to support our stories
 - [ ] Create the registration spec
 - [ ] Install bcrypt
 - [ ] Write the registration code as a ColdBox resource with appropriate spec and model methods
@@ -113,28 +115,26 @@ Steps:
 
  - [Start 8](steps/step-8.md)
 
+### 8. Login & Logout
 
-### 8. Login & Logout Flow
-
-What we will do:
-
-- Install cbmessagebox
-- Create the specs
-- Create routes
-- Create the User Sessions handler
-- Create the user login screen
-- Install cbauth
-- Scaffold a User model
-- Update User Service for cbauth usage
-- Update specs for login/logout actions
-- Update handlers for login/logout actions
-- Update layouts for login usage
-- Update spec for registration with auto-login
-- Create auto-login with registration
-- Customize Messagebox
-- Leverage Messagebox for messages
+- [ ] Install `cbmessagebox` and make messages prettier
+- [ ] Create the specs
+- [ ] Create routes
+- [ ] Create the User Sessions handler
+- [ ] Create the user login screen
+- [ ] Install cbauth
+- [ ] Scaffold a User model
+- [ ] Update User Service for cbauth usage
+- [ ] Update specs for login/logout actions
+- [ ] Update handlers for login/logout actions
+- [ ] Update layouts for login usage
+- [ ] Update spec for registration with auto-login
+- [ ] Create auto-login with registration
+- [ ] Customize Messagebox
+- [ ] Leverage Messagebox for messages
 
 Steps:
+
  - [Start 9](steps/step-9.md)
 
 ### 9. Rants

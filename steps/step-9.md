@@ -1,12 +1,12 @@
-## 9 - Build the Login & Logout Flow
+# 9 - Login and Logout
 
-### Make Messages Prettier
+## Make Messages Prettier
 
-We used flash, but that's too much work, lets go nuts and reuse a module `cbmessagebox` which will produce Bootstrap compliant messages.
+We used flash, but that's too much work.  Let's go nuts and reuse a module `cbmessagebox` which will produce Bootstrap-compliant messages.
 
 `install cbmessagebox && coldbox reinit`
 
-Update the flash setting code in the `create` action of the `registration` handler to this:
+Update the flash setting code in the `create` action of the [`registration`](../src/handlers/registration.cfc) handler to this:
 
 ```js
 flash.put( "notice", {
@@ -16,11 +16,10 @@ flash.put( "notice", {
 
 to this:
 
-getInstance( "messageBox@cbmessagebox" )
-    .success( "The user #encodeForHTML( rc.username )# with id: #generatedKey# was created!" );
+cbMessageBox().success( "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!" );
 ```
 
-And the display code in the `layouts/Main.cfm` to this:
+And the display code in the [`layouts/Main.cfm`](../src/layouts/Main.cfm) to this:
 
 ```html
 <cfif flash.exists( "notice" )>
@@ -33,41 +32,144 @@ And the display code in the `layouts/Main.cfm` to this:
 to this
 
 ```html
-#getInstance( "messagebox@cbMessageBox" ).renderit()#
+#cbMessageBox().renderit()#
 ```
 
-### Security using cbSecurity and cbAuth
+Test it out!
 
-Install cbSecurity which includes cbAuth.  We will use the modules to provide security to our app and also authentication services.
+## CBSecurity
 
-`install cbsecurity`
+To secure our application we will use `CBSecurity` which is the standard module for securing ColdBox applications.  It comes with all the facilities we need in order to build secure ColdBox applications.  Check out the docs here: https://coldbox-security.ortusbooks.com/.
 
-- https://www.forgebox.io/view/cbauth
-- https://www.forgebox.io/view/cbsecurity
+With CBSecurity we will be able to do the following:
 
-Then you need to configure the module in the `moduleSettings` Setting struct in the `/config/Coldbox.cfc` file.  Look at the cbSecurity and cbAuth docs for the settings.
+- Create security rules
+- Annotate our handler actions with security contexts
+- Provide CSRF protection to our forms
+- Provide authentication tracking via the included `cbauth` module
+- Provide authorization tracking
+- Provide security headers
+
+```bash
+install cbsecurity
+```
+
+### Configure CBSecurity
+
+Now we must configure `cbauth` and `cbsecurity`. Create a `config/modules/cbauth.cfc` and `config/modules/cbsecurity.cfc` so we can configure the modules:
+
+```bash
+touch config/modules/cbauth.cfc --open
+touch config/modules/cbsecurity.cfc --open
+```
+
+#### cbauth.cfc
 
 ```js
-moduleSettings = {
-    "cbauth" : {
-        "userServiceClass" : "UserService"
-    }
-};
+component {
+
+	function configure(){
+		return {
+			// This is the path to your user object that contains the credential validation methods
+			userServiceClass : "UserService"
+		};
+	}
+
+}
 ```
 
-And cbAuth requires us to create the following functions so authentication can occur for us:
+#### cbsecurity.cfc
 
 ```js
-function isValidCredentials( username, password )
-function retrieveUserByUsername( username )
-function retrieveUserById( id )
 ```
 
-Additionally, the `User` component returned by the retrieve methods needs to respond to `getId()`. WOW! We have no `User` class yet, so I guess we will also have to model it.  Ok, now it's time for some BDD modeling:
+`cbAuth` requires us to create the following functions in our `UserService` so authentication can be done for us by implementing the `IUserService` interface: https://coldbox-security.ortusbooks.com/usage/authentication-services#iuserservice
 
-### BDD Time!
+```js
+interface{
 
-Issue the following: `coldbox create handler name="sessions" actions="new,create,delete"`. This is our start so we can create the functionality for login page, do login, and logout.  We will again start with our BDD tests:
+    /**
+     * Verify if the incoming username/password are valid credentials.
+     *
+     * @username The username
+     * @password The password
+     */
+    boolean function isValidCredentials( required username, required password );
+
+    /**
+     * Retrieve a user by username
+     *
+     * @return User that implements JWTSubject and/or IAuthUser
+     */
+    function retrieveUserByUsername( required username );
+
+    /**
+     * Retrieve a user by unique identifier
+     *
+     * @id The unique identifier
+     *
+     * @return User that implements JWTSubject and/or IAuthUser
+     */
+    function retrieveUserById( required id );
+}
+```
+
+We also need our `User` object to adhere to the `IAuthUser` interface in CBSecurity: https://coldbox-security.ortusbooks.com/usage/authentication-services#iauthuser
+
+```js
+/**
+ * Copyright since 2016 by Ortus Solutions, Corp
+ * www.ortussolutions.com
+ * ---
+ * If you use a user with a user service or authentication service, it must implement this interface
+ */
+interface{
+
+    /**
+     * Return the unique identifier for the user
+     */
+    function getId();
+
+    /**
+     * Verify if the user has one or more of the passed in permissions
+     *
+     * @permission One or a list of permissions to check for access
+     *
+     */
+    boolean function hasPermission( required permission );
+
+	/**
+     * Verify if the user has one or more of the passed in roles
+     *
+     * @role One or a list of roles to check for access
+     *
+     */
+    boolean function hasRole( required role );
+
+}
+```
+
+Ok, so we know that as part of our BDD process, we will satisfy the stories and implement the details as we go through. So let's start.
+
+## BDD Time
+
+```text
+Feature: Login and Logout Users
+Stories:
+- It can present a login screen
+- It can log in a valid user
+- It can show an invalid message for an invalid user
+- It can logout a user
+```
+
+Issue the following: `coldbox create handler name="sessions" actions="new,create,delete"`. This is our start so we can create the functionality for the login page, login, and logout using resourceful conventions.
+Delete the unnecessary views generated:
+
+```bash
+delete views/sessions/create.cfm,views/sessions/delete.cfm
+```
+
+Now let's open our integration tests and start!
 
 ```js
 // sessionsTest.cfc
@@ -138,38 +240,28 @@ component extends="tests.resources.BaseIntegrationSpec"{
 }
 ```
 
-### Router
+## Router
 
-Add the following into your existing `/config/Router.cfc` file
+Add the following to your existing `/config/Router.cfc` file.  Note that we won't be using the `resources()` method, as we want to add some nice routing around the login and logout.
 
 ```js
-// config/Router.cfc
-function configure(){
-    setFullRewrites( true );
-    resources("registration");
-
-    route( "/login" )
-        .withAction( { "POST" = "create", "GET" = "new" } )
-        .toHandler( "sessions" );
-
-    delete( "/logout" ).to( "sessions.delete" );
-
-	route( ":handler/:action?" ).end();
-}
+// Login Flow
+route( "/login" )
+    .withAction( { "POST" : "create", "GET" : "new" } )
+    .toHandler( "sessions" );
+// Logout
+delete( "/logout" ).to( "sessions.delete" );
 ```
 
 Check them out in the route visualizer!
 
-### Event Handler
+## Event Handler
 
 Let's start building out the code:
 
 ```js
-// handlers/Sessions.cfc
 component {
 
-    // DI
-    property name="messagebox" 		inject="MessageBox@cbmessagebox";
     /**
 	* new
 	*/
@@ -203,29 +295,25 @@ component {
 }
 ```
 
-### Model: `UserService`
+## Model: `UserService`
 
-We need to update our User Service for CBAuth to function. It requires 3 functions and 1 for good luck:
+Update the `UserService` to match the `IUserService` https://coldbox-security.ortusbooks.com/usage/authentication-services#iuserservice.  Also note that we are to the point where we will need to do queries and **populate** objects with that data.  We already used population before via the framework super type method.  However, this method comes from WireBox's Object Populator, which you can inject anywhere in your app via the injection DSL: `wirebox:populator`.  You can find much more information about this populator here: https://wirebox.ortusbooks.com/advanced-topics/wirebox-object-populator
 
-**Explain `wirebox.getInstance` and `populator`**
-
-Inject the new wirebox items into `/models/UserService.cfc`
+### Injections
 
 ```js
 component {
-
     // To populate objects from data
     property name="populator" inject="wirebox:populator";
     // For encryption
     property name="bcrypt" inject="@BCrypt";
 ```
 
+### Interface Methods
+
 Add the new methods to the `/models/UserService.cfc`
 
 ```js
-   // What is this FUNKYNESS!!!
-    User function new() provider="User";
-
 	User function retrieveUserById( required id ) {
         return populator.populateFromQuery(
             new(),
@@ -250,7 +338,17 @@ Add the new methods to the `/models/UserService.cfc`
     }
 ```
 
-### Login View
+## Model `User.cfc`
+
+Now let's update the User object so it can handle the `IAuthUser` interface: https://coldbox-security.ortusbooks.com/usage/authentication-services#iauthuser
+
+We don't have to create the `getId()` method, since we already have a property called `id` with a generated setter.  We just need the authorization methods.  We don't have any roles or permissions in our system, but let's add them as properties and initialize them as arrays and use a new ColdBox 7 feature: Delegation.
+
+```js
+
+```
+
+## Login View
 
 Update the view  `/views/sessions/new.cfm`
 
@@ -278,9 +376,7 @@ Update the view  `/views/sessions/new.cfm`
 
 Hit http://127.0.0.1:42518/login in your browser. You can now see the login screen. Let's build the login action next.
 
-
-
-### Layout NavBar
+## Layout NavBar
 
 Update the main layout to show and hide the register / login / logout buttons.
 
@@ -300,47 +396,11 @@ Update the main layout to show and hide the register / login / logout buttons.
 
 Refresh the page, and you will get an error `Messages: No matching function [AUTH] found` unless you have reinited the framework.
 
-
-#### Update Registration.cfc handler to use User Object
-
-Replace the Create function with the following
-
-```js
-// create / save User
-function create( event, rc, prc ) {
-    var user = populateModel( getInstance( "User" ) );
-    userService.create( user );
-    relocate( uri = "/login" );
-}
-```
-
-Also note that your tests don't change. Run Them!
-
-**References**
-* [`populateModel`](https://coldbox.ortusbooks.com/full/models/super_type_usage_methods#populatemodel())
-* [`relocate`](https://coldbox.ortusbooks.com/full/event_handlers/relocating)
-
-#### Let's make the user listing friendly
-
-Let's update our dump to just a simple listing in order to try out the HTML Helper and make it pretty:
-
-Open the `main/index.cfm` and remove the dump and use the following instead:
-
-```html
-<cfoutput>
-<h1>System Users</h1>
-#html.table(
-    data = prc.userList,
-    class = "table table-hover table-striped"
-)#
-</cfoutput>
-```
-
-### Test the login and logout.
+## Test the login and logout.
 
 Try to register and login/logout visually confirming the tests.
 
-### Auto login user when registering
+## Auto login user when registering
 
 When registering, it might be nice to automatically log the user in.
 Replace the `Create` function with the following code

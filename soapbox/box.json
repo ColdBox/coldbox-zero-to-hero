@@ -31,11 +31,15 @@
         "testbox":"testbox/",
         "cfmigrations":"modules/cfmigrations/",
         "route-visualizer":"modules/route-visualizer/",
-        "BCrypt":"modules/BCrypt/"
+        "BCrypt":"modules/BCrypt/",
+        "cbmessagebox":"modules/cbmessagebox/",
+        "cbsecurity":"modules/cbsecurity/"
     },
     "dependencies":{
         "coldbox":"be",
-        "BCrypt":"^3.1.0+4"
+        "BCrypt":"^3.1.0+4",
+        "cbmessagebox":"^4.0.0+58",
+        "cbsecurity":"^3.1.0+104"
     },
     "scripts":{
         "format":"cfformat run config/,handlers/,interceptors/,models/,modules_app/,tests/specs/,*.cfc --overwrite",

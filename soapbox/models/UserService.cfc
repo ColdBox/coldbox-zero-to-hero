@@ -4,7 +4,9 @@
 component singleton accessors="true" {
 
 	// DI
-	property name="bcrypt" inject="@BCrypt";
+	property name="bcrypt"    inject="@BCrypt";
+	// To populate objects from data
+	property name="populator" inject="wirebox:populator";
 
 
 	/**
@@ -18,6 +20,51 @@ component singleton accessors="true" {
 	 * Create a new empty User
 	 */
 	User function new() provider="User"{
+	}
+
+	/**
+	 * Get a user by ID
+	 *
+	 * @id The id to retrieve
+	 *
+	 * @return The user matching the incoming id
+	 */
+	User function retrieveUserById( required id ){
+		return populator.populateFromQuery(
+			new (),
+			queryExecute( "SELECT * FROM `users` WHERE `id` = ?", [ arguments.id ] )
+		);
+	}
+
+	/**
+	 * Get a user by username, in our case we use the email as the username
+	 *
+	 * @username The required username
+	 *
+	 * @return The user matching the incoming the username
+	 */
+	User function retrieveUserByUsername( required username ){
+		return populator.populateFromQuery(
+			new (),
+			queryExecute( "SELECT * FROM `users` WHERE `email` = ?", [ arguments.username ] )
+		);
+	}
+
+	/**
+	 * Verify if the credentials are valid or not
+	 *
+	 * @username The required username
+	 * @password The required password
+	 *
+	 * @return Are the credentials valid or not
+	 */
+	boolean function isValidCredentials( required username, required password ){
+		var oUser = retrieveUserByUsername( arguments.username );
+		if ( !oUser.isLoaded() ) {
+			return false;
+		}
+
+		return bcrypt.checkPassword( arguments.password, oUser.getPassword() );
 	}
 
 	/**
