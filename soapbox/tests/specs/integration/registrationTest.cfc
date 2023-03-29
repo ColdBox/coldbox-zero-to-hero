@@ -44,7 +44,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 				} );
 			} );
 
-			story( "I want to be able to register users in the system", function(){
+			fstory( "I want to be able to register users in the system", function(){
 				given( "valid data", function(){
 					then( "I should register a new user", function(){
 						expect(
@@ -57,15 +57,15 @@ component extends="tests.resources.BaseIntegrationSpec" {
 						var event = POST(
 							"/registration",
 							{
-								name                 : "BDD Test",
-								email                : "testadmin@soapbox.com",
-								password             : "passwordpassword",
-								passwordConfirmation : "passwordpassword"
+								name            : "BDD Test",
+								email           : "testadmin@soapbox.com",
+								password        : "passwordpassword",
+								confirmPassword : "passwordpassword"
 							}
 						);
 						var prc = event.getPrivateCollection();
-						expect()
 						// expectations go here.
+						debug( prc.vResults ?: {} );
 						expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
 						expect( prc.oUser.getEmail() ).toBe( "testadmin@soapbox.com" );
 						expect( prc.oUser.isLoaded() ).toBeTrue();

@@ -6,7 +6,7 @@ component {
 	function run( qb, mockdata ){
 		// Create Users
 		var aUsers = mockdata.mock(
-			$num      = 25,
+			$num      = 10,
 			"id"      : "autoincrement",
 			"name"    : "name",
 			"email"   : "email",
@@ -21,7 +21,7 @@ component {
 			$num     = 25,
 			"id"     : "autoincrement",
 			"body"   : "sentence:1:3",
-			"userId" : "num:1:25"
+			"userId" : "num:1:#aUsers.len()#"
 		);
 		qb.newQuery()
 			.table( "rants" )

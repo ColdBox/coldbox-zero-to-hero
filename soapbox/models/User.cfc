@@ -22,7 +22,7 @@ component accessors="true" delegates="Authorizable@cbsecurity" {
 			type     : "email",
 			unique   : { table : "users" }
 		},
-		password        : { required : true, size : "10" },
+		password        : { required : true, size : "10..100" },
 		confirmpassword : { required : true, sameAs : "password" }
 	};
 	this.constraintProfiles = {

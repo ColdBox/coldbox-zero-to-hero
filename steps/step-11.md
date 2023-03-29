@@ -236,29 +236,53 @@ Updated `registrationTest`:
 expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
 ```
 
+## CBSecurity Logs
 
-If you get the following error in your tests:
+If you start getting the following error in your tests:
 
 ```text
 The incoming function threw exception [database] [Table 'soapbox.cbsecurity_logs' doesn't exist] [] different than expected params type=[NoUserLoggedIn], regex=[.*
 ```
 
-It means that the security logs are not being created automatically by CBSecurity.  So let's just create a migration for it to avoid further issues
+It means that the security logs are not being created automatically by CBSecurity during testing.
+So let's just create a migration for it to avoid further issues down the road.  Also, update the CBSecurity settings to false for creating the logs table.
 
+```js
+// Firewall database event logs.
+"logs"                        : {
+    "enabled"    : true,
+    "dsn"        : "",
+    "schema"     : "",
+    "table"      : "cbsecurity_logs",
+    "autoCreate" : false
+},
+```
+
+Create the migration:
 
 ```bash
 migrate create create_security_logs_table
 ```
 
-Now build it up
+Now add the following:
 
 ```js
 component {
 
+    variables.INDEX_COLUMNS = [
+        "userId",
+        "userAgent",
+        "ip",
+        "host",
+        "httpMethod",
+        "path",
+        "referer"
+    ];
+
 	function up( schema, qb ){
 		schema.create( "cbsecurity_logs", function( table ){
-			table.string( "id" ).primaryKey();
-			table.timestamp( "logDate" );
+			table.string( "id", 36 ).primaryKey();
+			table.timestamp( "logDate" ).withCurrent();
 			table.string( "action" );
 			table.string( "blockType" );
 			table.string( "ip" );
@@ -266,11 +290,16 @@ component {
 			table.string( "httpMethod" );
 			table.string( "path" );
 			table.string( "queryString" );
-			table.string( "referer" );
+			table.string( "referer" ).nullable();
 			table.string( "userAgent" );
-			table.string( "userId" );
-			table.longText( "securityRule" );
+			table.string( "userId" ).nullable();
+			table.longText( "securityRule" ).nullable();
 			table.index( [ "logDate", "action", "blockType" ], "idx_cbsecurity" );
+
+            INDEX_COLUMNS.each( ( key ) => {
+                table.index( [ arguments.key ], "idx_cbsecurity_#arguments.key#" );
+            } );
+
 		} );
 	}
 

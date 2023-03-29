@@ -51,7 +51,7 @@ component {
 	function run( qb, mockdata ){
 		// Create Users
 		var aUsers = mockdata.mock(
-			$num      = 25,
+			$num      = 10,
 			"id"      : "autoincrement",
 			"name"    : "name",
 			"email"   : "email",
@@ -66,7 +66,7 @@ component {
 			$num     = 25,
 			"id"     : "autoincrement",
 			"body"   : "sentence:1:3",
-			"userId" : "num:1:25"
+			"userId" : "num:1:#aUsers.len()#"
 		);
 		qb.newQuery()
 			.table( "rants" )
@@ -76,7 +76,28 @@ component {
 }
 ```
 
-See something different? Let's see who can spot it?  Run your tests!
+See something different? Let's see who can spot it?
+
+Also, as our application progresses, it will be a little heavy-handed to be running the migrations and database seeding on EVERY test run.  So let's update our code so it ONLY runs if we issue a `fwreinit` to the TEST application.  Remember, this is a separate application from the root application; thus the separate `Application.cfc`
+
+```js
+// Reload for fresh results
+if ( structKeyExists( url, "fwreinit" ) ) {
+    if ( structKeyExists( server, "lucee" ) ) {
+        pagePoolClear();
+    }
+    // ormReload();
+    request.coldBoxVirtualApp.restart();
+    // SEED DATABSE HERE
+    seedDatabase();
+}
+
+// If hitting the runner or specs, prep our virtual app
+if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
+    request.coldBoxVirtualApp.startup();
+    // IT USED TO BE HERE
+}
+```
 
 ## BDD
 

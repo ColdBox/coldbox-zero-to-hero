@@ -23,6 +23,7 @@ component {
 
 		validate( prc.oUser )
 			.onError( ( results ) => {
+				prc.vResults = results.getAllErrors();
 				cbMessageBox().error( results.getAllErrors() );
 				new ( argumentCollection = arguments );
 			} )

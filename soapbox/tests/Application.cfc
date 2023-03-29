@@ -55,12 +55,12 @@ component {
 			}
 			// ormReload();
 			request.coldBoxVirtualApp.restart();
+			seedDatabase();
 		}
 
 		// If hitting the runner or specs, prep our virtual app
 		if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
 			request.coldBoxVirtualApp.startup();
-			seedDatabase();
 		}
 
 		return true;
