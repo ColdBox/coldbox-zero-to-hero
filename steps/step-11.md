@@ -1,6 +1,6 @@
 # 11 - Securing our App
 
-We're going to use CBSecurity to help secure our app.
+We're going to use CBSecurity and its ecosystem to help secure our app.
 
 ## Update CBSecurity Configuration
 
@@ -67,7 +67,7 @@ Let's create a firewall rule to secure our app:
 
 ### Update `views/rants/index.cfm`
 
-Let's add some security contexts by leveraging : `auth().isLoggedIn()`
+Let's add some security contexts by leveraging: `auth().isLoggedIn()`
 
 ```js
 <cfoutput>
@@ -122,113 +122,146 @@ Let's add some security contexts by leveraging : `auth().isLoggedIn()`
 </cfoutput>
 ```
 
-### Try It Out
+## Cross-Site Request Forgery
 
-The visualizer will ONLY be available once you log in.
+Since we are in the securing our app section, let's add some `cbcsrf` goodness so we can protect our forms.  You can read more about this module here: https://forgebox.io/view/cbcsrf. The main methods we will use are:
 
-```bash
-coldbox reinit
+- `csrfToken()` : To generate a token, using the default or a custom key
+- `csrfVerify()` : Verify a valid token or not
+- `csrf()` : To generate a hidden field (csrf) with the token
+- `csrfField()` : To generate a hidden field (csrf) with the token, force new token generation and include javascript that will reload the page if the token expires
+- `csrfRotate()` : To wipe and rotate the tokens for the user
+
+Let's modify the following forms:
+
+- [`rants/new.cfm`](../src/views/rants/new.cfm) - New rant form
+- [`registration/new.cfm`](../src/views/registration/new.cfm) - New user registration form
+- [`sessions/new.cfm`](../src/views/new.cfm) - User login form
+
+We will add this to all forms:
+
+```js
+#csrf()#
 ```
 
-Run the tests!  Did we break something?  FIX IT!
+This will produce the csrf token, just notice that this will create an input field called `csrf`.
 
-Updated `rants` integration test:
+```html
+<input type="hidden" name="csrf" id="csrf" value="E1B828F8D854860AB029246A20DAA04D63282388">
+```
+
+Then we need to create the verification code in each of the form handlers:
+
+```js
+// rants.cfc
+if ( !csrfVerify( rc.csrf ?: "" ) ) {
+    cbMessageBox().error( "Invalid Security Token!" );
+    return back( persist: "body" );
+}
+
+// registration.cfc
+// Validate Token
+if ( !csrfVerify( rc.csrf ?: "" ) ) {
+    cbMessageBox().error( "Invalid Security Token!" );
+    return back( persist: "name,email" );
+}
+
+// session.cfc
+if ( !csrfVerify( rc.csrf ?: "" ) ) {
+    cbMessageBox().error( "Invalid Security Token!" );
+    return back();
+}
+```
+
+## Tests
+
+Run the tests!  Did we break something? Time to fix!
+
+### Consolidate Integration Test Helpers
+
+Since we are repeating lots of code now in our integration tests, let's refactor them to encapsulate behavior in our base integration test.
 
 ```js
 /**
- * 	ColdBox Integration Test
+ * Base test bundle for our application
  *
- * 	The 'appMapping' points by default to the '/root ' mapping created in  the test folder Application.cfc.  Please note that this
- * 	Application.cfc must mimic the real one in your root, including ORM  settings if needed.
- *
- *	The 'execute()' method is used to execute a ColdBox event, with the  following arguments
- *	- event : the name of the event
- *	- private : if the event is private or not
- *	- prePostExempt : if the event needs to be exempt of pre post interceptors
- *	- eventArguments : The struct of args to pass to the event
- *	- renderResults : Render back the results of the event
- *
- * You can also use the HTTP executables: get(), post(), put(), path(), delete(), request()
- **/
-component extends="tests.resources.BaseIntegrationSpec" {
+ * @see https://coldbox.ortusbooks.com/testing/testing-coldbox-applications/integration-testing
+ */
+component extends="coldbox.system.testing.BaseTestCase" autowire {
 
-	// DI
+	/**
+	 * --------------------------------------------------------------------------
+	 * Dependency Injections
+	 * --------------------------------------------------------------------------
+	 */
 	property name="qb"     inject="QueryBuilder@qb";
-	property name="bcrypt" inject="@BCrypt";
 	property name="auth"   inject="authenticationService@cbauth";
+	property name="cbcsrf" inject="@cbcsrf";
 
-	/*********************************** LIFE CYCLE Methods ***********************************/
+	/**
+	 * --------------------------------------------------------------------------
+	 * Integration testing controls
+	 * --------------------------------------------------------------------------
+	 * - We want the ColdBox virtual application to load once per request and get destroyed at the end of the request.
+	 */
+	this.loadColdBox   = true;
+	this.unloadColdBox = false;
 
+	/**
+	 * --------------------------------------------------------------------------
+	 * Global Variables
+	 * --------------------------------------------------------------------------
+	 * - Global helper variables
+	 */
+	variables.testPassword = "test";
+
+	/**
+	 * Run Before all tests
+	 */
 	function beforeAll(){
 		super.beforeAll();
-		// do your own stuff here
-		variables.testUser     = qb.from( "users" ).first();
-		variables.testPassword = "test";
 	}
 
-	function afterAll(){
-		// do your own stuff here
-		super.afterAll();
+	/**
+	 * This function is tagged as an around each handler.  All the integration tests we build
+	 * will be automatically rolledbacked so we don't corrupt the database with our tests
+	 *
+	 * @aroundEach
+	 */
+	function wrapInTransaction( spec ){
+		transaction action="begin" {
+			try {
+				arguments.spec.body( argumentCollection = arguments );
+			} catch ( any e ) {
+				rethrow;
+			} finally {
+				transaction action="rollback";
+			}
+		}
 	}
 
-	/*********************************** BDD SUITES ***********************************/
+	/**
+	 * --------------------------------------------------------------------------
+	 * Helper Methods
+	 * --------------------------------------------------------------------------
+	 */
 
-	function run(){
-		feature( "Crud for rants", function(){
-			beforeEach( function( currentSpec ){
-				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
-				setup();
-				auth.logout();
-			} );
+	function csrfToken(){
+		return cbcsrf.generate( argumentCollection = arguments );
+	}
 
-			it( "can display all rants", function(){
-				var event = get( "/rants" );
-				expect( event.getPrivateValue( "aRants" ) ).toBeArray();
-				expect( event.getRenderedContent() ).toInclude( "All Rants" );
-			} );
-
-			it( "can display the rants index when no rants exists", function(){
-				prepareMock( getInstance( "RantsService" ) ).$( "list", [] );
-				var event = get( "/rants" );
-
-				getWireBox().clearSingletons();
-
-				expect( event.getPrivateValue( "aRants" ) ).toBeEmpty();
-				expect( event.getRenderedContent() ).toInclude( "No rants yet" );
-			} );
-
-			it( "can display the new rant form", function(){
-				// Log in user
-				auth.authenticate( testUser.email, testPassword );
-				var event = get( "/rants/new" );
-				expect( event.getRenderedContent() ).toInclude( "Start a Rant" );
-			} );
-
-			it( "can stop the display of the new rant form if you are not logged in", function(){
-				var event = post( "rants/new" );
-				expect( event.getValue( "relocate_event" ) ).toBe( "login" );
-			} );
-
-			it( "can stop a rant from being created from an invalid user", function(){
-				expect( function(){
-					var event = post( route = "rants", params = { body : "Test Rant" } );
-				} ).toThrow( type = "NoUserLoggedIn" );
-			} );
-
-			it( "can create a rant from a valid user", function(){
-				// Log in user
-				auth.authenticate( testUser.email, testPassword );
-				var event = post( route = "rants", params = { body : "Test Rant" } );
-				var prc   = event.getPrivateCollection();
-				expect( prc.oRant.isLoaded() ).toBeTrue();
-				expect( prc.oRant.getBody() ).toBe( "Test Rant" );
-				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
-			} );
-		} );
+	struct function getTestUser(){
+		return qb.from( "users" ).first();
 	}
 
 }
 ```
+
+Now let's do the following:
+
+- Remove all the `variables.testPassword` sets so it can use the base
+- Remove the `variables.testUser` implementation and replace it with `getTestUser()` call
+- Add to all creation forms `csrf : csrfToken()` to the `params` so the forms can be secure even in testing.
 
 ## CBSecurity Logs
 

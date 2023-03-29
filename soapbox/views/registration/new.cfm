@@ -10,6 +10,8 @@
 					<div class="card-body">
 						#html.startForm( action : "registration" )#
 
+							#csrf()#
+
 							#html.inputField(
 								name : "name",
 								class : "form-control",

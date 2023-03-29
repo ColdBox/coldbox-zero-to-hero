@@ -44,7 +44,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 				} );
 			} );
 
-			fstory( "I want to be able to register users in the system", function(){
+			story( "I want to be able to register users in the system", function(){
 				given( "valid data", function(){
 					then( "I should register a new user", function(){
 						expect(
@@ -60,7 +60,8 @@ component extends="tests.resources.BaseIntegrationSpec" {
 								name            : "BDD Test",
 								email           : "testadmin@soapbox.com",
 								password        : "passwordpassword",
-								confirmPassword : "passwordpassword"
+								confirmPassword : "passwordpassword",
+								csrf            : csrfToken()
 							}
 						);
 						var prc = event.getPrivateCollection();

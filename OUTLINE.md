@@ -151,7 +151,10 @@ Steps:
 ### 10. Security
 
 - [ ] Create the security rules
-- [ ] Update the User Service for user validation
+- [ ] Add the CBSecurity visualizer
+- [ ] Update our navigation using the logged in helpers
+- [ ] Add Cross-Site Request Forgery tokens to all our forms
+- [ ] Update all our tests
 - [ ] Confirm security
 
 Steps:

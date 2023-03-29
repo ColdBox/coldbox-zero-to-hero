@@ -25,8 +25,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 	function beforeAll(){
 		super.beforeAll();
 		setup();
-		variables.testUser     = qb.from( "users" ).first();
-		variables.testPassword = "test";
+		variables.testUser = getTestUser();
 	}
 
 	function afterAll(){
@@ -49,7 +48,14 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			} );
 
 			it( "can log in a valid user", function(){
-				var event = post( route = "/login", params = { email : testUser.email, password : testPassword } );
+				var event = post(
+					route  = "/login",
+					params = {
+						email    : testUser.email,
+						password : testPassword,
+						csrf     : csrfToken()
+					}
+				);
 				expect( event.getValue( "relocate_URI" ) ).toBe( "/" );
 				expect( auth.isLoggedIn() ).toBeTrue();
 			} );
@@ -57,7 +63,11 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			it( "can show an invalid message for an invalid user", function(){
 				var event = post(
 					route  = "/login",
-					params = { username : "testuser@tests.com", password : "bad" }
+					params = {
+						username : "testuser@tests.com",
+						password : "bad",
+						csrf     : csrfToken()
+					}
 				);
 				expect( event.getValue( "relocate_event" ) ).toBe( "login" );
 				expect( auth.isLoggedIn() ).toBeFalse();

@@ -19,6 +19,12 @@ component {
 	 * Register a new user
 	 */
 	function create( event, rc, prc ){
+		// Validate Token
+		if ( !csrfVerify( rc.csrf ?: "" ) ) {
+			cbMessageBox().error( "Invalid Security Token!" );
+			return back( persist: "name,email" );
+		}
+
 		prc.oUser = populateModel( "User" );
 
 		validate( prc.oUser )

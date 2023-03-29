@@ -19,14 +19,14 @@ component extends="tests.resources.BaseIntegrationSpec" {
 	property name="qb"     inject="QueryBuilder@qb";
 	property name="bcrypt" inject="@BCrypt";
 	property name="auth"   inject="authenticationService@cbauth";
+	property name="cbcsrf" inject="@cbcsrf";
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
 		super.beforeAll();
 		// do your own stuff here
-		variables.testUser     = qb.from( "users" ).first();
-		variables.testPassword = "test";
+		variables.testUser = getTestUser();
 	}
 
 	function afterAll(){
@@ -74,14 +74,14 @@ component extends="tests.resources.BaseIntegrationSpec" {
 
 			it( "can stop a rant from being created from an invalid user", function(){
 				expect( function(){
-					var event = post( route = "rants", params = { body : "Test Rant" } );
+					var event = post( route = "rants", params = { body : "Test Rant", csrf : csrfToken() } );
 				} ).toThrow( type = "NoUserLoggedIn" );
 			} );
 
 			it( "can create a rant from a valid user", function(){
 				// Log in user
 				auth.authenticate( testUser.email, testPassword );
-				var event = post( route = "rants", params = { body : "Test Rant" } );
+				var event = post( route = "rants", params = { body : "Test Rant", csrf : csrfToken() } );
 				var prc   = event.getPrivateCollection();
 				expect( prc.oRant.isLoaded() ).toBeTrue();
 				expect( prc.oRant.getBody() ).toBe( "Test Rant" );

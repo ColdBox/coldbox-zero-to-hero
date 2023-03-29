@@ -27,6 +27,12 @@ component extends="coldbox.system.EventHandler" {
 	 * Create a rant
 	 */
 	function create( event, rc, prc ){
+		// Validate Token
+		if ( !csrfVerify( rc.csrf ?: "" ) ) {
+			cbMessageBox().error( "Invalid Security Token!" );
+			return back( persist: "body" );
+		}
+
 		prc.oRant = populateModel( "Rant" ).setUserId( auth().getUserId() );
 
 		validate( prc.oRant )

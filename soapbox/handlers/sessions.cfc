@@ -14,6 +14,11 @@ component {
 	 * Login a user
 	 */
 	function create( event, rc, prc ){
+		// Validate Token
+		if ( !csrfVerify( rc.csrf ?: "" ) ) {
+			cbMessageBox().error( "Invalid Security Token!" );
+			return back();
+		}
 		try {
 			cbsecure().authenticate( rc.email ?: "", rc.password ?: "" );
 			cbMessageBox().success( "Welcome back #encodeForHTML( rc.email )#" );

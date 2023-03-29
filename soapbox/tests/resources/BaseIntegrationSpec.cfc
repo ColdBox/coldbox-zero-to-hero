@@ -10,6 +10,9 @@ component extends="coldbox.system.testing.BaseTestCase" autowire {
 	 * Dependency Injections
 	 * --------------------------------------------------------------------------
 	 */
+	property name="qb"     inject="QueryBuilder@qb";
+	property name="auth"   inject="authenticationService@cbauth";
+	property name="cbcsrf" inject="@cbcsrf";
 
 	/**
 	 * --------------------------------------------------------------------------
@@ -19,6 +22,14 @@ component extends="coldbox.system.testing.BaseTestCase" autowire {
 	 */
 	this.loadColdBox   = true;
 	this.unloadColdBox = false;
+
+	/**
+	 * --------------------------------------------------------------------------
+	 * Global Variables
+	 * --------------------------------------------------------------------------
+	 * - Global helper variables
+	 */
+	variables.testPassword = "test";
 
 	/**
 	 * Run Before all tests
@@ -43,6 +54,20 @@ component extends="coldbox.system.testing.BaseTestCase" autowire {
 				transaction action="rollback";
 			}
 		}
+	}
+
+	/**
+	 * --------------------------------------------------------------------------
+	 * Helper Methods
+	 * --------------------------------------------------------------------------
+	 */
+
+	function csrfToken(){
+		return cbcsrf.generate( argumentCollection = arguments );
+	}
+
+	struct function getTestUser(){
+		return qb.from( "users" ).first();
 	}
 
 }

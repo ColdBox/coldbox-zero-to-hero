@@ -10,6 +10,8 @@
 						<div class="card-body">
 							#html.startForm( action : "login" )#
 
+								#csrf()#
+
 								#html.emailField(
 									name : "email",
 									class : "form-control",

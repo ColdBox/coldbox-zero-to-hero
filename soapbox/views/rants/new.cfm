@@ -9,6 +9,8 @@
 		<div class="card-body">
 			#html.startForm( action : "rants" )#
 
+				#csrf()#
+
 				#html.textarea(
 					name : "body",
 					class : "form-control",
