@@ -290,7 +290,7 @@ component extends="tests.resources.BaseIntegrationSpec"{
 								name                 : "BDD Test",
 								email                : "testadmin@soapbox.com",
 								password             : "password",
-								passwordConfirmation : "password"
+								confirmPassword : "password"
 							}
 						);
 						var prc = event.getPrivateCollection();

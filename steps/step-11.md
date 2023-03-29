@@ -230,12 +230,6 @@ component extends="tests.resources.BaseIntegrationSpec" {
 }
 ```
 
-Updated `registrationTest`:
-
-```js
-expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
-```
-
 ## CBSecurity Logs
 
 If you start getting the following error in your tests:
