@@ -24,7 +24,8 @@
         "commandbox-cfformat":"*",
         "commandbox-migrations":"^4.0.0",
         "cfmigrations":"^4.0.0",
-        "route-visualizer":"^2.0.0+6"
+        "route-visualizer":"^2.0.0+6",
+        "cbdebugger":"^4.0.1+94"
     },
     "installPaths":{
         "coldbox":"coldbox/",
@@ -34,7 +35,8 @@
         "BCrypt":"modules/BCrypt/",
         "cbmessagebox":"modules/cbmessagebox/",
         "cbsecurity":"modules/cbsecurity/",
-        "cbvalidation":"modules/cbvalidation/"
+        "cbvalidation":"modules/cbvalidation/",
+        "cbdebugger":"modules/cbdebugger/"
     },
     "dependencies":{
         "coldbox":"be",
