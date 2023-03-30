@@ -194,6 +194,18 @@ component extends="tests.resources.BaseIntegrationSpec" {
 				expect( prc.oRant.getBody() ).toBe( "Test Rant" );
 				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
 			} );
+
+            it( "can delete a rant if you are logged in", function(){
+				// Log in user
+				auth.authenticate( testUser.email, testPassword );
+				var testId = qb
+					.select( "id" )
+					.from( "rants" )
+					.first()
+					.id;
+				var event = delete( "/rants/#testId#" );
+				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
+			} );
 		} );
 	}
 
@@ -208,7 +220,7 @@ Add the rants resources in the `Router.cfc` file
 resources( "rants" );
 ```
 
-## Event Handler
+## Event Handler: `rants`
 
 Let's build it out.
 
@@ -297,8 +309,7 @@ component extends="coldbox.system.EventHandler" {
 	 * Delete a rant
 	 */
 	function delete( event, rc, prc ){
-		event.paramValue( "id", 0 );
-		rantService.delete( rc.id );
+		rantsService.delete( rc.id ?: 0 );
 		cbMessageBox().info( "Rant deleted!" );
 		relocate( "rants" );
 	}
@@ -466,8 +477,8 @@ component singleton accessors="true" {
 	/**
 	 * Delete a rant by id
 	 */
-	boolean function delete( required numeric rantId ){
-		return queryExecute( "DELETE FROM `rants` WHERE id = :id", { id : arguments.rantId } );
+	function delete( required numeric rantId ){
+		queryExecute( "DELETE FROM `rants` WHERE id = :id", { id : arguments.rantId } );
 	}
 
 	/**
@@ -516,27 +527,58 @@ Why not create more unit tests?
 
 ```html
 <cfoutput>
-<div class="container">
+<div class="container mt-2">
 	<h2>All Rants</h2>
 
 	<cfif prc.aRants.isEmpty()>
 		<div class="alert alert-info">
 			No rants yet, why not create some?
 		</div>
-		<a
-			href="#event.buildLink( "rants.new" )#"
-			class="btn btn-outline-primary">Start a Rant!</a>
+		<cfif auth().isLoggedIn()>
+			<a
+				href="#event.buildLink( "rants.new" )#"
+				class="btn btn-outline-primary">Start a Rant!</a>
+		<cfelse>
+			<a
+				href="#event.buildLink( "registration/new" )#"
+				class="btn btn-outline-success">Register</a>
+			<a
+				href="#event.buildLink( "login" )#"
+				class="btn btn-outline-success">Log In</a>
+		</cfif>
 	<cfelse>
+
+		<cfif auth().isLoggedIn()>
 		<a
 			href="#event.buildLink( "rants.new" )#"
 			class="btn btn-primary">Start a Rant!</a>
+		</cfif>
 
 		<div class="mt-3">
 			<cfloop array="#prc.aRants#" item="rant">
 				<div class="card mb-3">
-					<div class="card-header">
-						<strong>#rant.getUser().getEmail()#</strong>
-						said:
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<span class="me">
+							<i class="bi bi-chat-left-text me-2"></i>
+							#rant.getUser().getEmail()#
+						</span>
+
+						<div class="dropdown">
+							<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-three-dots-vertical"></i>
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="##">Edit</a>
+								</li>
+								<li>
+									#html.startForm( method : "DELETE", action : "rants/#rant.getId()#" )#
+										<button class="dropdown-item" type="submit">Delete</button>
+									#html.endForm()#
+								</li>
+							</ul>
+						</div>
+
 					</div>
 					<div class="card-body">
 						#rant.getBody()#

@@ -87,6 +87,18 @@ component extends="tests.resources.BaseIntegrationSpec" {
 				expect( prc.oRant.getBody() ).toBe( "Test Rant" );
 				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
 			} );
+
+			it( "can delete a rant if you are logged in", function(){
+				// Log in user
+				auth.authenticate( testUser.email, testPassword );
+				var testId = qb
+					.select( "id" )
+					.from( "rants" )
+					.first()
+					.id;
+				var event = delete( route: "/rants/#testId#", params: { csrf : csrfToken() } );
+				expect( event.getValue( "relocate_event" ) ).toBe( "rants" );
+			} );
 		} );
 	}
 

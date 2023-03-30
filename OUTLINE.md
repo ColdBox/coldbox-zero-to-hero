@@ -108,7 +108,7 @@ Steps:
 - [ ] Write our acceptance stories
 - [ ] Create our `User` and update methods to support our stories
 - [ ] Create the registration spec
-- [ ] Install bcrypt
+- [ ] Install `bcrypt`
 - [ ] Write the registration code as a ColdBox resource with appropriate spec and model methods
 
 Steps:
@@ -152,7 +152,7 @@ Steps:
 
 - [ ] Create the security rules
 - [ ] Add the CBSecurity visualizer
-- [ ] Update our navigation using the logged in helpers
+- [ ] Update our navigation using the logged-in helpers
 - [ ] Add Cross-Site Request Forgery tokens to all our forms
 - [ ] Update all our tests
 - [ ] Confirm security
@@ -163,23 +163,23 @@ Steps:
 
 ### 11. View User Rants
 
-- Create the spec for the profile page
-- Add routes for the profile
-- Update the rant service to get rants per user
-- Create the handler
-- Create a reusable viewlet for our rants
+- [ ] Create the spec for the profile page
+- [ ] Add routes for the profile
+- [ ] Update the rant service to get rants per user
+- [ ] Create the handler
+- [ ] Create a reusable viewlet for our rants
 
 Steps:
  - [Start 12](steps/step-12.md)
 
 ### 12. Add Rant Actions
 
-- Create the migrations for bumps and poops
-- Scaffold a Reaction Service for the actions
-- Update Rant object for reactions
-- Update Tests
-- Update the rant viewlet
-- Learn about Wirebox Convention vs Configuration
+- [ ] Create the migrations for bumps and poops
+- [ ] Scaffold a Reaction Service for the actions
+- [ ] Update Rant object for **reactions**
+- [ ] Update Tests
+- [ ] Update the rant viewlet
+- [ ] Learn about Wirebox Convention vs Configuration
 
 Steps:
  - [Start 13](steps/step-13.md)

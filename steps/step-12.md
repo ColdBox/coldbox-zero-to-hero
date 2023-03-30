@@ -1,4 +1,4 @@
-## 12 - View a user's rants
+# 12 - View a user's rants
 
 ### BDD
 

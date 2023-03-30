@@ -1,5 +1,5 @@
 <cfoutput>
-<div class="container">
+<div class="container mt-2">
 	<h2>All Rants</h2>
 
 	<cfif prc.aRants.isEmpty()>
@@ -29,9 +29,29 @@
 		<div class="mt-3">
 			<cfloop array="#prc.aRants#" item="rant">
 				<div class="card mb-3">
-					<div class="card-header">
-						<strong>#rant.getUser().getEmail()#</strong>
-						said:
+					<div class="card-header d-flex align-items-center justify-content-between">
+						<span class="me">
+							<i class="bi bi-chat-left-text me-2"></i>
+							#rant.getUser().getEmail()#
+						</span>
+
+						<div class="dropdown">
+							<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+								<i class="bi bi-three-dots-vertical"></i>
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="##">Edit</a>
+								</li>
+								<li>
+									#html.startForm( method : "DELETE", action : "rants/#rant.getId()#" )#
+										#csrf()#
+										<button class="dropdown-item" type="submit">Delete</button>
+									#html.endForm()#
+								</li>
+							</ul>
+						</div>
+
 					</div>
 					<div class="card-body">
 						#rant.getBody()#

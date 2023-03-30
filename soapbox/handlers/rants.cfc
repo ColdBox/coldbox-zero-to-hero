@@ -88,8 +88,12 @@ component extends="coldbox.system.EventHandler" {
 	 * Delete a rant
 	 */
 	function delete( event, rc, prc ){
-		event.paramValue( "id", 0 );
-		rantService.delete( rc.id );
+		// Validate Token
+		if ( !csrfVerify( rc.csrf ?: "" ) ) {
+			cbMessageBox().error( "Invalid Security Token!" );
+			return back();
+		}
+		rantsService.delete( rc.id ?: 0 );
 		cbMessageBox().info( "Rant deleted!" );
 		relocate( "rants" );
 	}

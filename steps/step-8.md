@@ -551,7 +551,7 @@ The purpose of the Flash RAM is to allow variables to be persisted seamlessly fr
 
 ### Update Layout With Flash
 
-What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and create the visualization of our flash messages:
+What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and create the visualization of our flash messages right before the main view is rendered `view()`
 
 ```html
 <cfif flash.exists( "notice" )>

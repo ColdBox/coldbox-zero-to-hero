@@ -42,8 +42,8 @@ component singleton accessors="true" {
 	/**
 	 * Delete a rant by id
 	 */
-	boolean function delete( required numeric rantId ){
-		return queryExecute( "DELETE FROM `rants` WHERE id = :id", { id : arguments.rantId } );
+	function delete( required numeric rantId ){
+		queryExecute( "DELETE FROM `rants` WHERE id = :id", { id : arguments.rantId } );
 	}
 
 	/**

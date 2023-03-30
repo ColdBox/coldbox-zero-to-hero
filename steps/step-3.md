@@ -12,7 +12,11 @@ In ColdBox, you can have as many layouts as you want.  You can also have layouts
 body {
     font-family: "Lato", sans-serif;
     min-height: 75rem;
-    padding-top: 4.5rem;
+    padding-top: 3.5rem;
+}
+
+main{
+	margin-bottom: 100px;
 }
 
 .main-navbar {
