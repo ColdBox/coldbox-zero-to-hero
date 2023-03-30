@@ -4,7 +4,8 @@
 component accessors="true" {
 
 	// DI
-	property name="userService" inject;
+	property name="userService"     inject;
+	property name="reactionService" inject;
 
 	// Properties
 	property
@@ -43,8 +44,33 @@ component accessors="true" {
 	 * Get the user that created this rant
 	 */
 	User function getUser(){
-		// Lazy loading the relationship
-		return userService.retrieveUserById( getUserId() );
+		if ( isNull( variables.user ) ) {
+			// Lazy loading the relationship
+			variables.user = userService.retrieveUserById( getUserId() );
+		}
+		return variables.user;
+	}
+
+	/**
+	 * Get the bumps this rant has
+	 */
+	function getBumps(){
+		if ( isNull( variables.bumps ) ) {
+			// Lazy loading the relationship
+			variables.bumps = reactionService.getBumpsForRant( this );
+		}
+		return variables.bumps;
+	}
+
+	/**
+	 * Get the poops this rant has
+	 */
+	function getPoops(){
+		if ( isNull( variables.poops ) ) {
+			// Lazy loading the relationship
+			variables.poops = reactionService.getPoopsForRant( this );
+		}
+		return variables.poops;
 	}
 
 	/**

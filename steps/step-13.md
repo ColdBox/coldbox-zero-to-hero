@@ -1,8 +1,8 @@
-## 13. Add 👊 and 💩 actions
+# 13. Add 👊 and 💩 actions
 
-### Migrations `bumps`
+## Migrations `bumps`
 
-```
+```bash
 migrate create create_bumps_table
 ```
 
@@ -11,37 +11,37 @@ Fill the file you just create with the following functions
 ```js
 component {
 
-    function up( schema ) {
-        queryExecute( "
-            CREATE TABLE `bumps` (
-                `userId` INTEGER UNSIGNED NOT NULL,
-                `rantId` INTEGER UNSIGNED NOT NULL,
-                CONSTRAINT `pk_bumps`
-                    PRIMARY KEY (`userId`, `rantId`),
-                CONSTRAINT `fk_bumps_userId`
-                    FOREIGN KEY (`userId`)
-                    REFERENCES `users` (`id`)
-                    ON UPDATE CASCADE
-                    ON DELETE CASCADE,
-                CONSTRAINT `fk_bumps_rantId`
-                    FOREIGN KEY (`rantId`)
-                    REFERENCES `rants` (`id`)
-                    ON UPDATE CASCADE
-                    ON DELETE CASCADE
-            )
-        " );
-    }
+	function up( schema, qb ){
+		schema.create( "bumps", ( table ) => {
+			table.unsignedInteger( "userId" );
+			table.unsignedInteger( "rantId" );
 
-    function down( schema ) {
-        queryExecute( "DROP TABLE `bumps`" );
-    }
+			table
+				.foreignKey( "userId" )
+				.references( "id" )
+				.onTable( "users" )
+				.onDelete( "cascade" )
+				.onUpdate( "cascade" );
+
+			table
+				.foreignKey( "rantId" )
+				.references( "id" )
+				.onTable( "rants" )
+				.onDelete( "cascade" )
+				.onUpdate( "cascade" );
+		} );
+	}
+
+	function down( schema, qb ){
+		schema.drop( "bumps" );
+	}
 
 }
 ```
 
-### Migrations `poops`
+## Migrations `poops`
 
-```
+```bash
 migrate create create_poops_table
 ```
 
@@ -50,58 +50,104 @@ Fill the file you just create with the following functions
 ```js
 component {
 
-    function up( schema ) {
-        queryExecute( "
-            CREATE TABLE `poops` (
-                `userId` INTEGER UNSIGNED NOT NULL,
-                `rantId` INTEGER UNSIGNED NOT NULL,
-                CONSTRAINT `pk_poops`
-                    PRIMARY KEY (`userId`, `rantId`),
-                CONSTRAINT `fk_poops_userId`
-                    FOREIGN KEY (`userId`)
-                    REFERENCES `users` (`id`)
-                    ON UPDATE CASCADE
-                    ON DELETE CASCADE,
-                CONSTRAINT `fk_poops_rantId`
-                    FOREIGN KEY (`rantId`)
-                    REFERENCES `rants` (`id`)
-                    ON UPDATE CASCADE
-                    ON DELETE CASCADE
-            )
-        " );
-    }
+	function up( schema, qb ){
+		schema.create( "poops", ( table ) => {
+			table.unsignedInteger( "userId" );
+			table.unsignedInteger( "rantId" );
 
-    function down( schema ) {
-        queryExecute( "DROP TABLE `poops`" );
-    }
+			table
+				.foreignKey( "userId" )
+				.references( "id" )
+				.onTable( "users" )
+				.onDelete( "cascade" )
+				.onUpdate( "cascade" );
+
+			table
+				.foreignKey( "rantId" )
+				.references( "id" )
+				.onTable( "rants" )
+				.onDelete( "cascade" )
+				.onUpdate( "cascade" );
+		} );
+	}
+
+	function down( schema, qb ){
+		schema.drop( "poops" );
+	}
 
 }
 ```
 
 Now migrate the migrations:
 
-```
+```bash
 migrate up
 ```
 
-### View Partial Updates
+## View Partial Updates
 
 Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
 
 ```html
 // /views/_partials/_rant.cfm
-<cfprocessingdirective pageEncoding="utf-8">
-<div class="card-footer">
-    <button class="btn btn-outline-dark">
-        #args.rant.getBumps().len()# 👊
-    </button>
-    <button class="btn btn-outline-dark">
-        #args.rant.getPoops().len()# 💩
-    </button>
+<div class="card-footer d-flex justify-content-between align-items-center">
+    <span class="badge text-bg-light">
+        #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
+    on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+    </span>
+
+    <span>
+        <button class="btn btn-outline-dark">
+            #args.rant.getBumps().len()# 👊
+        </button>
+        <button class="btn btn-outline-dark">
+            #args.rant.getPoops().len()# 💩
+        </button>
+    </span>
 </div>
 ```
 
-### Model: `ReactionService.cfc`
+## Model: Create `Bump`
+
+Generate the `Bump` model:
+
+```bash
+coldbox create model Bump
+```
+
+and code it out along the unit test.
+
+```js
+// models/Bump.cfc
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+## Model: Create `Poop`
+
+Generate the `Poop` model:
+
+```bash
+coldbox create model Poop
+```
+
+and code it out along the unit test.
+
+```js
+// models/Poop.cfc
+component accessors="true" {
+
+    property name="userId";
+    property name="rantId";
+
+}
+```
+
+## Model: `ReactionService.cfc`
 
 Let's build out the model to take care of our reaction services:
 
@@ -149,7 +195,7 @@ component {
 }
 ```
 
-### Model: `Rant`
+## Model: `Rant`
 
 Inject `reactionService` and create the following functions in the `Rant` object
 
@@ -166,5 +212,3 @@ function getPoops() {
     return reactionService.getPoopsForRant( this );
 }
 ```
-
-Reinit and try it out on the site!

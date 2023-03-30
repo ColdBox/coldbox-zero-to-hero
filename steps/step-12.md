@@ -13,26 +13,31 @@ coldbox create handler name="users" actions="show"
 And let's work on the BDD for it:
 
 ```js
-describe( "users Suite", function(){
-
-    beforeEach(function( currentSpec ){
+feature( "User Rants Page", function(){
+    beforeEach( function( currentSpec ){
         // Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
         setup();
-    });
+    } );
 
-    it( "can relocate to a 404 if you pass an invalid user", function(){
-        var event = GET( "/users/invalid" );
-        expect( event.getValue( "relocate_uri" ) ).toBe( "404" );
-    });
+    story( "I want to display a user's rants with a unique user url", () => {
+        given( "an invalid user id", function(){
+            then( "a 404 page will be shown", function(){
+                var event = GET( "/users/invalid" );
+                expect( event.getValue( "relocate_event" ) ).toBe( "404" );
+            } );
+        } );
 
-    it( "can show the rants for a specific user", function(){
-        var event = GET( "/users/lmajano@gmail.com" );
-        // expectations go here.
-        expect( event.getPrivateValue( "oUser" ).isLoaded() ).toBeTrue();
-        expect( event.getRenderedContent() ).toInclude( "<h4>Rants</h4>" );
-    });
-
-});
+        given( "a valid id", function(){
+            then( "the user's rants will be displayed", function(){
+                var testUser = getTestUser();
+                var event    = GET( "/users/#testUser.id#" );
+                // expectations go here.
+                expect( event.getPrivateValue( "oUser" ).isLoaded() ).toBeTrue();
+                expect( event.getRenderedContent() ).toInclude( "#testUser.name#" );
+            } );
+        } );
+    } );
+} );
 ```
 
 ## Router

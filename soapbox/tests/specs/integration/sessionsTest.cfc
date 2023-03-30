@@ -16,10 +16,6 @@
  *******************************************************************************/
 component extends="tests.resources.BaseIntegrationSpec" {
 
-	property name="qb"     inject="QueryBuilder@qb";
-	property name="auth"   inject="authenticationService@cbauth";
-	property name="bcrypt" inject="@BCrypt";
-
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){

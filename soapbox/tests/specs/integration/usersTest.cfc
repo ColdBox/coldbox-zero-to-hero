@@ -1,19 +1,4 @@
-/**
- * 	ColdBox Integration Test
- *
- * 	The 'appMapping' points by default to the '/root ' mapping created in  the test folder Application.cfc.  Please note that this
- * 	Application.cfc must mimic the real one in your root, including ORM  settings if needed.
- *
- *	The 'execute()' method is used to execute a ColdBox event, with the  following arguments
- *	- event : the name of the event
- *	- private : if the event is private or not
- *	- prePostExempt : if the event needs to be exempt of pre post interceptors
- *	- eventArguments : The struct of args to pass to the event
- *	- renderResults : Render back the results of the event
- *
- * You can also use the HTTP executables: get(), post(), put(), path(), delete(), request()
- **/
-component extends="coldbox.system.testing.BaseTestCase" appMapping="/" {
+component extends="tests.resources.BaseIntegrationSpec" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
@@ -30,17 +15,29 @@ component extends="coldbox.system.testing.BaseTestCase" appMapping="/" {
 	/*********************************** BDD SUITES ***********************************/
 
 	function run(){
-		describe( "users Suite", function(){
+		feature( "User Rants Page", function(){
 			beforeEach( function( currentSpec ){
 				// Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
 				setup();
 			} );
 
-			it( "show", function(){
-				// Execute event or route via GET http method. Spice up accordingly
-				var event = get( "users.show" );
-				// expectations go here.
-				expect( false ).toBeTrue();
+			story( "I want to display a user's rants with a unique user url", () => {
+				given( "an invalid user id", function(){
+					then( "a 404 page will be shown", function(){
+						var event = GET( "/users/invalid" );
+						expect( event.getValue( "relocate_event" ) ).toBe( "404" );
+					} );
+				} );
+
+				given( "a valid id", function(){
+					then( "the user's rants will be displayed", function(){
+						var testUser = getTestUser();
+						var event    = GET( "/users/#testUser.id#" );
+						// expectations go here.
+						expect( event.getPrivateValue( "oUser" ).isLoaded() ).toBeTrue();
+						expect( event.getRenderedContent() ).toInclude( "#testUser.name#" );
+					} );
+				} );
 			} );
 		} );
 	}

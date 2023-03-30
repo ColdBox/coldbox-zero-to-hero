@@ -4,7 +4,8 @@
 component accessors="true" delegates="Authorizable@cbsecurity" {
 
 	// DI
-	property name="rantsService" inject;
+	property name="rantsService"    inject;
+	property name="reactionService" inject;
 
 	// Properties
 	property name="id"              type="numeric";
@@ -58,6 +59,38 @@ component accessors="true" delegates="Authorizable@cbsecurity" {
 			variables.rants = rantsService.findByUser( getId() );
 		}
 		return variables.rants;
+	}
+
+	/**
+	 * Has the user bumped the rant?
+	 *
+	 * @rant The targeted rant
+	 */
+	boolean function hasBumped( rant ){
+		if ( isNull( variables.bumps ) ) {
+			variables.bumps = reactionService.getBumpsForUser( this );
+		}
+		return !variables.bumps
+			.filter( function( bump ){
+				return bump.getRantId() == rant.getId();
+			} )
+			.isEmpty();
+	}
+
+	/**
+	 * Has the user pooped the rant?
+	 *
+	 * @rant The targeted rant
+	 */
+	boolean function hasPooped( rant ){
+		if ( isNull( variables.poops ) ) {
+			variables.poops = reactionService.getPoopsForUser( this );
+		}
+		return !variables.poops
+			.filter( function( poop ){
+				return poop.getRantId() == rant.getId();
+			} )
+			.isEmpty();
 	}
 
 }

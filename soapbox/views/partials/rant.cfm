@@ -26,13 +26,64 @@
 		</div>
 
 	</div>
+
 	<div class="card-body">
 		#args.rant.getBody()#
 	</div>
-	<div class="card-footer">
+
+	<div class="card-footer d-flex justify-content-between align-items-center">
+
+		<!--- Timestamp --->
 		<span class="badge text-bg-light">
 			#dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
 		on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+		</span>
+
+		<!--- Bump & Poop --->
+		<span class="d-flex gap-3">
+
+			<!--- Bump Logic --->
+			<cfif auth().guest()>
+				<button class="btn btn-outline-dark" disabled>
+					#args.rant.getBumps().len()# 👊
+				</button>
+			<cfelseif auth().user().hasBumped( args.rant )>
+				#html.startForm( method : "delete", action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
+					#csrf()#
+					<button class="btn btn-dark">
+						#args.rant.getBumps().len()# 👊
+					</button>
+				#html.endForm()#
+			<cfelse>
+				#html.startForm( action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
+					#csrf()#
+					<button class="btn btn-outline-dark">
+						#args.rant.getBumps().len()# 👊
+					</button>
+				#html.endForm()#
+			</cfif>
+
+			<!--- Poop Logic --->
+			<cfif auth().guest()>
+				<button class="btn btn-outline-dark" disabled>
+					#args.rant.getPoops().len()# 💩
+				</button>
+			<cfelseif auth().user().hasPooped( args.rant )>
+				#html.startForm( method : "delete", action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
+					#csrf()#
+					<button class="btn btn-dark">
+						#args.rant.getPoops().len()# 💩
+					</button>
+				#html.endForm()#
+			<cfelse>
+				#html.startForm( action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
+					#csrf()#
+					<button class="btn btn-outline-dark">
+						#args.rant.getPoops().len()# 💩
+					</button>
+				#html.endForm()#
+			</cfif>
+
 		</span>
 	</div>
 </div>

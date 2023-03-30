@@ -45,6 +45,14 @@ component {
 		// Logout
 		delete( "/logout" ).as( "logout" ).to( "sessions.delete" );
 
+		// Bump Rants
+		POST( "rants/:id/bumps" ).as( "bumps" ).to( "bumps.create" );
+		DELETE( "rants/:id/bumps" ).to( "bumps.delete" );
+
+		// Poop Rants
+		POST( "rants/:id/poops" ).as( "poops" ).to( "poops.create" );
+		DELETE( "rants/:id/poops" ).to( "poops.delete" );
+
 		// Rants
 		resources( "rants" );
 

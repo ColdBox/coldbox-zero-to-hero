@@ -163,13 +163,14 @@ Steps:
 
 ### 11. View User Rants
 
-- [ ] Create the spec for the profile page
-- [ ] Add routes for the profile
+- [ ] Create the spec for a user rants page
+- [ ] Add routes for the user's rants
 - [ ] Update the rant service to get rants per user
 - [ ] Create the handler
-- [ ] Create a reusable viewlet for our rants
+- [ ] Create a reusable partial for our rant display
 
 Steps:
+
  - [Start 12](steps/step-12.md)
 
 ### 12. Add Rant Actions
@@ -182,6 +183,7 @@ Steps:
 - [ ] Learn about Wirebox Convention vs Configuration
 
 Steps:
+
  - [Start 13](steps/step-13.md)
  - [Start 14](steps/step-14.md)
 
