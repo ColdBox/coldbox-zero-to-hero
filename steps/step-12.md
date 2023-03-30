@@ -1,12 +1,14 @@
 # 12 - View a user's rants
 
-### BDD
+## BDD
 
-We want to be able to view a user's page with their appropriate rants. So the first thing to do is to add some rants to our database so we seed it with data. So login in and create some rants in the system using your username.
+We want to be able to view a user's page with their appropriate rants.
 
 Then let's generate a `users` handler to present them:
 
-`coldbox create handler name="users" actions="show"`
+```js
+coldbox create handler name="users" actions="show"
+```
 
 And let's work on the BDD for it:
 
@@ -24,23 +26,23 @@ describe( "users Suite", function(){
     });
 
     it( "can show the rants for a specific user", function(){
-        var event = GET( "/users/lmajano" );
+        var event = GET( "/users/lmajano@gmail.com" );
         // expectations go here.
-        expect( event.getPrivateValue( "user" ).isLoaded() ).toBeTrue();
+        expect( event.getPrivateValue( "oUser" ).isLoaded() ).toBeTrue();
         expect( event.getRenderedContent() ).toInclude( "<h4>Rants</h4>" );
     });
 
 });
 ```
 
-### Router
+## Router
 
 ```js
 // config/Router.cfc
-get( "/users/:username" ).to( "users.show" );
+get( "/users/:id" ).as( "user.rants" ).to( "users.show" );
 ```
 
-### Event Handler
+## Event Handler
 
 Here is the implementation
 
@@ -48,20 +50,21 @@ Here is the implementation
 // handlers/users.cfc
 component {
 
+    // DI
     property name="userService" inject;
 
     function show( event, rc, prc ) {
-        prc.user = userService.retrieveUserByUsername( rc.username ?: "" );
-        if ( !prc.user.isLoaded() ) {
-            relocate( "404" );
-        }
-        event.setView( "users/show" );
+        prc.oUser = userService.retrieveUserById( rc.id ?: "" );
+		if ( !prc.oUser.isLoaded() ) {
+			relocate( "404" );
+		}
+		event.setView( "users/show" );
     }
 
 }
 ```
 
-### Model `User.cfc` updates
+## Model `User.cfc` updates
 
 To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service. Start by injecting the `rantService`
 
@@ -77,12 +80,12 @@ function getRants() {
 }
 ```
 
-### Model `RantService` retrieve for a user
+## Model `RantService` retrieve for a user
 
-Now let's update the rant service to get rants for a specific user via a `getForUserId` function:
+Now let's update the rant service to get rants for a specific user via a `findByUser` function:
 
 ```js
-function getForUserId( required userId ) {
+function findByUser( required userId ) {
     return queryExecute(
         "SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
         [ userId ],
@@ -98,55 +101,136 @@ function getForUserId( required userId ) {
 
 Now we are ready for the views
 
-### The `404.cfm` view
+## The `404.cfm` view
 
 Run the following command: `coldbox create view 404` to create the view
 
-```sh
-// views/404.cfm
-<h1>Whoops!  That page doesn't exist.</h1>
-```
-
-### The `show.cfm` view
-
 ```html
-// views/users/show.cfm
-<cfoutput>
-    <h1>#prc.user.getUsername()#</h1>
-    <h4>Rants</h4>
-    <ul>
-        <cfloop array="#prc.user.getRants()#" item="rant">
-            #view( "_partials/_rant", { rant = rant } )#
-        </cfloop>
-    </ul>
-</cfoutput>
+<div class="d-flex align-items-center justify-content-center vh-100">
+	<div class="text-center">
+		<h1 class="display-1 fw-bold">404</h1>
+		<p class="fs-3"> <span class="text-danger">Opps!</span> Page not found.</p>
+		<p class="lead">
+			The page you’re looking for doesn’t exist.
+		  </p>
+		<a href="index.html" class="btn btn-primary">Go Home</a>
+	</div>
+</div>
 ```
 
-#### Create the `views/_partials/_rant.cfm` view
+## The `show.cfm` view
 
 ```html
 <cfoutput>
-    <div class="card mb-3">
-        <div class="card-header">
-            <strong><a href="#event.buildLink( "users.#args.rant.getUser().getUsername()#" )#">#args.rant.getUser().getUsername()#</a></strong>
-            said at #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
-            on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
-        </div>
-        <div class="panel card-body">
-            #args.rant.getBody()#
-        </div>
-    </div>
+<div class="container mt-4">
+	<h1 class="mb-4 d-flex align-items-center">#prc.oUser.getName()#
+		<span
+			class="ms-2 fs-6 badge text-bg-primary"
+			title="Total Rants"
+			data-bs-toggle="tooltip"
+			>
+			#prc.oUser.getRants().len()#
+		</span>
+	</h1>
+	<ul>
+		<cfloop array="#prc.oUser.getRants()#" item="rant">
+			#view( "partials/rant", { rant = rant } )#
+		</cfloop>
+	</ul>
+</div>
 </cfoutput>
 ```
 
-### Update the `rants/index` View
+## Create the `views/partials/rant.cfm` view
+
+```html
+<cfoutput>
+<div class="card mb-3">
+	<div class="card-header d-flex align-items-center justify-content-between">
+		<span class="me">
+			<i class="bi bi-chat-left-text me-2"></i>
+			<a href="#event.route( 'user.rants', { id : args.rant.getUser().getId() } )#">
+				#args.rant.getUser().getName()#
+			</a>
+		</span>
+
+		<div class="dropdown">
+			<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+				<i class="bi bi-three-dots-vertical"></i>
+			</button>
+			<ul class="dropdown-menu">
+				<li>
+					<a class="dropdown-item" href="##">Edit</a>
+				</li>
+				<li>
+					#html.startForm( method : "DELETE", action : "rants/#args.rant.getId()#" )#
+						#csrf()#
+						<button class="dropdown-item" type="submit">Delete</button>
+					#html.endForm()#
+				</li>
+			</ul>
+		</div>
+
+	</div>
+	<div class="card-body">
+		#args.rant.getBody()#
+	</div>
+	<div class="card-footer">
+		<span class="badge text-bg-light">
+			#dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
+		on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+		</span>
+	</div>
+</div>
+</cfoutput>
+```
+
+## Update the `rants/index` View
 
 Update the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
 
 ```html
 <cfloop array="#prc.aRants#" item="rant">
-    #view( "_partials/_rant", { rant = rant } )#
+    #view( "partials/rant", { rant = rant } )#
 </cfloop>
 ```
 
 Now Test it out in the browser
+
+## Optimizations
+
+Look at the following code:
+
+```js
+<h1 class="mb-4 d-flex align-items-center">#prc.oUser.getName()#
+    <span
+        class="ms-2 fs-6 badge text-bg-primary"
+        title="Total Rants"
+        data-bs-toggle="tooltip"
+        >
+        #prc.oUser.getRants().len()#
+    </span>
+</h1>
+<ul>
+    <cfloop array="#prc.oUser.getRants()#" item="rant">
+        #view( "partials/rant", { rant = rant } )#
+    </cfloop>
+</ul>
+```
+
+Can you spot the optimization?  We are calling `getRants()` twice, which does at this moment, two queries.  Why?  How would you optimize that?
+
+```js
+
+property name="rants"     type="array";
+
+/**
+ * Get the user's rants if any
+ */
+array function getRants(){
+    if ( isNull( variables.rants ) ) {
+        variables.rants = rantsService.findByUser( getId() );
+    }
+    return variables.rants;
+}
+```

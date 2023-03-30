@@ -1,4 +1,5 @@
 <cfoutput>
+<div class="container mt-5">
 	<div class="text-center card shadow-sm bg-light border border-5 border-white">
 		<div class="card-body">
 			<div>
@@ -18,4 +19,5 @@
 			</div>
 		</div>
 	</div>
+</div>
 </cfoutput>

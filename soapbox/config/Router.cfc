@@ -48,6 +48,9 @@ component {
 		// Rants
 		resources( "rants" );
 
+		// User Rants
+		get( "/users/:id" ).as( "user.rants" ).to( "users.show" );
+
 		// @app_routes@
 
 		// Conventions-Based Routing

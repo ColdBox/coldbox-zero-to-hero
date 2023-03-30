@@ -3,6 +3,9 @@
  */
 component accessors="true" delegates="Authorizable@cbsecurity" {
 
+	// DI
+	property name="rantsService" inject;
+
 	// Properties
 	property name="id"              type="numeric";
 	property name="name"            type="string";
@@ -13,6 +16,7 @@ component accessors="true" delegates="Authorizable@cbsecurity" {
 	property name="modifiedDate"    type="date";
 	property name="roles"           type="array";
 	property name="permissions"     type="array";
+	property name="rants"           type="array";
 
 	// Validation
 	this.constraints = {
@@ -44,6 +48,16 @@ component accessors="true" delegates="Authorizable@cbsecurity" {
 	 */
 	boolean function isLoaded(){
 		return ( !isNull( variables.id ) && len( variables.id ) );
+	}
+
+	/**
+	 * Get the user's rants if any
+	 */
+	array function getRants(){
+		if ( isNull( variables.rants ) ) {
+			variables.rants = rantsService.findByUser( getId() );
+		}
+		return variables.rants;
 	}
 
 }

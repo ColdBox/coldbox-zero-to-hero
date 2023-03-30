@@ -70,4 +70,14 @@ component singleton accessors="true" {
 		).reduce( ( result, rant ) => populator.populateFormStruct( result, rant ), new () );
 	}
 
+	array function findByUser( required userId ){
+		return queryExecute(
+			"SELECT * FROM `rants` WHERE `userId` = ? ORDER BY `createdDate` DESC",
+			[ userId ],
+			{ returntype : "array" }
+		).map( function( rant ){
+			return populator.populateFromStruct( new (), rant );
+		} );
+	}
+
 }
