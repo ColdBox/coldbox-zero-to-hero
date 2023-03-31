@@ -159,31 +159,36 @@ Run the following command: `coldbox create view 404` to create the view
 			</a>
 		</span>
 
-		<div class="dropdown">
-			<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-				<i class="bi bi-three-dots-vertical"></i>
-			</button>
-			<ul class="dropdown-menu">
-				<li>
-					<a class="dropdown-item" href="##">Edit</a>
-				</li>
-				<li>
-					#html.startForm( method : "DELETE", action : "rants/#args.rant.getId()#" )#
-						#csrf()#
-						<button class="dropdown-item" type="submit">Delete</button>
-					#html.endForm()#
-				</li>
-			</ul>
-		</div>
+		<!--- Edit/Delete Actions --->
+		<cfif auth().isLoggedIn()>
+			<div class="dropdown">
+				<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<i class="bi bi-three-dots-vertical"></i>
+				</button>
+				<ul class="dropdown-menu">
+					<li>
+						<a class="dropdown-item" href="#event.route( 'rants.edit', { id: args.rant.getId() } )#">Edit</a>
+					</li>
+					<li>
+						#html.startForm( method : "DELETE", action : "rants/#args.rant.getId()#" )#
+							#csrf()#
+							<button class="dropdown-item" type="submit">Delete</button>
+						#html.endForm()#
+					</li>
+				</ul>
+			</div>
+		</cfif>
 
 	</div>
+
 	<div class="card-body">
 		#args.rant.getBody()#
 	</div>
+
 	<div class="card-footer">
 		<span class="badge text-bg-light">
 			#dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
-		on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+		    on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
 		</span>
 	</div>
 </div>

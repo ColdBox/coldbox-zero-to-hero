@@ -39,14 +39,15 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			} );
 
 			it( "can display all rants", function(){
-				var event = get( "/rants" );
+				var event = get( "/" );
+				debug( event.getRenderedContent() )
 				expect( event.getPrivateValue( "aRants" ) ).toBeArray();
 				expect( event.getRenderedContent() ).toInclude( "All Rants" );
 			} );
 
 			it( "can display the rants index when no rants exists", function(){
 				prepareMock( getInstance( "RantsService" ) ).$( "list", [] );
-				var event = get( "/rants" );
+				var event = get( "/" );
 
 				getWireBox().clearSingletons();
 
@@ -67,9 +68,8 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			} );
 
 			it( "can stop a rant from being created from an invalid user", function(){
-				expect( function(){
-					var event = post( route = "rants", params = { body : "Test Rant", csrf : csrfToken() } );
-				} ).toThrow( type = "NoUserLoggedIn" );
+				var event = post( route = "rants", params = { body : "Test Rant", csrf : csrfToken() } );
+				expect( event.getValue( "relocate_event" ) ).toBe( "login" );
 			} );
 
 			it( "can create a rant from a valid user", function(){

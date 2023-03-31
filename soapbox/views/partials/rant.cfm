@@ -8,22 +8,25 @@
 			</a>
 		</span>
 
-		<div class="dropdown">
-			<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-				<i class="bi bi-three-dots-vertical"></i>
-			</button>
-			<ul class="dropdown-menu">
-				<li>
-					<a class="dropdown-item" href="##">Edit</a>
-				</li>
-				<li>
-					#html.startForm( method : "DELETE", action : "rants/#args.rant.getId()#" )#
-						#csrf()#
-						<button class="dropdown-item" type="submit">Delete</button>
-					#html.endForm()#
-				</li>
-			</ul>
-		</div>
+		<!--- Edit/Delete Actions --->
+		<cfif auth().isLoggedIn()>
+			<div class="dropdown">
+				<button class="btn btn-sm btn-light fs-5" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+					<i class="bi bi-three-dots-vertical"></i>
+				</button>
+				<ul class="dropdown-menu">
+					<li>
+						<a class="dropdown-item" href="#event.route( 'rants.edit', { id: args.rant.getId() } )#">Edit</a>
+					</li>
+					<li>
+						#html.startForm( method : "DELETE", action : "rants/#args.rant.getId()#" )#
+							#csrf()#
+							<button class="dropdown-item" type="submit">Delete</button>
+						#html.endForm()#
+					</li>
+				</ul>
+			</div>
+		</cfif>
 
 	</div>
 
@@ -44,9 +47,11 @@
 
 			<!--- Guest Read Only --->
 			<cfif auth().guest()>
-				<button class="btn btn-outline-dark" disabled>
-					#args.rant.getBumps().len()# 👊
-				</button>
+				<span data-bs-toggle="tooltip" title="Log In First">
+					<button class="btn btn-outline-dark" disabled>
+						#args.rant.getBumps().len()# 👊
+					</button>
+				</span>
 			<!-- User has Bumped -->
 			<cfelseif auth().user().hasBumped( args.rant )>
 				#html.startForm( method : "delete", action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
@@ -67,9 +72,11 @@
 
 			<!--- Guest Read Only --->
 			<cfif auth().guest()>
-				<button class="btn btn-outline-dark" disabled>
-					#args.rant.getPoops().len()# 💩
-				</button>
+				<span data-bs-toggle="tooltip" title="Log In First">
+					<button class="btn btn-outline-dark" disabled>
+						#args.rant.getPoops().len()# 💩
+					</button>
+				</span>
 			<!-- User has Pooped -->
 			<cfelseif auth().user().hasPooped( args.rant )>
 				#html.startForm( method : "delete", action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#

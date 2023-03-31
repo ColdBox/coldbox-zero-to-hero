@@ -567,7 +567,7 @@ Update the main layout to show and hide the register / login / logout buttons.
     <!--- Left Aligned --->
     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
         <!--- Logged In --->
-        <cfif !cbsecure().isLoggedIn()>
+        <cfif cbsecure().guest()>
             <li class="nav-item">
                 <a
                     class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
@@ -584,21 +584,29 @@ Update the main layout to show and hide the register / login / logout buttons.
                     Log in
                 </a>
             </li>
+        <cfelse>
+            <li class="nav-item me-2">
+                <a
+                    class="nav-link #event.getCurrentEvent() eq 'rants.index' ? 'active' : ''#"
+                    href="#event.buildLink( 'rants' )#"
+                    >
+                    Rants
+                </a>
+            </li>
         </cfif>
+
+        <li class="nav-item me-2">
+            <a
+                class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
+                href="#event.buildLink( 'about' )#"
+                >
+                About
+            </a>
+        </li>
     </ul>
 
     <!--- Right Aligned --->
     <div class="ms-auto d-flex">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item me-2">
-                <a
-                    class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
-                    href="#event.buildLink( 'about' )#"
-                    >
-                    About
-                </a>
-            </li>
-        </ul>
         <cfif cbsecure().isLoggedIn()>
             <form method="POST" action="#event.buildLink( "logout" )#">
                 <input type="hidden" name="_method" value="DELETE" />

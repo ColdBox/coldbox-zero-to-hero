@@ -19,7 +19,7 @@ component extends="coldbox.system.EventHandler" {
 	 * Return an HTML form for creating a rant
 	 */
 	function new( event, rc, prc ){
-		param rc.body = "";
+		prc.oRant = rantsService.new();
 		event.setView( "rants/new" );
 	}
 
@@ -37,7 +37,7 @@ component extends="coldbox.system.EventHandler" {
 
 		validate( prc.oRant )
 			.onSuccess( ( result ) => {
-				rantsService.save( prc.oRant );
+				rantsService.create( prc.oRant );
 				cbMessageBox().info( "Rant created!" );
 				relocate( "rants" );
 			} )
@@ -60,9 +60,8 @@ component extends="coldbox.system.EventHandler" {
 	 * Edit a rant
 	 */
 	function edit( event, rc, prc ){
-		event.paramValue( "id", 0 );
 		prc.oRant = rantsService.get( rc.id );
-		event.setView( "rants/edit" );
+		event.setView( "rants/new" );
 	}
 
 	/**
@@ -70,11 +69,11 @@ component extends="coldbox.system.EventHandler" {
 	 */
 	function update( event, rc, prc ){
 		event.paramValue( "id", 0 );
-		prc.oRant = populateModel( rantService.get( rc.id ) );
+		prc.oRant = populateModel( rantsService.get( rc.id ) ).setUserId( auth().getUserId() );
 
 		validate( prc.oRant )
 			.onSuccess( ( result ) => {
-				rantsService.create( prc.oRant );
+				rantsService.update( prc.oRant );
 				cbMessageBox().info( "Rant updated!" );
 				relocate( "rants" );
 			} )

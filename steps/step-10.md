@@ -105,8 +105,8 @@ Now, let's do some BDD as we have to build the CRUD for rants.  Our stories will
 
 ```bash
 coldbox create resources rants
-# delete the create view, it's not necessary
-delete views/rants/create.cfm,views/rants/delete.cfm --force
+# delete the unused views
+delete views/rants/create.cfm,views/rants/edit.cfm,views/rants/delete.cfm --force
 ```
 
 Open the integration tests and start coding:
@@ -246,7 +246,7 @@ component extends="coldbox.system.EventHandler" {
 	 * Return an HTML form for creating a rant
 	 */
 	function new( event, rc, prc ){
-		param rc.body = "";
+        prc.oRant = rantsService.new();
 		event.setView( "rants/new" );
 	}
 
@@ -291,11 +291,11 @@ component extends="coldbox.system.EventHandler" {
 	 */
 	function update( event, rc, prc ){
 		event.paramValue( "id", 0 );
-		prc.oRant = populateModel( rantService.get( rc.id ) );
+		prc.oRant = populateModel( rantsService.get( rc.id ) ).setUserId( auth().getUserId() );
 
 		validate( prc.oRant )
 			.onSuccess( ( result ) => {
-				rantsService.create( prc.oRant );
+				rantsService.update( prc.oRant );
 				cbMessageBox().info( "Rant updated!" );
 				relocate( "rants" );
 			} )
@@ -455,23 +455,49 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Save a new or persisted rant
+	 * Create a new rant
+	 *
+	 * @rant The rant to create
 	 */
-	Rant function save( required rant ){
+	Rant function create( required rant ){
 		arguments.rant.setModifiedDate( now() );
 		queryExecute(
 			"
-                INSERT IGNORE INTO `rants` (`body`, `modifiedDate`, `userId`)
-                VALUES (?, ?, ?)
+                INSERT INTO `rants` (`body`, `modifiedDate`, `userId`)
+                VALUES (:body, :modifiedDate, :userId)
             ",
-			[
-				rant.getBody(),
-				{ value : rant.getModifiedDate(), type : "timestamp" },
-				rant.getUserId()
-			],
+			{
+				body         : rant.getBody(),
+				modifiedDate : { value : rant.getModifiedDate(), type : "timestamp" },
+				userId       : rant.getUserId()
+			},
 			{ result : "local.result" }
 		);
-		return rant.isLoaded() ? rant : rant.setId( result.generatedKey );
+		return rant.setId( result.generatedKey );
+	}
+
+	/**
+	 * Update a persisted rant
+	 *
+	 * @rant The rant to save
+	 */
+	Rant function update( required rant ){
+		arguments.rant.setModifiedDate( now() );
+		queryExecute(
+			"
+                UPDATE `rants`
+                SET body = :body, modifiedDate = :modifiedDate, userId = :userId
+				WHERE id = :id
+            ",
+			{
+				id           : rant.getId(),
+				body         : rant.getBody(),
+				modifiedDate : { value : rant.getModifiedDate(), type : "timestamp" },
+				userId       : rant.getUserId()
+			},
+			{ result : "local.result" }
+		);
+		return rant;
 	}
 
 	/**
@@ -502,7 +528,7 @@ component singleton accessors="true" {
 			"SELECT * FROM `rants` where id = :id",
 			{ id : arguments.rantId },
 			{ returntype : "array" }
-		).reduce( ( result, rant ) => populator.populateFormStruct( result, rant ), new () );
+		).reduce( ( result, rant ) => populator.populateFromStruct( result, rant ), new () );
 	}
 
 }
@@ -677,7 +703,6 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 			<!--- Left Aligned --->
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<!--- Logged In --->
-				<cfif !cbsecure().isLoggedIn()>
 					<li class="nav-item">
 						<a
 							class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
@@ -694,11 +719,9 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 							Log in
 						</a>
 					</li>
-				<cfelse>
 					<li class="nav-item">
 						<a href="#event.buildLink( "rants.new" )#" class="btn btn-outline-info">Start a Rant</a>
 					</li>
-				</cfif>
 			</ul>
 
 			<!--- Right Aligned --->
@@ -713,12 +736,10 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 						</a>
 					</li>
 				</ul>
-				<cfif cbsecure().isLoggedIn()>
-					<form method="POST" action="#event.buildLink( "logout" )#">
-						<input type="hidden" name="_method" value="DELETE" />
-						<button class="btn btn-outline-success" type="submit">Log Out</button>
-					</form>
-				</cfif>
+                <form method="POST" action="#event.buildLink( "logout" )#">
+                    <input type="hidden" name="_method" value="DELETE" />
+                    <button class="btn btn-outline-success" type="submit">Log Out</button>
+                </form>
 			</div>
 		</div>
 	</div>

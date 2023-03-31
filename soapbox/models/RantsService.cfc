@@ -20,23 +20,49 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Save a new or persisted rant
+	 * Create a new rant
+	 *
+	 * @rant The rant to create
 	 */
-	Rant function save( required rant ){
+	Rant function create( required rant ){
 		arguments.rant.setModifiedDate( now() );
 		queryExecute(
 			"
-                INSERT IGNORE INTO `rants` (`body`, `modifiedDate`, `userId`)
-                VALUES (?, ?, ?)
+                INSERT INTO `rants` (`body`, `modifiedDate`, `userId`)
+                VALUES (:body, :modifiedDate, :userId)
             ",
-			[
-				rant.getBody(),
-				{ value : rant.getModifiedDate(), type : "timestamp" },
-				rant.getUserId()
-			],
+			{
+				body         : rant.getBody(),
+				modifiedDate : { value : rant.getModifiedDate(), type : "timestamp" },
+				userId       : rant.getUserId()
+			},
 			{ result : "local.result" }
 		);
-		return rant.isLoaded() ? rant : rant.setId( result.generatedKey );
+		return rant.setId( result.generatedKey );
+	}
+
+	/**
+	 * Update a persisted rant
+	 *
+	 * @rant The rant to save
+	 */
+	Rant function update( required rant ){
+		arguments.rant.setModifiedDate( now() );
+		queryExecute(
+			"
+                UPDATE `rants`
+                SET body = :body, modifiedDate = :modifiedDate, userId = :userId
+				WHERE id = :id
+            ",
+			{
+				id           : rant.getId(),
+				body         : rant.getBody(),
+				modifiedDate : { value : rant.getModifiedDate(), type : "timestamp" },
+				userId       : rant.getUserId()
+			},
+			{ result : "local.result" }
+		);
+		return rant;
 	}
 
 	/**
@@ -67,7 +93,7 @@ component singleton accessors="true" {
 			"SELECT * FROM `rants` where id = :id",
 			{ id : arguments.rantId },
 			{ returntype : "array" }
-		).reduce( ( result, rant ) => populator.populateFormStruct( result, rant ), new () );
+		).reduce( ( result, rant ) => populator.populateFromStruct( result, rant ), new () );
 	}
 
 	array function findByUser( required userId ){

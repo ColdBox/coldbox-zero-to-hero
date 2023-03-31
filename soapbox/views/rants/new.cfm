@@ -3,11 +3,14 @@
 	<div class="card">
 
 		<div class="card-header">
-			<h4>Start a Rant</h4>
+			<h4>#prc.oRant.isLoaded() ? "Edit" : "Start"# a Rant</h4>
 		</div>
 
 		<div class="card-body">
-			#html.startForm( action : "rants" )#
+			#html.startForm(
+				action : "rants/#prc.oRant.getId()#",
+				method : prc.oRant.isLoaded() ? "PUT" : "POST"
+			)#
 
 				#csrf()#
 
@@ -17,7 +20,7 @@
 					rows : 10,
 					placeholder : "What's on your mind?",
 					groupWrapper : "div class='mb-3'",
-					value : rc.body
+					bind : prc.oRant
 				)#
 
 				<div class="d-flex justify-content-end">

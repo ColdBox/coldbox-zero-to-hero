@@ -111,19 +111,14 @@ Our layout should end up like this:
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    <!--- Right Aligned --->
-                    <div class="ms-auto d-flex">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a
-                                    class="nav-link #event.routeIs( 'about' ) ? 'active' : ''#"
-                                    href="#event.buildLink( 'about' )#"
-                                    >
-                                    About
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
+                    <li class="nav-item me-2">
+                        <a
+                            class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
+                            href="#event.buildLink( 'about' )#"
+                            >
+                            About
+                        </a>
+                    </li>
 
                 </div>
             </div>

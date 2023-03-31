@@ -85,8 +85,8 @@ component {
 					// You can store all your rules in this inline array
 					"inline"   : [
 						{
-							"whitelist"   : "",
-							"securelist"  : "rants/(new|create),poops,bumps",
+							"whitelist"   : "registration,login,logout,about,route-visualizer",
+							"securelist"  : ".*",
 							"match"       : "url",
 							"roles"       : "",
 							"permissions" : ""

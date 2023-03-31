@@ -27,7 +27,7 @@ Let's instally `bcrypt` since it's already a nice ColdBox module:
 install bcrypt
 ```
 
-> You can configure this module to do many work factors or custom salts. Read the readme for much more information on how to configure this module: https://github.com/coldbox-modules/bcrypt#bcrypt-settings
+> You can configure this module to do many work factors or custom salts. Read the readme for much more information on how to configure this module: https: //github.com/coldbox-modules/bcrypt#bcrypt-settings
 
 Now we have access to a `@BCrypt` model which has some [methods](https://github.com/coldbox-modules/bcrypt#bcrypt-mixins) we can use:
 
@@ -64,7 +64,7 @@ Now that we have our module installed, let's continue.
 Let's create our `User` object:
 
 ```bash
-coldbox create model name="User" properties="id,email,password,createdDate,modifiedDate"
+coldbox create model name = "User" properties = "id,email,password,createdDate,modifiedDate"
 ```
 
 This will create the `models/User.cfc` but also the unit test.  Open them both and let's add some compile validations and some nice helpers:
@@ -78,12 +78,12 @@ This will create the `models/User.cfc` but also the unit test.  Open them both a
 component accessors="true" {
 
 	// Properties
-	property name="id"           type="numeric";
-    property name="name"         type="string";
-	property name="email"        type="string";
-	property name="password"     type="string";
-	property name="createdDate"  type="date";
-	property name="modifiedDate" type="date";
+	property name = "id"           type = "numeric";
+	property name = "name"         type = "string";
+	property name = "email"        type = "string";
+	property name = "password"     type = "string";
+	property name = "createdDate"  type = "date";
+	property name = "modifiedDate" type = "date";
 
 	/**
 	 * Constructor
@@ -135,7 +135,7 @@ So what would we need for registration:
 
 ```js
 // Properties
-property name="bcrypt" inject="@BCrypt";
+property name = "bcrypt" inject = "@BCrypt";
 ```
 
 ### New User
@@ -146,7 +146,7 @@ We will use a WireBox feature called virtual method providers.  It's really just
 /**
  * Create a new empty User
  */
-User function new() provider="User"{}
+User function new() provider = "User"{}
 ```
 
 This will tell WireBox to provide `User` objects whenever the `new()` method is called.
@@ -207,15 +207,15 @@ resources( "photos" );
 
 ### Created Routes
 
-| HTTP Verb | Route                 | Event             |
-|-----------|-----------------------|-------------------|
-| GET       | `/photos`             | `photos.index`    |
-| GET       | `/photos/new`         | `photos.new`      |
-| POST      | `/photos`             | `photos.create`   |
-| GET       | `/photos/:id`         | `photos.show`     |
-| GET       | `/photos/:id/edit`    | `photos.edit`     |
-| PUT/PATCH | `/photos/:id`         | `photos.update`   |
-| DELETE    | `/photos/:id`         | `photos.delete`   |
+| HTTP Verb | Route                 | Event             | Route Name        |
+|-----------|-----------------------|-------------------|-------------------|
+| GET       | `/photos`             | `photos.index`    | `photos`          |
+| GET       | `/photos/new`         | `photos.new`      | `photos.new`      |
+| POST      | `/photos`             | `photos.create`   | `photos`          |
+| GET       | `/photos/:id`         | `photos.show`     | `photos.process`  |
+| GET       | `/photos/:id/edit`    | `photos.edit`     | `photos.edit`     |
+| PUT/PATCH | `/photos/:id`         | `photos.update`   | `photos.process`  |
+| DELETE    | `/photos/:id`         | `photos.delete`   | `photos.process`  |
 
 This convention allows us to make very similar structures which can be easily grasped by anybody new to an MVC framework.
 
@@ -224,7 +224,7 @@ This convention allows us to make very similar structures which can be easily gr
 Let's create our registration flow.  We won't use all of the resourceful actions, so we can use the `actions` argument to select which ones we want.
 
 ```bash
-coldbox create handler name="registration" actions="new,create"
+coldbox create handler name = "registration" actions = "new,create"
 ```
 
 - The `create` action does not have a view, so let's clean that up: `delete views/registration/create.cfm`
@@ -234,7 +234,7 @@ coldbox create handler name="registration" actions="new,create"
 resources( resource : "registration", only : "new,create" );
 ```
 
-When working with routes it is essential to visualize them as they can become very complex.  We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`.  Now issue a reinit: `coldbox reinit` and refresh your browser.  You can navigate to: http://localhost:42518/route-visualizer and see all your wonderful routes.
+When working with routes it is essential to visualize them as they can become very complex.  We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`.  Now issue a reinit: `coldbox reinit` and refresh your browser.  You can navigate to: http: //localhost:42518/route-visualizer and see all your wonderful routes.
 
 ### BDD
 
@@ -251,7 +251,7 @@ Ok, we have generated our controller and added our routing.  Let's now begin to 
   - Create our stories and the happy path
   - Create any scenarios you can think of
 
-> Remember to create our test watcher for this test : `testbox watch bundles="tests.specs.integration.RegistrationTest" recurse=false`
+> Remember to create our test watcher for this test: `testbox watch bundles="tests.specs.integration.RegistrationTest" recurse=false`
 
 ```js
 component extends="tests.resources.BaseIntegrationSpec"{
@@ -287,10 +287,10 @@ component extends="tests.resources.BaseIntegrationSpec"{
 						var event = POST(
 							"/registration",
 							{
-								name                 : "BDD Test",
-								email                : "testadmin@soapbox.com",
-								password             : "password",
-								confirmPassword : "password"
+								name           : "BDD Test",
+								email          : "testadmin@soapbox.com",
+								password       : "password",
+								confirmPassword: "password"
 							}
 						);
 						var prc = event.getPrivateCollection();
@@ -358,53 +358,53 @@ Add the following into the registration form [`views/registration/new.cfm`](../s
 
 ```html
 <cfoutput>
-<div class="vh-100 d-flex justify-content-center align-items-center">
-	<div class="container">
-		<div class="d-flex justify-content-center">
-			<div class="col-8">
-				<div class="card">
-					<div class="card-header">
+<div class = "vh-100 d-flex justify-content-center align-items-center">
+<div class = "container">
+<div class = "d-flex justify-content-center">
+<div class = "col-8">
+<div class = "card">
+<div class = "card-header">
 						SoapBox Registration
 					</div>
-					<div class="card-body">
+					<div class = "card-body">
 						#html.startForm( action : "registration" )#
 
                             #html.inputField(
-								name : "name",
-								class : "form-control",
+								name        : "name",
+								class       : "form-control",
 								placeholder : "Robert Box",
-								groupWrapper : "div class='mb-3'",
-								label : "Full Name",
-								labelClass : "form-label"
+								groupWrapper: "div class='mb-3'",
+								label       : "Full Name",
+								labelClass  : "form-label"
 							)#
 
 							#html.emailField(
-								name : "email",
-								class : "form-control",
+								name        : "email",
+								class       : "form-control",
 								placeholder : "email@soapbox.com",
-								groupWrapper : "div class='mb-3'",
-								label : "Email",
-								labelClass : "form-label"
+								groupWrapper: "div class='mb-3'",
+								label       : "Email",
+								labelClass  : "form-label"
 							)#
 
 							#html.passwordField(
-								name : "password",
-								class : "form-control",
-								groupWrapper : "div class='mb-3'",
-								label : "Password",
-								labelClass : "form-label"
+								name        : "password",
+								class       : "form-control",
+								groupWrapper: "div class='mb-3'",
+								label       : "Password",
+								labelClass  : "form-label"
 							)#
 
 							#html.passwordField(
-								name : "confirmPassword",
-								class : "form-control",
-								groupWrapper : "div class='mb-3'",
-								label : "Confirm Password",
-								labelClass : "form-label"
+								name        : "confirmPassword",
+								class       : "form-control",
+								groupWrapper: "div class='mb-3'",
+								label       : "Confirm Password",
+								labelClass  : "form-label"
 							)#
 
-							<div class="form-group">
-								<button type="submit" class="btn btn-primary">Register</button>
+							<div    class = "form-group">
+							<button type  = "submit" class = "btn btn-primary">Register</button>
 							</div>
 						#html.endForm()#
 					</div>
@@ -416,7 +416,7 @@ Add the following into the registration form [`views/registration/new.cfm`](../s
 </cfoutput>
 ```
 
-Hit http://127.0.0.1:42518/registration/new
+Hit http: //127.0.0.1:42518/registration/new
 
 Now you will see the form.
 
@@ -425,31 +425,29 @@ Now you will see the form.
 Add a register link to the `navigation` partial for our registration page
 
 ```html
-<div class="collapse navbar-collapse" id="navbarSupportedContent">
+<div class = "collapse navbar-collapse" id = "navbarSupportedContent">
     <!--- Left Aligned --->
-    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-        <li class="nav-item">
+    <ul class = "navbar-nav me-auto mb-2 mb-lg-0">
+        <li class = "nav-item">
             <a
-                class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
-                href="#event.buildLink( 'registration.new' )#"
+                class = "nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
+                href  = "#event.buildLink( 'registration.new' )#"
                 >
                 Register
+            </a>
+        </li>
+        <li class="nav-item me-2">
+			<a
+                class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
+                href="#event.buildLink( 'about' )#"
+                >
+                About
             </a>
         </li>
     </ul>
 
     <!--- Right Aligned --->
-    <div class="ms-auto d-flex">
-        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item">
-                <a
-                    class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
-                    href="#event.buildLink( 'about' )#"
-                    >
-                    About
-                </a>
-            </li>
-        </ul>
+    <div class = "ms-auto d-flex">
     </div>
 </div>
 ```
@@ -465,7 +463,7 @@ We need to inject the `UserService` into the handler.
 
 ```js
 // DI
-property name="userService" inject;
+property name = "userService" inject;
 ```
 
 Before we code, let's pseudo code it:
@@ -485,7 +483,7 @@ Let's introduce another framework super type method: `populate()`.  This framewo
  * Populate an object from the incoming request collection
  *
  * @model                The name of the model to get and populate or the acutal model object. If you already have an instance of a model, then use the populateBean() method
- * @scope                Use scope injection instead of setters population. Ex: scope=variables.instance.
+ * @scope                Use scope injection instead of setters population. Ex: scope = variables.instance.
  * @trustedSetter        If set to true, the setter method will be called even if it does not exist in the object
  * @include              A list of keys to include in the population
  * @exclude              A list of keys to exclude in the population
@@ -504,15 +502,15 @@ Let's introduce another framework super type method: `populate()`.  This framewo
  */
 function populate(
     required model,
-    scope                        = "",
+            scope                = "",
     boolean trustedSetter        = false,
-    include                      = "",
-    exclude                      = "",
+            include              = "",
+            exclude              = "",
     boolean ignoreEmpty          = false,
-    nullEmptyInclude             = "",
-    nullEmptyExclude             = "",
+            nullEmptyInclude     = "",
+            nullEmptyExclude     = "",
     boolean composeRelationships = false,
-    struct memento               = getRequestCollection(),
+    struct  memento              = getRequestCollection(),
     string jsonstring,
     string xml,
     query qry,
@@ -534,8 +532,8 @@ function create( event, rc, prc ){
     flash.put(
         "notice",
         {
-            type    : "success",
-            message : "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!"
+            type   : "success",
+            message: "The user #encodeForHTML( prc.oUser.getEmail() )# with id: #prc.oUser.getId()# was created!"
         }
     );
 
@@ -547,7 +545,7 @@ Look at that, very clean.  The `populateModel()` even accepts a WireBox ID, so i
 
 The purpose of the Flash RAM is to allow variables to be persisted seamlessly from one request and be picked up in a subsequent request(s) by the same user. This allows you to hide implementation variables and create web flows or conversations in your ColdBox applications. So why not just use session or client variables? Well, most developers forget to clean them up and sometimes they just end up overtaking huge amounts of RAM and no clean cut definition is found for them. With Flash RAM, you have the facility already provided to you in an abstract and encapsulated format. This way, if you need to change your flows storage scope from session to client scope, the change is seamless and painless.
 
-> More info here: https://coldbox.ortusbooks.com/digging-deeper/flash-ram
+> More info here: https: //coldbox.ortusbooks.com/digging-deeper/flash-ram
 
 ### Update Layout With Flash
 
@@ -555,7 +553,7 @@ What is new to you here? Flash scope baby! Let's open the `layouts/Main.cfm` and
 
 ```html
 <cfif flash.exists( "notice" )>
-	<div class="alert alert-#flash.get( "notice" ).type#" role="alert">
+	<div class = "alert alert-#flash.get( "notice" ).type#" role = "alert">
         #flash.get( "notice" ).message#
     </div>
 </cfif>
@@ -565,11 +563,11 @@ Let's do a reinit and test again: `coldbox reinit`
 
 ### Verify Registration
 
-Hit the url: http://127.0.0.1:42518//registration/new and add a new user.
+Hit the url: http: //127.0.0.1:42518//registration/new and add a new user.
 
 If you didn't reinit the framework, you will see the following error `Messages: variable [BCRYPT] doesn't exist` Dependency Injection changes require a framework init.
 
-Now hit the url with frame reinit: http://127.0.0.1:42518//registration/new?fwreinit=1
+Now hit the url with frame reinit: http: //127.0.0.1:42518//registration/new?fwreinit=1
 
 Add a new user, and see that the password is now encrypted. Bcrypt encrypted passwords look like the following:
 
@@ -584,7 +582,7 @@ Check your tests, they should all pass again.
 We did not validate, naughty naughty naughty!  This is really important and we completely forgot.  This is going to be a self directed excercise:
 
 - Uncomment the stories in the BDD test so we can test different validation scenarios
-- Install `cbvalidation` https://coldbox-validation.ortusbooks.com/overview/installation
-- Add constraints to the `User.cfc` https://coldbox-validation.ortusbooks.com/overview/declaring-constraints/domain-object
-- Update the `registration` handler to validate the user once popualed: https://coldbox-validation.ortusbooks.com/overview/validating-constraints
-- Update the `new.cfm` view to showcase the errors if any: https://coldbox-validation.ortusbooks.com/overview/displaying-errors
+- Install `cbvalidation` https                                        : //coldbox-validation.ortusbooks.com/overview/installation
+- Add constraints to the `User.cfc` https                             : //coldbox-validation.ortusbooks.com/overview/declaring-constraints/domain-object
+- Update the `registration` handler to validate the user once popualed: https: //coldbox-validation.ortusbooks.com/overview/validating-constraints
+- Update the `new.cfm` view to showcase the errors if any             : https: //coldbox-validation.ortusbooks.com/overview/displaying-errors

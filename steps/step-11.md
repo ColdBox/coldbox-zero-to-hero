@@ -55,8 +55,8 @@ Let's create a firewall rule to secure our app:
     // You can store all your rules in this inline array
     "inline"   : [
         {
-            "whitelist"   : "",
-            "securelist"  : "rants/(new|create),poops,bumps",
+            "whitelist"   : "registration,login,logout,about",
+            "securelist"  : ".*",
             "match"       : "url",
             "roles"       : "",
             "permissions" : ""
