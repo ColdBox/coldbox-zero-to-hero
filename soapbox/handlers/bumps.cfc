@@ -11,6 +11,11 @@ component {
 	any function preHandler( event, rc, prc, action, eventArguments ){
 		param rc.id      = 0;
 		prc.oCurrentUser = auth().getUser();
+		// Validate Token
+		if ( !csrfVerify( rc.csrf ?: "" ) ) {
+			cbMessageBox().error( "Invalid Security Token!" );
+			return back();
+		}
 	}
 
 	/**

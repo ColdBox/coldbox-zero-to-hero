@@ -185,21 +185,18 @@ Steps:
 Steps:
 
  - [Start 13](steps/step-13.md)
- - [Start 14](steps/step-14.md)
 
 ### 13. Make Reactions Functional
 
-- Update the viewlet
-- Showcase HTML Helper and its usages
-- Create spec for tracking bumps in the User and ReactionService
-- Create the get reaction methods in the reaction service
-- Create the hasReaction methods in the user
-- Create new routes and handlers
-- Create the integration tests
-- Implement the handlers
+- [ ] Add Routing
+- [ ] Create bumps and poops handlers
+- [ ] Update `User.cfc`
+- [ ] Update `UserServices`
+- [ ] Create the reaction view handlers
 
 Steps:
- - [Start 15](steps/step-15.md)
+
+- [Start 14](steps/step-14.md)
 
 ### 14. Extra Credit
 

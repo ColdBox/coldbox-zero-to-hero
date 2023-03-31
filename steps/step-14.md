@@ -7,12 +7,16 @@ We will attach ourselves after the `rants` resource so we can create nice RESTFu
 ```js
 // Make sure this is BEFORE the `resources( "rants" )`
 // Bump Rants
-POST( "rants/:id/bumps" ).as( "bump.create" ).to( "bumps.create" );
-DELETE( "rants/:id/bumps" ).as( "bump.delete" ).to( "bumps.delete" );
+route( "rants/:id/bumps" )
+    .as( "bumps" )
+    .withAction( { "POST" : "create", "DELETE" : "delete" } )
+    .toHandler( "Bumps" );
 
 // Poop Rants
-POST( "rants/:id/poops" ).as( "bump.create" ).to( "poops.create" );
-DELETE( "rants/:id/poops" ).as( "bump.delete" ).to( "poops.delete" );
+route( "rants/:id/poops" )
+    .as( "poops" )
+    .withAction( { "POST" : "create", "DELETE" : "delete" } )
+    .toHandler( "poops" );
 ```
 
 ## Create `bumps` handler
@@ -235,43 +239,54 @@ ReactionService function unpoop( rantId, userId ){
 Update the partial so we can have a read-only mode for guests and a clickable buttons for logged in users:
 
 ```html
-<div class="card-footer">
+<!--- Bump & Poop --->
+<span class="d-flex gap-3">
+
+    <!--- Guest Read Only --->
     <cfif auth().guest()>
-        <button disabled class="btn btn-outline-dark">
+        <button class="btn btn-outline-dark" disabled>
             #args.rant.getBumps().len()# 👊
         </button>
+    <!-- User has Bumped -->
     <cfelseif auth().user().hasBumped( args.rant )>
-        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.bumps" )#" style="display: inline;">
-            <input type="hidden" name="_method" value="DELETE" />
+        #html.startForm( method : "delete", action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
+            #csrf()#
             <button class="btn btn-dark">
                 #args.rant.getBumps().len()# 👊
             </button>
-        </form>
+        #html.endForm()#
+    <!-- Fresh Bump -->
     <cfelse>
-        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.bumps" )#" style="display: inline;">
+        #html.startForm( action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
+            #csrf()#
             <button class="btn btn-outline-dark">
                 #args.rant.getBumps().len()# 👊
             </button>
-        </form>
+        #html.endForm()#
     </cfif>
 
+    <!--- Guest Read Only --->
     <cfif auth().guest()>
-        <button disabled class="btn btn-outline-dark">
+        <button class="btn btn-outline-dark" disabled>
             #args.rant.getPoops().len()# 💩
         </button>
+    <!-- User has Pooped -->
     <cfelseif auth().user().hasPooped( args.rant )>
-        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.poops" )#" style="display: inline;">
-            <input type="hidden" name="_method" value="DELETE" />
+        #html.startForm( method : "delete", action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
+            #csrf()#
             <button class="btn btn-dark">
                 #args.rant.getPoops().len()# 💩
             </button>
-        </form>
+        #html.endForm()#
+    <!-- Fresh Poop -->
     <cfelse>
-        <form method="POST" action="#event.buildLink( "rants.#args.rant.getId()#.poops" )#" style="display: inline;">
+        #html.startForm( action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
+            #csrf()#
             <button class="btn btn-outline-dark">
                 #args.rant.getPoops().len()# 💩
             </button>
-        </form>
+        #html.endForm()#
     </cfif>
-</div>
+
+</span>
 ```

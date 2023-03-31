@@ -36,17 +36,18 @@
 		<!--- Timestamp --->
 		<span class="badge text-bg-light">
 			#dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
-		on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
+			on #dateFormat( args.rant.getCreatedDate(), "mmm d, yyyy")#
 		</span>
 
 		<!--- Bump & Poop --->
 		<span class="d-flex gap-3">
 
-			<!--- Bump Logic --->
+			<!--- Guest Read Only --->
 			<cfif auth().guest()>
 				<button class="btn btn-outline-dark" disabled>
 					#args.rant.getBumps().len()# 👊
 				</button>
+			<!-- User has Bumped -->
 			<cfelseif auth().user().hasBumped( args.rant )>
 				#html.startForm( method : "delete", action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
 					#csrf()#
@@ -54,6 +55,7 @@
 						#args.rant.getBumps().len()# 👊
 					</button>
 				#html.endForm()#
+			<!-- Fresh Bump -->
 			<cfelse>
 				#html.startForm( action : "#event.route( 'bumps', { id: args.rant.getId() } )#" )#
 					#csrf()#
@@ -63,11 +65,12 @@
 				#html.endForm()#
 			</cfif>
 
-			<!--- Poop Logic --->
+			<!--- Guest Read Only --->
 			<cfif auth().guest()>
 				<button class="btn btn-outline-dark" disabled>
 					#args.rant.getPoops().len()# 💩
 				</button>
+			<!-- User has Pooped -->
 			<cfelseif auth().user().hasPooped( args.rant )>
 				#html.startForm( method : "delete", action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
 					#csrf()#
@@ -75,6 +78,7 @@
 						#args.rant.getPoops().len()# 💩
 					</button>
 				#html.endForm()#
+			<!-- Fresh Poop -->
 			<cfelse>
 				#html.startForm( action : "#event.route( 'poops', { id: args.rant.getId() } )#" )#
 					#csrf()#

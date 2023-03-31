@@ -46,12 +46,16 @@ component {
 		delete( "/logout" ).as( "logout" ).to( "sessions.delete" );
 
 		// Bump Rants
-		POST( "rants/:id/bumps" ).as( "bumps" ).to( "bumps.create" );
-		DELETE( "rants/:id/bumps" ).to( "bumps.delete" );
+		route( "rants/:id/bumps" )
+			.as( "bumps" )
+			.withAction( { "POST" : "create", "DELETE" : "delete" } )
+			.toHandler( "Bumps" );
 
 		// Poop Rants
-		POST( "rants/:id/poops" ).as( "poops" ).to( "poops.create" );
-		DELETE( "rants/:id/poops" ).to( "poops.delete" );
+		route( "rants/:id/poops" )
+			.as( "poops" )
+			.withAction( { "POST" : "create", "DELETE" : "delete" } )
+			.toHandler( "poops" );
 
 		// Rants
 		resources( "rants" );
