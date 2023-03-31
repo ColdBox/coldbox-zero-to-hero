@@ -189,7 +189,7 @@ Steps:
 ### 13. Make Reactions Functional
 
 - [ ] Add Routing
-- [ ] Create bumps and poops handlers
+- [ ] Create bumps and poops bdd and handlers
 - [ ] Update `User.cfc`
 - [ ] Update `UserServices`
 - [ ] Create the reaction view handlers

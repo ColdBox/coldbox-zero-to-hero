@@ -25,7 +25,34 @@ route( "rants/:id/poops" )
 coldbox create handler name="bumps" actions="create,delete" --noViews
 ```
 
-Now the code:
+Open the integration tests first:
+
+```js
+feature( "User bump Reactions", function(){
+    beforeEach( function( currentSpec ){
+        // Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+        setup();
+    } );
+
+    it( "can bump on a rant", function(){
+        var event = post(
+            route  = "/rants/#testRantId#/bumps",
+            params = { id : testRantId, csrf : csrfToken() }
+        );
+        var prc = event.getPrivateCollection();
+    } );
+
+    it( "can unbump a rant", function(){
+        var event = delete(
+            route  = "/rants/#testRantId#/bumps",
+            params = { id : testRantId, csrf : csrfToken() }
+        );
+        var prc = event.getPrivateCollection();
+    } );
+} );
+```
+
+Now the handler source to put it together
 
 
 ```js
@@ -68,6 +95,35 @@ component {
 ```bash
 coldbox create handler name="poops" actions="create,delete" --noViews
 ```
+
+Let's start again with our BDD tests:
+
+```js
+feature( "User Poop Reactions", function(){
+    beforeEach( function( currentSpec ){
+        // Setup as a new ColdBox request for this suite, VERY IMPORTANT. ELSE EVERYTHING LOOKS LIKE THE SAME REQUEST.
+        setup();
+    } );
+
+    it( "can poop on a rant", function(){
+        var event = post(
+            route  = "/rants/#testRantId#/poops",
+            params = { id : testRantId, csrf : csrfToken() }
+        );
+        var prc = event.getPrivateCollection();
+    } );
+
+    it( "can unpoop a rant", function(){
+        var event = delete(
+            route  = "/rants/#testRantId#/poops",
+            params = { id : testRantId, csrf : csrfToken() }
+        );
+        var prc = event.getPrivateCollection();
+    } );
+} );
+```
+
+Now the handler source:
 
 ```js
 /**

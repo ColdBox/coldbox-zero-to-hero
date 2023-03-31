@@ -25,13 +25,19 @@ component extends="tests.resources.BaseIntegrationSpec" {
 			} );
 
 			it( "can poop on a rant", function(){
-				var event = post( route = "poops", params = { id : testRantId, csrf : csrfToken() } );
-				var prc   = event.getPrivateCollection();
+				var event = post(
+					route  = "/rants/#testRantId#/poops",
+					params = { id : testRantId, csrf : csrfToken() }
+				);
+				var prc = event.getPrivateCollection();
 			} );
 
 			it( "can unpoop a rant", function(){
-				var event = delete( route = "poops", params = { id : testRantId, csrf : csrfToken() } );
-				var prc   = event.getPrivateCollection();
+				var event = delete(
+					route  = "/rants/#testRantId#/poops",
+					params = { id : testRantId, csrf : csrfToken() }
+				);
+				var prc = event.getPrivateCollection();
 			} );
 		} );
 	}
