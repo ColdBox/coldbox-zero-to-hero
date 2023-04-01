@@ -9,7 +9,7 @@
 
 # We pull the latest image, you can change this to a specific tag or CFML engine, which we recommend.
 # https://hub.docker.com/r/ortussolutions/commandbox
-FROM adoptopenjdk/openjdk11:slim
+FROM ortussolutions/commandbox
 
 # Metadata
 LABEL maintainer "Ortus Solutions <info@ortussolutions.com>"
@@ -26,25 +26,7 @@ RUN apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
     # Cleanup
     && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
     && apt-get clean autoclean \
-    && apt-get autoremove -y \
-    # CommandBox
-    && curl --location 'https://www.ortussolutions.com/parent/download/commandbox/type/bin' -o /tmp/box.zip \
-    && unzip /tmp/box.zip -d /usr/bin \
-    && chmod +x /usr/bin/box \
-	&& echo "$(box version) successfully installed" \
-    && box install commandbox-dotenv,commandbox-migrations,commandbox-docbox,commandbox-modules/commandbox-cflint,commandbox-cfformat \
-    # Clear downloaded artifacts
-    && box artifacts clean --force \
-    # Cleanup CommandBox files
-    && rm -rfv ~/.CommandBox/cfml/system/config/server-icons/*.* \
-    # Remove any temp files
-    && rm -rf ~/.CommandBox/temp/* \
-    # Remove any log files
-    && rm -rf ~/.CommandBox/logs/* \
-    # Remove cachebox caches
-    && rm -rf ~/.CommandBox/cfml/system/mdCache/* \
-    # Remove the felix cache
-    && rm -rf ~/.CommandBox/engine/cfml/cli/lucee-server/felix-cache/*
+    && apt-get autoremove -y
 
 # Install Lucee Extensions (Optional)
 # UUID (Package ID);name=Name Of Extension;version=bundle.version.number (,[UUID;name;version])
