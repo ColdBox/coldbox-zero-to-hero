@@ -16,18 +16,13 @@ LABEL maintainer "Ortus Solutions <info@ortussolutions.com>"
 LABEL repository "https://github.com/Ortus-Solutions/docker-commandbox"
 
 # Utility Packages for our buidling goodness
-ENV PACKAGES "ca-certificates openssl openssh-client gnupg curl jq git zip unzip"
+ENV PACKAGES "ca-certificates openssl openssh-client curl jq git zip unzip mysql-server"
 
 # Install Common Dependency Binaries
-RUN apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
-    # Install Docker CLI
-    mkdir -m 0755 -p /etc/apt/keyrings \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg \
-    echo \
-    "deb [arch="$(dpkg --print-architecture)" signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-    "$(. /etc/os-release && echo "$VERSION_CODENAME")" stable" | \
-    tee /etc/apt/sources.list.d/docker.list > /dev/null \
-    apt-get update && apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin \
+RUN echo "mysql-server mysql-server/root-pass password soapbox" | sudo debconf-set-selections \
+    && echo "mysql-server mysql-server/re-root-pass password soapbox" | sudo debconf-set-selections \
+    && DEBIAN_FRONTEND=noninteractive \
+    && apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
     # NodeJS
     #&& curl -sL https://deb.nodesource.com/setup_16.x | bash - \
     #&& apt-get update && apt-get install --no-install-recommends -y nodejs \
