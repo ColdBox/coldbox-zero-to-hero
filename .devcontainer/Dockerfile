@@ -9,14 +9,14 @@
 
 # We pull the latest image, you can change this to a specific tag or CFML engine, which we recommend.
 # https://hub.docker.com/r/ortussolutions/commandbox
-FROM mcr.microsoft.com/devcontainers/universal:focal
+FROM adoptopenjdk/openjdk11:slim
 
 # Metadata
 LABEL maintainer "Ortus Solutions <info@ortussolutions.com>"
 LABEL repository "https://github.com/Ortus-Solutions/docker-commandbox"
 
 # Utility Packages for our buidling goodness
-ENV PACKAGES "ca-certificates openssl haveged openssh-client jq git zip unzip ant"
+ENV PACKAGES "ca-certificates openssl openssh-client jq git zip unzip"
 
 # Install Common Dependency Binaries
 RUN apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
