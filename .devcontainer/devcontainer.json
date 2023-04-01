@@ -6,8 +6,7 @@
 	},
 
 	"hostRequirements": {
-		"cpus": 4,
-        "memory" : "1gb"
+		"cpus": 4
 	},
 
     "portsAttributes": {
