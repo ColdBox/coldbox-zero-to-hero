@@ -1,0 +1,59 @@
+{
+    "name" : "Zero to Hero",
+
+    "build": {
+		"dockerfile": "Dockerfile"
+	},
+
+	"hostRequirements": {
+		"cpus": 4,
+        "memory" : "1gb"
+	},
+
+    "portsAttributes": {
+        "42518": {
+            "label": "Application"
+        }
+    },
+    "forwardPorts": [42518],
+
+    "waitFor": "onCreateCommand",
+	"updateContentCommand": "",
+    "postCreateCommand": "",
+    "postAttachCommand": {
+    },
+
+	"customizations": {
+        "codespaces": {
+            "openFiles": [
+                "OUTLINE.md",
+                "PREREQUISITES.md"
+            ]
+        },
+        "vscode": {
+            "extensions": [
+                "adrianwilczynski.alpine-js-intellisense",
+                "autoalignment.auto-alignment",
+                "equinusocio.vsc-community-material-theme",
+                "esbenp.prettier-vscode",
+                "formulahendry.auto-close-tag",
+                "formulahendry.auto-rename-tag",
+                "KamasamaK.vscode-cfml",
+                "mhutchie.git-graph",
+                "ms-azuretools.vscode-docker",
+                "mtxr.sqltools",
+                "mtxr.sqltools-driver-mysql",
+                "mtxr.sqltools-driver-sqlite",
+                "ortus-solutions.vscode-coldbox",
+                "ortus-solutions.vscode-commandbox",
+                "ortus-solutions.vscode-testbox",
+                "PKief.material-icon-theme",
+                "shardulm94.trailing-spaces",
+                "sleistner.vscode-fileutils",
+                "stevencl.adddoccomments",
+                "VisualStudioExptTeam.vscodeintellicode"
+            ]
+        }
+    }
+
+}
