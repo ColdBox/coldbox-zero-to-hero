@@ -16,18 +16,18 @@ Please make sure you have a computer that is modern. No running windows 95, 7 or
 
 * https://git-scm.com
 
-### [Java](https://adoptium.net/) (Version 11)
+## [Java](https://adoptium.net/) (Version 11)
 
 This can be downloaded bundled with CommandBox if needed
 
 * https://adoptium.net/
 * https://www.ortussolutions.com/products/commandbox
 
-### [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 5.\*)
+## [CommandBox CLI](https://www.ortussolutions.com/products/commandbox#download) (Version 5.\*)
 
 * https://www.ortussolutions.com/products/commandbox#download
 
-#### CommandBox Modules
+### CommandBox Modules
 
 Once CommandBox is installed we will need to install some global modules. Start by opening a box shell by typing `box`.  Once in the shell you can type:
 
@@ -35,15 +35,11 @@ Once CommandBox is installed we will need to install some global modules. Start 
 install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig
 ```
 
-### MySQL Server (8) or Docker
+## MySQL Server (8) or Docker
 
-You need to have a running MySQL Server locally.
-If you don't have one already on your system, you can get started easily with
-[Docker](https://www.docker.com/community-edition#/download) or download [MySQL](https://dev.mysql.com/downloads/mysql/) for your operating system.
+You need to have a running MySQL Server 8+ either via [Docker](https://www.docker.com/community-edition#/download) or download [MySQL](https://dev.mysql.com/downloads/mysql/) for your operating system.
 
-
-You can use the `docker-compose` command from the root directory with `docker-compose.yml` file
-Or downloadable from [docker-compose.yml](https://gist.github.com/gpickin/e724fc54b0fff733e46dda318772dbc8)
+We have included a `docker-compose.yml` file in the `db` directory you can use to startup your database via Docker.
 
 **IMPORTANT: Please run this command before the workshop to download the files in advance.**
 
@@ -53,24 +49,7 @@ docker-compose stop
 docker-compose start
 ```
 
-The docker compose uses port `3306`. If you have MySQL already running on your machine, you can update the port in the docker compose by changing the port line to this and now your port will be `33306` instead of the usual `3306`.
-
-```bash
-- "127.0.0.1:33306:3306"
-```
-
-You can also use the following command will start a MySQL Server with docker.
-
-```bash
-docker run -d --name soapbox -p 3306:3306 -e MYSQL_DATABASE=soapbox -e MYSQL_ROOT_PASSWORD=soapbox mysql:5.7
-```
-
-After you have created the container, you can start and stop it using the following commands:
-
-```bash
-docker start soapbox
-docker stop soapbox
-```
+The docker compose uses port `4306`.
 
 **Note**: Without a volume, your data will only last as long as your container does... this is why we recommend the Docker Compose, since it will automatically create and use a volume for you.
 
@@ -107,12 +86,3 @@ If using Sublime, please install the following extensions:
 * Enhanced HTML and CFML
 * DockerFile Syntax Highlighting
 * Yaml
-
-## Useful Resources
-
-* ColdBox Api Docs: https://apidocs.ortussolutions.com/coldbox/5.2.0/index.html
-* ColdBox Docs: https://coldbox.ortusbooks.com
-* WireBox Docs: https://wirebox.ortusbooks.com
-* TestBox Docs: https://testbox.ortusbooks.com
-* TestBox Api Docs: https://apidocs.ortussolutions.com/testbox/2.8.0+191/index.html
-* Migrations: https://www.forgebox.io/view/commandbox-migrations
