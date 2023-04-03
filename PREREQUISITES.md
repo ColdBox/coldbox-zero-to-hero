@@ -35,13 +35,12 @@ Once CommandBox is installed we will need to install some global modules. Start 
 install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig
 ```
 
-### MySQL Server (5.7)
+### MySQL Server (8) or Docker
 
 You need to have a running MySQL Server locally.
 If you don't have one already on your system, you can get started easily with
 [Docker](https://www.docker.com/community-edition#/download) or download [MySQL](https://dev.mysql.com/downloads/mysql/) for your operating system.
 
-> **Important** : Please make sure you have version 5.7 and not 5.8.  The JDBC drivers in Lucee and ACF have conflicting issues with MySQL version 5.8.
 
 You can use the `docker-compose` command from the root directory with `docker-compose.yml` file
 Or downloadable from [docker-compose.yml](https://gist.github.com/gpickin/e724fc54b0fff733e46dda318772dbc8)
