@@ -19,30 +19,16 @@ LABEL repository "https://github.com/Ortus-Solutions/docker-commandbox"
 ENV PACKAGES "ca-certificates openssl openssh-client curl jq git zip unzip mysql-server"
 
 # Install Common Dependency Binaries
-RUN echo "mysql-server mysql-server/root-pass password soapbox" | sudo debconf-set-selections \
-    && echo "mysql-server mysql-server/re-root-pass password soapbox" | sudo debconf-set-selections \
+RUN echo "mysql-community-server mysql-community-server/root-pass password soapbox" | debconf-set-selections \
+    && echo "mysql-community-server mysql-community-server/re-root-pass password soapbox" | debconf-set-selections \
     && DEBIAN_FRONTEND=noninteractive \
     && apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
-    # NodeJS
-    #&& curl -sL https://deb.nodesource.com/setup_16.x | bash - \
-    #&& apt-get update && apt-get install --no-install-recommends -y nodejs \
+    # Create the SoapBox Database
+    && mysql -uroot -psoapbox -e 'CREATE DATABASE soapbox;' \
     # Cleanup
     && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
     && apt-get clean autoclean \
     && apt-get autoremove -y
-
-# Install Lucee Extensions (Optional)
-# UUID (Package ID);name=Name Of Extension;version=bundle.version.number (,[UUID;name;version])
-# These are available from https://download.lucee.org
-# Example: 99A4EF8D-F2FD-40C8-8FB8C2E67A4EEEB6;name=Microsoft SQL Server (Vendor Microsoft);version=6.4.0.jre8
-# ENV LUCEE_EXTENSIONS ""
-
-# Install Adobe 2021 Modules (Optional)
-# https://helpx.adobe.com/coldfusion/using/coldfusion-package-manager.html
-# ENV CFPM_INSTALL=
-
-# ColdBox Healthcheck
-# ENV HEALTHCHECK_URI "http://127.0.0.1:${PORT}/healthcheck"
 
 # Copy application files to root - Uses .dockerignore to ignore files
 COPY ./ ${APP_DIR}/
