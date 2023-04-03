@@ -16,12 +16,14 @@ LABEL maintainer "Ortus Solutions <info@ortussolutions.com>"
 LABEL repository "https://github.com/Ortus-Solutions/docker-commandbox"
 
 # Utility Packages for our buidling goodness
-ENV PACKAGES "ca-certificates openssl openssh-client curl jq git zip unzip mysql-server"
+ENV PACKAGES "ca-certificates openssl openssh-client mysql-server"
 
 # Install Common Dependency Binaries
 RUN echo "mysql-community-server mysql-community-server/root-pass password soapbox" | debconf-set-selections \
     && echo "mysql-community-server mysql-community-server/re-root-pass password soapbox" | debconf-set-selections \
     && export DEBIAN_FRONTEND=noninteractive \
+    && export RUNLEVEL=1 \
+    && printf '#!/bin/sh\nexit 0' > /usr/sbin/policy-rc.d \
     && apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
     # Create the SoapBox Database
     && service mysql start \
