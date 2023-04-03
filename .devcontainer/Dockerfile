@@ -21,9 +21,10 @@ ENV PACKAGES "ca-certificates openssl openssh-client curl jq git zip unzip mysql
 # Install Common Dependency Binaries
 RUN echo "mysql-community-server mysql-community-server/root-pass password soapbox" | debconf-set-selections \
     && echo "mysql-community-server mysql-community-server/re-root-pass password soapbox" | debconf-set-selections \
-    && DEBIAN_FRONTEND=noninteractive \
+    && export DEBIAN_FRONTEND=noninteractive \
     && apt-get update && apt-get install --no-install-recommends -y ${PACKAGES} \
     # Create the SoapBox Database
+    && service mysql start \
     && mysql -uroot -psoapbox -e 'CREATE DATABASE soapbox;' \
     # Cleanup
     && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
