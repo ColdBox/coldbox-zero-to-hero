@@ -16,7 +16,7 @@ LABEL maintainer "Ortus Solutions <info@ortussolutions.com>"
 LABEL repository "https://github.com/Ortus-Solutions/docker-commandbox"
 
 # Utility Packages for our buidling goodness
-ENV PACKAGES "ca-certificates openssl openssh-client mysql-server"
+ENV PACKAGES "ca-certificates openssl openssh-client git mysql-server"
 
 # Install Common Dependency Binaries
 RUN echo "mysql-community-server mysql-community-server/root-pass password soapbox" | debconf-set-selections \
