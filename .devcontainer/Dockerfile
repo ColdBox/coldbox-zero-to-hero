@@ -28,6 +28,7 @@ RUN echo "mysql-community-server mysql-community-server/root-pass password soapb
     # Create the SoapBox Database
     && service mysql start \
     && mysql -uroot -psoapbox -e 'CREATE DATABASE soapbox;' \
+    && service mysql restart \
     # Cleanup
     && rm -rf /var/lib/{apt,dpkg,cache,log}/ \
     && apt-get clean autoclean \
