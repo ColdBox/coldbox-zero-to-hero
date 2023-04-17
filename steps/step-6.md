@@ -141,7 +141,7 @@ This will populate the `users` table with 25 mocked users.  Please note that we 
 To run this seeder, just do:
 
 ```bash
-migrate seed run TestFixtures
+migrate seed run **TestFixtures**
 ```
 
 And now we got data, verify the database that these records where created.

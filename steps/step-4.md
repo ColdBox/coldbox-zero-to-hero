@@ -79,7 +79,7 @@ We will use this file as is and just create the necessary environment variables 
 
 ```sh
 # Database Information
-DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:4306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true
+DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:4306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true&allowPublicKeyRetrieval=true
 DB_CLASS=com.mysql.jdbc.Driver
 DB_BUNDLENAME=com.mysql.cj
 DB_BUNDLEVERSION=8.0.30
@@ -197,6 +197,8 @@ We highly encourage you install the SQL Tools module from VSCode: https://vscode
 > Please note the port has an extra 0 at the end.  This is needed by any tool connecting to MySQL using their new authentication protocols.
 
 Just open the tools, double click the `soapbox` connection and if succesful then we are ready to init our database.
+
+> Warning: If you get an error "Driver MySQL is not installed", open the VSCode extensions panel and search for sqltools drivers: `@tag:sqltools-driver`
 
 ## Install Migrations
 

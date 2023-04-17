@@ -1,6 +1,6 @@
 # ColdBox From Zero to Hero (CBOX-120)
 
-In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 7. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points, integratino testing and much more.
+In this workshop you will be introduced to the latest version of the most popular CFML MVC framework; ColdBox 7. We will go over the basics of installation, templating and configuration to the most advanced features like HMVC development with modules, RESTFul APIs, interception points, integration testing and much more.
 
 ## Prerequisites
 
@@ -23,24 +23,24 @@ This course at this time is using the following dependencies:
 
 ![SoapBox](steps/images/soapbox.png)
 
-This course will focus on building a real twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
+This course will focus on building a real Twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
 
 > (All commands assume we are in the `box` shell unless stated otherwise.)
 
 ### 1. Course Introduction
 
-- [ ] Introductions
-- [ ] Software Pre-Requisites
-- [ ] Course Expectations
-- [ ] How many have used ColdBox/MVC before?
-- [ ] How many have used BDD/TDD approaches before?
+- [√] Introductions
+- [√] Software Pre-Requisites
+- [√] Course Expectations
+- [√] How many have used ColdBox/MVC before?
+- [√] How many have used BDD/TDD approaches before?
 
 ### 2. App Skeleton
 
-- [ ] Scaffold our application
-- [ ] Configure the Test Harness
-- [ ] Run our initial tests
-- [ ] CommandBox Test Watchers
+- [√] Scaffold our application
+- [√] Configure the Test Harness
+- [√] Run our initial tests
+- [√] CommandBox Test Watchers
 
 Steps: [Start](steps/step-1.md)
 
@@ -48,15 +48,15 @@ Steps: [Start](steps/step-1.md)
 
 What we will do:
 
-- [ ] ColdBox.cfc Intro
-- [ ] Development Settings
-- [ ] Discovering application router
-- [ ] Discovering Handlers
-- [ ] What is the Request Context
-- [ ] what is the Framework Super Type
-- [ ] Views/Layouts by convention
-- [ ] Reiniting your application
-- [ ] Creating views and testing them
+- [√] ColdBox.cfc Intro
+- [√] Development Settings
+- [√] Discovering application router
+- [√] Discovering Handlers
+- [√] What is the Request Context
+- [√] what is the Framework Super Type
+- [√] Views/Layouts by convention
+- [√] Reiniting your application
+- [√] Creating views and testing them
 
 Steps: [Start](steps/step-2.md)
 
@@ -64,22 +64,22 @@ Steps: [Start](steps/step-2.md)
 
 What we will do:
 
-- [ ] Adding custom css
-- [ ] Adding navigation to our layout
-- [ ] View partials
-- [ ] Refactoring our layout to use partials
+- [√] Adding custom css
+- [√] Adding navigation to our layout
+- [√] View partials
+- [√] Refactoring our layout to use partials
 
 Steps: [Start](steps/step-3.md)
 
 ### 5. Database Migrations
 
-- [ ] Intro to Migrations
-- [ ] Installation of migration modules
-- [ ] Migration Commands
-- [ ] Configure our environment variables
-- [ ] Creating and running our first migration
-- [ ] Configure application and test harness for database access
-- [ ] Setup Test Harness and Base Spec
+- [√] Intro to Migrations
+- [√] Installation of migration modules
+- [√] Migration Commands
+- [√] Configure our environment variables
+- [√] Creating and running our first migration
+- [√] Configure application and test harness for database access
+- [√] Setup Test Harness and Base Spec
 
 Steps:
 

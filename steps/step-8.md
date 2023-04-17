@@ -64,7 +64,7 @@ Now that we have our module installed, let's continue.
 Let's create our `User` object:
 
 ```bash
-coldbox create model name = "User" properties = "id,email,password,createdDate,modifiedDate"
+coldbox create model name = "User" properties = "id,name,email,password,createdDate,modifiedDate"
 ```
 
 This will create the `models/User.cfc` but also the unit test.  Open them both and let's add some compile validations and some nice helpers:

@@ -1,7 +1,5 @@
 # Dependencies
-src/coldbox
-src/modules
-src/testbox
+src/**
 
 # Completed App
 app/coldbox

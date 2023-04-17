@@ -4,7 +4,6 @@ Create a folder for your app on your hard drive called `soapbox`.  Our just use 
 
 ## Scaffold the application
 
-
 ```sh
 cd src
 coldbox create app name=soapbox skeleton=cbtemplate-advanced-script@be

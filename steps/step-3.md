@@ -111,14 +111,16 @@ Our layout should end up like this:
 
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
 
-                    <li class="nav-item me-2">
-                        <a
-                            class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
-                            href="#event.buildLink( 'about' )#"
-                            >
-                            About
-                        </a>
-                    </li>
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item me-2">
+                            <a
+                                class="nav-link #event.routeIs( "about" ) ? 'active' : ''#"
+                                href="#event.buildLink( 'about' )#"
+                                >
+                                About
+                            </a>
+                        </li>
+                    </ul>
 
                 </div>
             </div>
@@ -200,16 +202,14 @@ View partials, are just that, partial views or includes that can be rendered in 
 
 ```bash
 coldbox create view partials/navigation
-coldbox create view partials/footer
+
 ```
 
 Then we can add partials into our layout:
 
 ```html
 <!---Top NavBar --->
-<header>
-    #view( "partials/navigation" )#
-</header>
+#view( "partials/navigation" )#
 
 <!---Container And Views --->
 <main class="flex-shrink-0">
@@ -257,9 +257,7 @@ This is the final layout for this section
 	class="d-flex flex-column h-100"
 >
 	<!---Top NavBar --->
-	<header>
-		#view( "partials/navigation" )#
-	</header>
+	#view( "partials/navigation" )#
 
 	<!---Container And Views --->
 	<main class="flex-shrink-0">
