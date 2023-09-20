@@ -2,7 +2,7 @@
     "sqltools.connections": [
         {
             "mysqlOptions": {
-                "authProtocol": "xprotocol"
+                "enableSsl": "Disabled"
             },
             "previewLimit": 50,
             "server": "127.0.0.1",
@@ -12,7 +12,8 @@
             "database": "soapbox",
             "username": "root",
             "connectionTimeout": 2000,
-            "askForPassword": true
+            "askForPassword": true,
+            "socketPath": "/var/run/mysqld/mysqld.sock"
         }
     ]
 }
