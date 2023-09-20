@@ -32,7 +32,7 @@ This can be downloaded bundled with CommandBox if needed
 Once CommandBox is installed we will need to install some global modules. Start by opening a box shell by typing `box`.  Once in the shell you can type:
 
 ```bash
-install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig
+install commandbox-dotenv,commandbox-migrations,commandbox-cfconfig,coldbox-cli
 ```
 
 ## MySQL Server (8) or Docker
