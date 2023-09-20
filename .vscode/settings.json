@@ -5,8 +5,8 @@
                 "authProtocol": "xprotocol"
             },
             "previewLimit": 50,
-            "server": "localhost",
-            "port": 43060,
+            "server": "127.0.0.1",
+            "port": 33060,
             "driver": "MySQL",
             "name": "soapbox",
             "database": "soapbox",
