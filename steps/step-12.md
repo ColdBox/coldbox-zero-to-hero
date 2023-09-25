@@ -243,3 +243,7 @@ array function getRants(){
     return variables.rants;
 }
 ```
+
+FYI - The firewall does not have the User profile whitelisted, so only logged in users can see a user profile.
+
+Challenge: Can you update the filewall to let users profiles be visible for logged in and guest users?
