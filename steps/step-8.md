@@ -1,22 +1,22 @@
 # 8 - User Registration
 
-Let's build our user registration system.  For this, let's review our user acceptance criteria stories:
+Let's build our user registration system. For this, let's review our user acceptance criteria stories:
 
 ```html
-- I want to be able to display the new user registration form
-- I want to be able to register users in the system
+- I want to be able to display the new user registration form - I want to be
+able to register users in the system
 ```
 
 So what would we need to complete these stories, make an inventory:
 
-- [ ] A `User` object to model our user.  We already created a migration for it.
+- [ ] A `User` object to model our user. We already created a migration for it.
 - [ ] Update our `UserService` so we can retrieve new users (`new()`) and save new users (`create()`)
 - [ ] A handler and routing to control the display of our new registration form and the saving of such form.
 - [ ] Hmm, since we are storing users now, we don't want to store passwords in plain text, so I guess we need to update our story to showcase storing secure passwords.
 
 ```html
-- I want to be able to display the new user registration form
-- I want to be able to register users in the system securely using bcrypt
+- I want to be able to display the new user registration form - I want to be
+able to register users in the system securely using bcrypt
 ```
 
 ## Install [BCyrpt](https://github.com/coldbox-modules/cbox-bcrypt)
@@ -67,7 +67,7 @@ Let's create our `User` object:
 coldbox create model name = "User" properties = "id,name,email,password,createdDate,modifiedDate"
 ```
 
-This will create the `models/User.cfc` but also the unit test.  Open them both and let's add some compile validations and some nice helpers:
+This will create the `models/User.cfc` but also the unit test. Open them both and let's add some compile validations and some nice helpers:
 
 ### `User.cfc`
 
@@ -105,26 +105,26 @@ component accessors="true" {
 ### `UserTest.cfc`
 
 ```js
-describe( "User Suite", function(){
-    it( "can be created", function(){
-        expect( model ).toBeComponent();
-    } );
+describe("User Suite", function () {
+  it("can be created", function () {
+    expect(model).toBeComponent();
+  });
 
-    it( "can check if it's a new user", function(){
-        expect( model.isLoaded() ).toBeFalse();
-    } );
+  it("can check if it's a new user", function () {
+    expect(model.isLoaded()).toBeFalse();
+  });
 
-    it( "can check if it's a persisted user", function(){
-        expect( model.setId( 1 ).isLoaded() ).toBeTrue();
-    } );
-} );
+  it("can check if it's a persisted user", function () {
+    expect(model.setId(1).isLoaded()).toBeTrue();
+  });
+});
 ```
 
 This is good enough for now, it validates that a user can be created and it can check if the `isLoaded()` works.
 
 ## User Service
 
-In this step, we will NOT be doing any unit tests.  Why? Well, we will focus on the stories above.  The stories don't really care how it is implemented as long as it is implemented.  This approach remember is called BDD (Behavior Driven Development), we focus on what a system should do and not on how it does it.  We will test the entire flow via our integration tests.
+In this step, we will NOT be doing any unit tests. Why? Well, we will focus on the stories above. The stories don't really care how it is implemented as long as it is implemented. This approach remember is called BDD (Behavior Driven Development), we focus on what a system should do and not on how it does it. We will test the entire flow via our integration tests.
 
 So what would we need for registration:
 
@@ -140,7 +140,7 @@ property name = "bcrypt" inject = "@BCrypt";
 
 ### New User
 
-We will use a WireBox feature called virtual method providers.  It's really just a shortcut to calling `getInstance( "User" )` to produce `User` objects (https://wirebox.ortusbooks.com/advanced-topics/providers/virtual-provider-lookup-methods) so we don't have to type much:
+We will use a WireBox feature called virtual method providers. It's really just a shortcut to calling `getInstance( "User" )` to produce `User` objects (https://wirebox.ortusbooks.com/advanced-topics/providers/virtual-provider-lookup-methods) so we don't have to type much:
 
 ```js
 /**
@@ -189,7 +189,7 @@ User function create( required user ){
 }
 ```
 
-Go verify the tests, let's see if we broke something.  Remember we are NOT building unit tests for these.
+Go verify the tests, let's see if we broke something. Remember we are NOT building unit tests for these.
 
 > Question: Do you need to do the timestamps?
 
@@ -197,31 +197,31 @@ We have completed our models, let's move on to our resourceful events and views.
 
 ## Resourceful Event Handlers
 
-For the majority of our handler concerns we will use the standard called resourceful routes (https://coldbox.ortusbooks.com/the-basics/routing/routing-dsl/resourceful-routes).  This is a standard that exists in many MVC freameworks in many languages.  It allows a framework to keep routing, controllers and actions very consistent.
+For the majority of our handler concerns we will use the standard called resourceful routes (https://coldbox.ortusbooks.com/the-basics/routing/routing-dsl/resourceful-routes). This is a standard that exists in many MVC freameworks in many languages. It allows a framework to keep routing, controllers and actions very consistent.
 
-Resourceful routes are convention based to help you create routing with less boilerplate.  You declare your resources in your routers and ColdBox will take care of creating the routes for you.  In your router you can use the `resources()` or the `apiResources()` methods.  Let's check out what a simple router call can do:
+Resourceful routes are convention based to help you create routing with less boilerplate. You declare your resources in your routers and ColdBox will take care of creating the routes for you. In your router you can use the `resources()` or the `apiResources()` methods. Let's check out what a simple router call can do:
 
 ```js
-resources( "photos" );
+resources("photos");
 ```
 
 ### Created Routes
 
-| HTTP Verb | Route                 | Event             | Route Name        |
-|-----------|-----------------------|-------------------|-------------------|
-| GET       | `/photos`             | `photos.index`    | `photos`          |
-| GET       | `/photos/new`         | `photos.new`      | `photos.new`      |
-| POST      | `/photos`             | `photos.create`   | `photos`          |
-| GET       | `/photos/:id`         | `photos.show`     | `photos.process`  |
-| GET       | `/photos/:id/edit`    | `photos.edit`     | `photos.edit`     |
-| PUT/PATCH | `/photos/:id`         | `photos.update`   | `photos.process`  |
-| DELETE    | `/photos/:id`         | `photos.delete`   | `photos.process`  |
+| HTTP Verb | Route              | Event           | Route Name       |
+| --------- | ------------------ | --------------- | ---------------- |
+| GET       | `/photos`          | `photos.index`  | `photos`         |
+| GET       | `/photos/new`      | `photos.new`    | `photos.new`     |
+| POST      | `/photos`          | `photos.create` | `photos`         |
+| GET       | `/photos/:id`      | `photos.show`   | `photos.process` |
+| GET       | `/photos/:id/edit` | `photos.edit`   | `photos.edit`    |
+| PUT/PATCH | `/photos/:id`      | `photos.update` | `photos.process` |
+| DELETE    | `/photos/:id`      | `photos.delete` | `photos.process` |
 
 This convention allows us to make very similar structures which can be easily grasped by anybody new to an MVC framework.
 
 ### Registration Resource
 
-Let's create our registration flow.  We won't use all of the resourceful actions, so we can use the `actions` argument to select which ones we want.
+Let's create our registration flow. We won't use all of the resourceful actions, so we can use the `actions` argument to select which ones we want.
 
 ```bash
 coldbox create handler name = "registration" actions = "new,create"
@@ -234,18 +234,18 @@ coldbox create handler name = "registration" actions = "new,create"
 resources( resource : "registration", only : "new,create" );
 ```
 
-When working with routes it is essential to visualize them as they can become very complex.  We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`.  Now issue a reinit: `coldbox reinit` and refresh your browser.  You can navigate to: http: //localhost:42518/route-visualizer and see all your wonderful routes.
+When working with routes it is essential to visualize them as they can become very complex. We have just the module for that. Go to your shell and install our awesome route visualizer: `install route-visualizer --saveDev`. Now issue a reinit: `coldbox reinit` and refresh your browser. You can navigate to: http: //localhost:42518/route-visualizer and see all your wonderful routes.
 
 ### BDD
 
-Ok, we have generated our controller and added our routing.  Let's now begin to satisfy two stories:
+Ok, we have generated our controller and added our routing. Let's now begin to satisfy two stories:
 
 ```html
-- I want to be able to display the new user registration form
-- I want to be able to register users in the system securely using bcrypt
+- I want to be able to display the new user registration form - I want to be
+able to register users in the system securely using bcrypt
 ```
 
-- Those look great, but also remember that stories can have multiple scenarios.  Can you think of some scenarios?
+- Those look great, but also remember that stories can have multiple scenarios. Can you think of some scenarios?
 - Open [`tests/specs/integration/RegistrationTest.cfc`](../src/tests/specs/integration/RegistrationTest.cfc) and modify it accordingly:
   - Update the `extends` to match our base test case
   - Create our stories and the happy path
@@ -358,61 +358,35 @@ Add the following into the registration form [`views/registration/new.cfm`](../s
 
 ```html
 <cfoutput>
-<div class = "vh-100 d-flex justify-content-center align-items-center">
-<div class = "container">
-<div class = "d-flex justify-content-center">
-<div class = "col-8">
-<div class = "card">
-<div class = "card-header">
-						SoapBox Registration
-					</div>
-					<div class = "card-body">
-						#html.startForm( action : "registration" )#
+  <div class="vh-100 d-flex justify-content-center align-items-center">
+    <div class="container">
+      <div class="d-flex justify-content-center">
+        <div class="col-8">
+          <div class="card">
+            <div class="card-header">SoapBox Registration</div>
+            <div class="card-body">
+              #html.startForm( action : "registration" )# #html.inputField( name
+              : "name", class : "form-control", placeholder : "Robert Box",
+              groupWrapper: "div class='mb-3'", label : "Full Name", labelClass
+              : "form-label" )# #html.emailField( name : "email", class :
+              "form-control", placeholder : "email@soapbox.com", groupWrapper:
+              "div class='mb-3'", label : "Email", labelClass : "form-label" )#
+              #html.passwordField( name : "password", class : "form-control",
+              groupWrapper: "div class='mb-3'", label : "Password", labelClass :
+              "form-label" )# #html.passwordField( name : "confirmPassword",
+              class : "form-control", groupWrapper: "div class='mb-3'", label :
+              "Confirm Password", labelClass : "form-label" )#
 
-                            #html.inputField(
-								name        : "name",
-								class       : "form-control",
-								placeholder : "Robert Box",
-								groupWrapper: "div class='mb-3'",
-								label       : "Full Name",
-								labelClass  : "form-label"
-							)#
-
-							#html.emailField(
-								name        : "email",
-								class       : "form-control",
-								placeholder : "email@soapbox.com",
-								groupWrapper: "div class='mb-3'",
-								label       : "Email",
-								labelClass  : "form-label"
-							)#
-
-							#html.passwordField(
-								name        : "password",
-								class       : "form-control",
-								groupWrapper: "div class='mb-3'",
-								label       : "Password",
-								labelClass  : "form-label"
-							)#
-
-							#html.passwordField(
-								name        : "confirmPassword",
-								class       : "form-control",
-								groupWrapper: "div class='mb-3'",
-								label       : "Confirm Password",
-								labelClass  : "form-label"
-							)#
-
-							<div    class = "form-group">
-							<button type  = "submit" class = "btn btn-primary">Register</button>
-							</div>
-						#html.endForm()#
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+              <div class="form-group">
+                <button type="submit" class="btn btn-primary">Register</button>
+              </div>
+              #html.endForm()#
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </cfoutput>
 ```
 
@@ -476,7 +450,7 @@ Before we code, let's pseudo code it:
 - Relocate
 ```
 
-Let's introduce another framework super type method: `populate()`.  This framework method is super handy. It allows for the framework to populate objects with form/request data as long as the keys in the incoming `rc` (request collection) match the names of the properties in the target object.  It can even build ORM relationships for you.  Here is the signature of this magical method:
+Let's introduce another framework super type method: `populate()`. This framework method is super handy. It allows for the framework to populate objects with form/request data as long as the keys in the incoming `rc` (request collection) match the names of the properties in the target object. It can even build ORM relationships for you. Here is the signature of this magical method:
 
 ```js
 /**
@@ -537,11 +511,11 @@ function create( event, rc, prc ){
         }
     );
 
-    relocate( "/" );
+    relocate( URI: "/" );
 }
 ```
 
-Look at that, very clean.  The `populateModel()` even accepts a WireBox ID, so it will even create the `User` object for you.  However, what's also new?  The `flash` scope right?
+Look at that, very clean. The `populateModel()` even accepts a WireBox ID, so it will even create the `User` object for you. However, what's also new? The `flash` scope right?
 
 The purpose of the Flash RAM is to allow variables to be persisted seamlessly from one request and be picked up in a subsequent request(s) by the same user. This allows you to hide implementation variables and create web flows or conversations in your ColdBox applications. So why not just use session or client variables? Well, most developers forget to clean them up and sometimes they just end up overtaking huge amounts of RAM and no clean cut definition is found for them. With Flash RAM, you have the facility already provided to you in an abstract and encapsulated format. This way, if you need to change your flows storage scope from session to client scope, the change is seamless and painless.
 
@@ -579,10 +553,10 @@ Check your tests, they should all pass again.
 
 **SELF DIRECTED**
 
-We did not validate, naughty naughty naughty!  This is really important and we completely forgot.  This is going to be a self directed excercise:
+We did not validate, naughty naughty naughty! This is really important and we completely forgot. This is going to be a self directed excercise:
 
 - Uncomment the stories in the BDD test so we can test different validation scenarios
-- Install `cbvalidation` https                                        : //coldbox-validation.ortusbooks.com/overview/installation
-- Add constraints to the `User.cfc` https                             : //coldbox-validation.ortusbooks.com/overview/declaring-constraints/domain-object
+- Install `cbvalidation` https : //coldbox-validation.ortusbooks.com/overview/installation
+- Add constraints to the `User.cfc` https : //coldbox-validation.ortusbooks.com/overview/declaring-constraints/domain-object
 - Update the `registration` handler to validate the user once popualed: https: //coldbox-validation.ortusbooks.com/overview/validating-constraints
-- Update the `new.cfm` view to showcase the errors if any             : https: //coldbox-validation.ortusbooks.com/overview/displaying-errors
+- Update the `new.cfm` view to showcase the errors if any : https: //coldbox-validation.ortusbooks.com/overview/displaying-errors
