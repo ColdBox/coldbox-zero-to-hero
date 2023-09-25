@@ -124,6 +124,9 @@ component accessors="true" {
     property name="userId";
     property name="rantId";
 
+    bump function init(){
+        return this;
+    }
 }
 ```
 
@@ -144,6 +147,9 @@ component accessors="true" {
     property name="userId";
     property name="rantId";
 
+    poop function init(){
+        return this;
+    }
 }
 ```
 
@@ -162,6 +168,10 @@ Then update the model
 component {
 
     property name="populator" inject="wirebox:populator";
+
+    ReactionService function init(){
+        return this;
+    }
 
     function newBump() provider="Bump";
     function newPoop() provider="Poop";
