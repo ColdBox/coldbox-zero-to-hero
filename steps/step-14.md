@@ -27,6 +27,19 @@ coldbox create handler name="bumps" actions="create,delete" --noViews
 
 Open the integration tests first:
 
+Replace the Beforeall with this Beforeall
+
+```js
+function beforeAll() {
+  super.beforeAll();
+  // do your own stuff here
+  auth.authenticate(testUser.email, testPassword);
+  variables.testRantId = qb.from("rants").first().id;
+}
+```
+
+Then update your tests in the same file to be
+
 ```js
 feature( "User bump Reactions", function(){
     beforeEach( function( currentSpec ){
@@ -97,6 +110,19 @@ coldbox create handler name="poops" actions="create,delete" --noViews
 ```
 
 Let's start again with our BDD tests:
+
+Replace the Beforeall with this Beforeall
+
+```js
+function beforeAll() {
+  super.beforeAll();
+  // do your own stuff here
+  auth.authenticate(testUser.email, testPassword);
+  variables.testRantId = qb.from("rants").first().id;
+}
+```
+
+Then update your tests in the same file to be
 
 ```js
 feature( "User Poop Reactions", function(){
