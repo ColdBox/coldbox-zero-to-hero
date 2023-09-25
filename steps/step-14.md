@@ -61,7 +61,7 @@ Now the handler source to put it together
  */
 component {
 
-	property name="reactionService";
+	property name="reactionService" inject="ReactionService";
 
 	/**
 	 * Executes before all handler actions
@@ -131,7 +131,7 @@ Now the handler source:
  */
 component {
 
-	property name="reactionService";
+	property name="reactionService" inject="ReactionService";
 
 	/**
 	 * Executes before all handler actions
