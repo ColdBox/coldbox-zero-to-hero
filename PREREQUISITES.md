@@ -12,6 +12,8 @@ Please have the following software on your computer before the workshop. If ever
 
 Please make sure you have a computer that is modern. No running windows 95, 7 or something funky from the year 2000.  Make sure you have plenty of FREE RAM (at least 4gb) and with a modern processor (at least an i5).  Most of the hiccups in trainings are when people do not meet the appropriate requirements in their own machines.  We will be running CFML engines and docker containers, so make sure you can run them.
 
+You can also alternatively use our Github devcontainer so you don't have to have anything installed locally.  Just go to our repository: https://github.com/ColdBox/coldbox-zero-to-hero, star it and fork it.  Once forked, click on the `<> Code` button then `Create Codespace`.  Let it run and build the space.
+
 ## [Git](https://git-scm.com)
 
 * https://git-scm.com

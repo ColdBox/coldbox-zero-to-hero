@@ -23,7 +23,7 @@ This course at this time is using the following dependencies:
 
 ![SoapBox](steps/images/soapbox.png)
 
-This course will focus on building a real Twitter clone; SoapBox, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
+This course will focus on building a real micro-blogging app; **SoapBox**, based on different concepts and tool methodologies. We will use ColdBox features, including Behavior Driven Development (BDD) testing and leveraging several ForgeBox modules.
 
 > (All commands assume we are in the `box` shell unless stated otherwise.)
 
