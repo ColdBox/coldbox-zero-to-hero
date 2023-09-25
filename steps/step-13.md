@@ -205,12 +205,12 @@ component {
 }
 ```
 
-## Model: `Rant`
+## Model: `Rants`
 
-Inject `reactionService` and create the following functions in the `Rant` object
+Inject `reactionService` and create the following functions in the `Rants` object
 
 ```js
-// models/Rant.cfc
+// models/Rants.cfc
 
 property name="reactionService" inject="ReactionService";
 

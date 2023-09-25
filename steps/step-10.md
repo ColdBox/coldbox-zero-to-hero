@@ -258,7 +258,7 @@ component extends="coldbox.system.EventHandler" {
 	 * Create a rant
 	 */
 	function create( event, rc, prc ){
-		prc.oRant = populateModel( "Rant" ).setUserId( auth().getUserId() );
+		prc.oRant = populateModel( "Rants" ).setUserId( auth().getUserId() );
 
 		validate( prc.oRant )
 			.onSuccess( ( result ) => {
@@ -321,7 +321,7 @@ component extends="coldbox.system.EventHandler" {
 }
 ```
 
-## Model: `Rant`
+## Model: `Rants`
 
 Let's open the model and modify it a bit:
 
@@ -362,7 +362,7 @@ component accessors="true" {
 	/**
 	 * Constructor
 	 */
-	Rant function init(){
+	Rants function init(){
 		variables.createdDate = now();
 		return this;
 	}
@@ -393,7 +393,7 @@ Work on the unit test, what will you test?
  * and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
  * responsibility to update the model annotation instantiation path and init your model.
  */
-component extends="coldbox.system.testing.BaseModelTest" model="models.Rant" {
+component extends="coldbox.system.testing.BaseModelTest" model="models.Rants" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
@@ -432,9 +432,9 @@ component extends="coldbox.system.testing.BaseModelTest" model="models.Rant" {
 }
 ```
 
-## Model: `RantService`
+## Model: `RantsService`
 
-Let's work on our rant service now:
+Let's work on our rants service now:
 
 ```js
 /**
@@ -453,9 +453,9 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Provider of Rant objects
+	 * Provider of Rants objects
 	 */
-	Rant function new() provider="Rant"{
+	Rants function new() provider="Rants"{
 	}
 
 	/**
@@ -485,7 +485,7 @@ component singleton accessors="true" {
 	 *
 	 * @rant The rant to save
 	 */
-	Rant function update( required rant ){
+	Rants function update( required rant ){
 		arguments.rant.setModifiedDate( now() );
 		queryExecute(
 			"
@@ -527,7 +527,7 @@ component singleton accessors="true" {
 	 *
 	 * @return A persisted rant by ID or a new rant
 	 */
-	Rant function get( required rantId ){
+	Rants function get( required rantId ){
 		return queryExecute(
 			"SELECT * FROM `rants` where id = :id",
 			{ id : arguments.rantId },
@@ -542,7 +542,7 @@ component singleton accessors="true" {
 Now the unit test:
 
 ```js
-describe("RantService Suite", function () {
+describe("RantsService Suite", function () {
   it("can be created", function () {
     expect(model).toBeComponent();
   });

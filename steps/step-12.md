@@ -79,21 +79,21 @@ component {
 
 ## Model `User.cfc` updates
 
-To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service. Start by injecting the `rantService`
+To be able to pull the rants for a user, we need to update our User object, to be able to access the Rants Service. Start by injecting the `rantsService`
 
 ```js
-property name="rantService" inject;
+property name="rantsService" inject;
 ```
 
 Then create a `getRants()` function
 
 ```js
 function getRants() {
-    return rantService.getForUserId( variables.id );
+  return rantsService.getForUserId(variables.id);
 }
 ```
 
-## Model `RantService` retrieve for a user
+## Model `RantsService` retrieve for a user
 
 Now let's update the rant service to get rants for a specific user via a `findByUser` function:
 
@@ -204,7 +204,7 @@ Run the following command: `coldbox create view 404` to create the view
 
 ## Update the `rants/index` View
 
-Update the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
+Update the `views/rants/index.cfm` file and replace the content of the loop to render the `partials/rant` view
 
 ```html
 <cfloop array="#prc.aRants#" item="rant">
