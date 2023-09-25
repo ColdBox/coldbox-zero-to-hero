@@ -633,7 +633,7 @@ We want our rants to be the homepage instead of the default one.
 //config/ColdBox.cfc
 // inside the coldbox struct
 coldbox = {
-    defaultEvent = "rants.index",
+    defaultEvent : "rants.index",
     ...
 };
 ```
