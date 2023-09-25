@@ -673,9 +673,10 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 </cfoutput>
 ```
 
-## Update the Main Layout
+## Update the Main Layout's Navigation include
 
 ```html
+// /views/partials/navigation.cfm
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
 	<div class="container-fluid">
 
@@ -702,6 +703,7 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 			<!--- Left Aligned --->
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<!--- Logged In --->
+				<cfif cbsecure().guest()>
 					<li class="nav-item">
 						<a
 							class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
@@ -718,9 +720,11 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 							Log in
 						</a>
 					</li>
+				<cfelse>
 					<li class="nav-item">
 						<a href="#event.buildLink( "rants.new" )#" class="btn btn-outline-info">Start a Rant</a>
 					</li>
+				</cfif>
 			</ul>
 
 			<!--- Right Aligned --->
@@ -735,10 +739,12 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 						</a>
 					</li>
 				</ul>
-                <form method="POST" action="#event.buildLink( "logout" )#">
-                    <input type="hidden" name="_method" value="DELETE" />
-                    <button class="btn btn-outline-success" type="submit">Log Out</button>
-                </form>
+                 <cfif cbsecure().isLoggedIn()>
+					<form method="POST" action="#event.buildLink( "logout" )#">
+						<input type="hidden" name="_method" value="DELETE" />
+						<button class="btn btn-outline-success" type="submit">Log Out</button>
+					</form>
+				</cfif>
 			</div>
 		</div>
 	</div>
