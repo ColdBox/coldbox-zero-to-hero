@@ -134,7 +134,6 @@ Since we are in the securing our app section, let's add some `cbcsrf` goodness s
 
 Let's modify the following forms:
 
-- [`rants/index.cfm`](../src/views/rants/index.cfm) - Delete rant form
 - [`rants/new.cfm`](../src/views/rants/new.cfm) - New rant form
 - [`registration/new.cfm`](../src/views/registration/new.cfm) - New user registration form
 - [`sessions/new.cfm`](../src/views/new.cfm) - User login form
