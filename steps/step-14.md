@@ -27,6 +27,12 @@ coldbox create handler name="bumps" actions="create,delete" --noViews
 
 Open the integration tests first:
 
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
+
 Replace the Beforeall with this Beforeall
 
 ```js
@@ -110,6 +116,12 @@ coldbox create handler name="poops" actions="create,delete" --noViews
 ```
 
 Let's start again with our BDD tests:
+
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
 
 Replace the Beforeall with this Beforeall
 

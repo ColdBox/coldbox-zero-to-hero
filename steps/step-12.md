@@ -12,6 +12,14 @@ coldbox create handler name="users" actions="show"
 
 And let's work on the BDD for it:
 
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
+
+Then update the tests
+
 ```js
 feature( "User Rants Page", function(){
     beforeEach( function( currentSpec ){
