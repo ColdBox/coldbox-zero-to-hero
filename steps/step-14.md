@@ -243,10 +243,10 @@ function getPoopsForUser( user ){
  * Bump a rant
  *
  * @rantId The rant to bump
- * @userId The user doing the bumping
+ * @user The user object who is doing the bumping
  */
-ReactionService function bump( required rantId, required userId ){
-    queryExecute( "INSERT INTO `bumps` VALUES (?, ?)", [ arguments.userId, arguments.rantId ] );
+ReactionService function bump( required rantId, required user ){
+    queryExecute( "INSERT INTO `bumps` VALUES (?, ?)", [ arguments.user.getID(), arguments.rantId ] );
     return this;
 }
 
@@ -254,12 +254,12 @@ ReactionService function bump( required rantId, required userId ){
  * Unbump a rant
  *
  * @rantId The rant to unbump
- * @userId The user doing the bumping
+ * @user The user object who is doing the unbumping
  */
-ReactionService function unbump( required rantId, required userId ){
+ReactionService function unbump( required rantId, required user ){
     queryExecute(
         "DELETE FROM `bumps` WHERE `userId` = ? AND `rantId` = ?",
-        [ arguments.userId, arguments.rantId ]
+        [ arguments.user.getID(), arguments.rantId ]
     );
     return this;
 }
@@ -268,10 +268,10 @@ ReactionService function unbump( required rantId, required userId ){
  * Poop a rant
  *
  * @rantId The rant to bump
- * @userId The user doing the bumping
+ * @user The user object who is doing the pooping
  */
-ReactionService function poop( rantId, userId ){
-    queryExecute( "INSERT INTO `poops` VALUES (?, ?)", [ arguments.userId, arguments.rantId ] );
+ReactionService function poop( required rantId, required user ){
+    queryExecute( "INSERT INTO `poops` VALUES (?, ?)", [ arguments.user.getID(), arguments.rantId ] );
     return this;
 }
 
@@ -279,12 +279,12 @@ ReactionService function poop( rantId, userId ){
  * unpoop a rant
  *
  * @rantId The rant to unpoop
- * @userId The user doing the bumping
+ * @user The user object who is doing the unpooping
  */
-ReactionService function unpoop( rantId, userId ){
+ReactionService function unpoop( required rantId, required user ){
     queryExecute(
         "DELETE FROM `poops` WHERE `userId` = ? AND `rantId` = ?",
-        [ arguments.userId, arguments.rantId ]
+        [ arguments.user.getID(), arguments.rantId ]
     );
     return this;
 }
