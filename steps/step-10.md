@@ -653,7 +653,7 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
       <div class="card-body">
         #html.startForm( action : "rants" )# #html.textarea( name : "body",
         class : "form-control", rows : 10, placeholder : "What's on your mind?",
-        groupWrapper : "div class='mb-3'", value : rc.body )#
+        groupWrapper : "div class='mb-3'", value : prc.oRant.getBody() )#
 
         <div class="d-flex justify-content-end">
           <a
