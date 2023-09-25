@@ -86,10 +86,10 @@ migrate up
 
 ## View Partial Updates
 
-Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+Display bumps on the rant partial, add this footer in `/views/partials/rant.cfm`
 
 ```html
-// /views/_partials/_rant.cfm
+// /views/partials/rant.cfm
 <div class="card-footer d-flex justify-content-between align-items-center">
     <span class="badge text-bg-light">
         #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
