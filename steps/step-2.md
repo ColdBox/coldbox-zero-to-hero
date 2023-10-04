@@ -85,7 +85,7 @@ Now let's add a few badges to our footer so it can assist us during development.
             title="Debug Mode"
         >
             <i class="bi bi-bug"></i>
-            #isDebugMode()#
+            #inDebugMode()#
         </span>
 
         <span

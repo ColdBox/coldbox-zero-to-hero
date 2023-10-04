@@ -15,5 +15,17 @@
             "askForPassword": true,
             "socketPath": "/var/run/mysqld/mysqld.sock"
         }
-    ]
+    ],
+    "cfml.mappings": [
+		{
+			"logicalPath": "/coldbox",
+			"directoryPath": "./src/coldbox",
+			"isPhysicalDirectoryPath" :false
+		},
+		{
+			"logicalPath": "/testbox",
+			"directoryPath": "./src/testbox",
+			"isPhysicalDirectoryPath" :false
+		}
+	]
 }
