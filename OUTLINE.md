@@ -29,11 +29,11 @@ This course will focus on building a real micro-blogging app; **SoapBox**, based
 
 ### 1. Course Introduction
 
-- [ ] Introductions
-- [ ] Software Pre-Requisites
-- [ ] Course Expectations
-- [ ] How many have used ColdBox/MVC before?
-- [ ] How many have used BDD/TDD approaches before?
+- [√] Introductions
+  - Software Pre-Requisites
+  - Course Expectations
+  - How many have used ColdBox/MVC before?
+  - How many have used BDD/TDD approaches before?
 
 ### 2. App Skeleton
 

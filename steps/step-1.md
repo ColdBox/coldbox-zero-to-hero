@@ -6,7 +6,9 @@ Create a folder for your app on your hard drive called `soapbox`.  Our just use 
 
 ```sh
 cd src
-coldbox create app name=soapbox skeleton=cbtemplate-advanced-script@be
+coldbox create app name=soapbox
+# This is the same as above, the default is 'default'
+coldbox create app name=soapbox skeleton=default
 ```
 
 Also run a `coldbox create app ?` to see all the different ways to generate an app.  You can also use `coldbox create app-wizard ?` and follow our lovely wizard.
