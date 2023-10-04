@@ -63,7 +63,7 @@ component extends="coldbox.system.testing.BaseTestCase" autowire{
         if ( ! request.keyExists( "migrationsRan" ) ) {
             var migrationService = getInstance( name : "MigrationService@cfmigrations", initArguments  : {
                 migrationsDirectory : "/root/resources/database/migrations",
-                seedsDirectory : "/root/resources/database/seeds"
+                seedsDirectory : "/root/resources/database/seeds",
                 properties : {
                     datasource : "soapbox"
                 }
@@ -96,4 +96,4 @@ component extends="coldbox.system.testing.BaseTestCase" autowire{
 }
 ```
 
-Let's run the tests again and make sure they pass!
+Go update the specs you have by adding the `extends="tests.resources.BaseIntegrationSpec"` and let's run the tests again and make sure they pass!

@@ -79,16 +79,22 @@ We will use this file as is and just create the necessary environment variables 
 
 ```sh
 # Database Information
-DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:4306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true&allowPublicKeyRetrieval=true
+DB_CONNECTIONSTRING=jdbc:mysql://127.0.0.1:3306/soapbox?useSSL=false&useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useLegacyDatetimeCode=true&allowPublicKeyRetrieval=true
 DB_CLASS=com.mysql.jdbc.Driver
 DB_BUNDLENAME=com.mysql.cj
 DB_BUNDLEVERSION=8.0.30
 DB_DRIVER=MySQL
 DB_HOST=127.0.0.1
+
+# Docker
 DB_PORT=4306
+# Local
+DB_PORT=3306
+
 DB_DATABASE=soapbox
 DB_USER=root
 DB_PASSWORD=soapbox
+DB_SCHEMA=soapbox
 ```
 
 ### Test the Environment
@@ -199,6 +205,17 @@ We highly encourage you install the SQL Tools module from VSCode: https://vscode
 Just open the tools, double click the `soapbox` connection and if succesful then we are ready to init our database.
 
 > Warning: If you get an error "Driver MySQL is not installed", open the VSCode extensions panel and search for sqltools drivers: `@tag:sqltools-driver`
+
+If you are using codespaces, due to security changes in MySQL 8 we will create a non-root user for our application:
+
+```
+> mysql
+CREATE USER 'soapbox'@'%' IDENTIFIED BY 'soapbox';
+GRANT ALL PRIVILEGES ON *.* TO 'soapbox'@'%';
+exit;
+
+>service mysql restart
+```
 
 ## Install Migrations
 
