@@ -202,7 +202,6 @@ View partials, are just that, partial views or includes that can be rendered in 
 
 ```bash
 coldbox create view partials/navigation
-
 ```
 
 Then we can add partials into our layout:
@@ -247,7 +246,7 @@ This is the final layout for this section
 	<link rel="stylesheet" href="/includes/css/app.css">
 
 	<!--- Title --->
-	<title>Welcome to Coldbox!</title>
+	<title>SoapBox : Micro-blogging platform</title>
 </head>
 <body
 	data-spy="scroll"
