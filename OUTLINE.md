@@ -37,10 +37,10 @@ This course will focus on building a real micro-blogging app; **SoapBox**, based
 
 ### 2. App Skeleton
 
-- [ ] Scaffold our application
-- [ ] Configure the Test Harness
-- [ ] Run our initial tests
-- [ ] CommandBox Test Watchers
+- [√] Scaffold our application
+  - Configure the Test Harness
+  - Run our initial tests
+  - CommandBox Test Watchers
 
 Steps: [Start](steps/step-1.md)
 
