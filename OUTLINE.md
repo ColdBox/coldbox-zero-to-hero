@@ -29,7 +29,7 @@ This course will focus on building a real micro-blogging app; **SoapBox**, based
 
 ### 1. Course Introduction
 
-- [√] Introductions
+- [ ] Introductions
   - Software Pre-Requisites
   - Course Expectations
   - How many have used ColdBox/MVC before?
@@ -37,7 +37,7 @@ This course will focus on building a real micro-blogging app; **SoapBox**, based
 
 ### 2. App Skeleton
 
-- [√] Scaffold our application
+- [ ] Scaffold our application
   - Configure the Test Harness
   - Run our initial tests
   - CommandBox Test Watchers

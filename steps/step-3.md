@@ -160,7 +160,7 @@ Our layout should end up like this:
                 title="Debug Mode"
             >
                 <i class="bi bi-bug"></i>
-                #isDebugMode()#
+                #inDebugMode()#
             </span>
 
             <span

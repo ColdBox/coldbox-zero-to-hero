@@ -26,7 +26,7 @@
 			title="Debug Mode"
 		>
 			<i class="bi bi-bug"></i>
-			 #isDebugMode()#
+			 #inDebugMode()#
 		</span>
 
 		<span

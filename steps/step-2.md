@@ -100,7 +100,7 @@ Now let's add a few badges to our footer so it can assist us during development.
 </footer>
 ```
 
-* Where does the methods `getSetting(), isDebugMode(), getIsoTime()` method come from?
+* Where does the methods `getSetting(), inDebugMode(), getIsoTime()` method come from?
 * Go back again to the UML Diagram of Major Classes (https://coldbox.ortusbooks.com/the-basics/models/super-type-usage-methods)
 * Visualize the labels
 
