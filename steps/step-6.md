@@ -5,7 +5,7 @@ Models are at the core of ColdBox. We could teach you how to write legacy style 
 What we need now is the following story: `I want to be able to list all users in my system`. This is our requirement, so let's scaffold what we need via CommandBox.
 
 ```bash
-coldbox create model name="UserService" methods="list" persistence="singleton"
+coldbox create service name="UserService" methods="list" persistence="singleton"
 ```
 
 This  will create the `UserService.cfc` in the `models` folder and a companion **unit** test in `tests/specs/unit/UserServiceTest.cfc`.  Use `ctrl|cmd + click` to open the files in your terminal in VScode.
