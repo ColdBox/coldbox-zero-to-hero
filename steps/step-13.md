@@ -86,10 +86,10 @@ migrate up
 
 ## View Partial Updates
 
-Display bumps on the rant partial, add this footer in `/views/_partials/_rant.cfm`
+Display bumps on the rant partial, add this footer in `/views/partials/rant.cfm`
 
 ```html
-// /views/_partials/_rant.cfm
+// /views/partials/rant.cfm
 <div class="card-footer d-flex justify-content-between align-items-center">
     <span class="badge text-bg-light">
         #dateTimeFormat( args.rant.getCreatedDate(), "h:nn:ss tt" )#
@@ -124,6 +124,9 @@ component accessors="true" {
     property name="userId";
     property name="rantId";
 
+    bump function init(){
+        return this;
+    }
 }
 ```
 
@@ -144,6 +147,9 @@ component accessors="true" {
     property name="userId";
     property name="rantId";
 
+    poop function init(){
+        return this;
+    }
 }
 ```
 
@@ -162,6 +168,10 @@ Then update the model
 component {
 
     property name="populator" inject="wirebox:populator";
+
+    ReactionService function init(){
+        return this;
+    }
 
     function newBump() provider="Bump";
     function newPoop() provider="Poop";
@@ -195,12 +205,12 @@ component {
 }
 ```
 
-## Model: `Rant`
+## Model: `Rants`
 
-Inject `reactionService` and create the following functions in the `Rant` object
+Inject `reactionService` and create the following functions in the `Rants` object
 
 ```js
-// models/Rant.cfc
+// models/Rants.cfc
 
 property name="reactionService" inject="ReactionService";
 

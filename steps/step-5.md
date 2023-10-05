@@ -2,7 +2,7 @@
 
 ## Install `cfmigrations` as a dev dependency
 
-CF Migrations is different than `commandbox-migrations`. It allows you to run the migrations from a running CFML engine and NOT CommandBox.  Usually, you can use them for testing purposes or delivering updates in your apps.  However, for today, this is a **development** dependency only.
+CF Migrations is different than `commandbox-migrations`. It allows you to run the migrations from a running CFML engine and NOT CommandBox. Usually, you can use them for testing purposes or delivering updates in your apps. However, for today, this is a **development** dependency only.
 
 CommandBox can track production and development dependencies for you via the `--saveDev` flag.
 
@@ -12,7 +12,7 @@ install cfmigrations --saveDev
 
 ## Configure `Application.cfc`
 
-Rename the `coldbox` default datasource to `soapbox`
+In step 4 we added the datasource to your Application.cfc. Confirm that the datasource is `soapbox`, not the default for the template of `coldbox`.
 
 ```js
 this.datasource = "soapbox";
@@ -28,7 +28,7 @@ this.datasource = "soapbox";
 
 ## Create a `tests/resources/BaseIntegrationSpec.cfc`
 
-We will create a base test bundle so we can tap into TestBox's life-cycle events and provide uniformity to all our tests.  Remember that in ColdBox Testing we can also use dependency injection by tagging our components with the `autowire` annotation:
+We will create a base test bundle so we can tap into TestBox's life-cycle events and provide uniformity to all our tests. Remember that in ColdBox Testing we can also use dependency injection by tagging our components with the `autowire` annotation:
 
 ```js
 /**

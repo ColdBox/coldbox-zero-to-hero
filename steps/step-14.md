@@ -27,6 +27,25 @@ coldbox create handler name="bumps" actions="create,delete" --noViews
 
 Open the integration tests first:
 
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
+
+Replace the Beforeall with this Beforeall
+
+```js
+function beforeAll() {
+  super.beforeAll();
+  // do your own stuff here
+  auth.authenticate(testUser.email, testPassword);
+  variables.testRantId = qb.from("rants").first().id;
+}
+```
+
+Then update your tests in the same file to be
+
 ```js
 feature( "User bump Reactions", function(){
     beforeEach( function( currentSpec ){
@@ -61,7 +80,7 @@ Now the handler source to put it together
  */
 component {
 
-	property name="reactionService";
+	property name="reactionService" inject="ReactionService";
 
 	/**
 	 * Executes before all handler actions
@@ -98,6 +117,25 @@ coldbox create handler name="poops" actions="create,delete" --noViews
 
 Let's start again with our BDD tests:
 
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
+
+Replace the Beforeall with this Beforeall
+
+```js
+function beforeAll() {
+  super.beforeAll();
+  // do your own stuff here
+  auth.authenticate(testUser.email, testPassword);
+  variables.testRantId = qb.from("rants").first().id;
+}
+```
+
+Then update your tests in the same file to be
+
 ```js
 feature( "User Poop Reactions", function(){
     beforeEach( function( currentSpec ){
@@ -131,7 +169,7 @@ Now the handler source:
  */
 component {
 
-	property name="reactionService";
+	property name="reactionService" inject="ReactionService";
 
 	/**
 	 * Executes before all handler actions
@@ -243,10 +281,10 @@ function getPoopsForUser( user ){
  * Bump a rant
  *
  * @rantId The rant to bump
- * @userId The user doing the bumping
+ * @user The user object who is doing the bumping
  */
-ReactionService function bump( required rantId, required userId ){
-    queryExecute( "INSERT INTO `bumps` VALUES (?, ?)", [ arguments.userId, arguments.rantId ] );
+ReactionService function bump( required rantId, required user ){
+    queryExecute( "INSERT INTO `bumps` VALUES (?, ?)", [ arguments.user.getID(), arguments.rantId ] );
     return this;
 }
 
@@ -254,12 +292,12 @@ ReactionService function bump( required rantId, required userId ){
  * Unbump a rant
  *
  * @rantId The rant to unbump
- * @userId The user doing the bumping
+ * @user The user object who is doing the unbumping
  */
-ReactionService function unbump( required rantId, required userId ){
+ReactionService function unbump( required rantId, required user ){
     queryExecute(
         "DELETE FROM `bumps` WHERE `userId` = ? AND `rantId` = ?",
-        [ arguments.userId, arguments.rantId ]
+        [ arguments.user.getID(), arguments.rantId ]
     );
     return this;
 }
@@ -268,10 +306,10 @@ ReactionService function unbump( required rantId, required userId ){
  * Poop a rant
  *
  * @rantId The rant to bump
- * @userId The user doing the bumping
+ * @user The user object who is doing the pooping
  */
-ReactionService function poop( rantId, userId ){
-    queryExecute( "INSERT INTO `poops` VALUES (?, ?)", [ arguments.userId, arguments.rantId ] );
+ReactionService function poop( required rantId, required user ){
+    queryExecute( "INSERT INTO `poops` VALUES (?, ?)", [ arguments.user.getID(), arguments.rantId ] );
     return this;
 }
 
@@ -279,12 +317,12 @@ ReactionService function poop( rantId, userId ){
  * unpoop a rant
  *
  * @rantId The rant to unpoop
- * @userId The user doing the bumping
+ * @user The user object who is doing the unpooping
  */
-ReactionService function unpoop( rantId, userId ){
+ReactionService function unpoop( required rantId, required user ){
     queryExecute(
         "DELETE FROM `poops` WHERE `userId` = ? AND `rantId` = ?",
-        [ arguments.userId, arguments.rantId ]
+        [ arguments.user.getID(), arguments.rantId ]
     );
     return this;
 }

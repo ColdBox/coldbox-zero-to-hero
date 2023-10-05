@@ -78,33 +78,37 @@ component {
 
 See something different? Let's see who can spot it?
 
-Also, as our application progresses, it will be a little heavy-handed to be running the migrations and database seeding on EVERY test run.  So let's update our code so it ONLY runs if we issue a `fwreinit` to the TEST application.  Remember, this is a separate application from the root application; thus the separate `Application.cfc`
+Also, as our application progresses, it will be a little heavy-handed to be running the migrations and database seeding on EVERY test run. So let's update our code so it ONLY runs if we issue a `fwreinit` to the TEST application. Remember, this is a separate application from the root application; thus the separate `Application.cfc`
 
 ```js
 // Reload for fresh results
-if ( structKeyExists( url, "fwreinit" ) ) {
-    if ( structKeyExists( server, "lucee" ) ) {
-        pagePoolClear();
-    }
-    // ormReload();
-    request.coldBoxVirtualApp.restart();
-    // SEED DATABSE HERE
-    seedDatabase();
+if (structKeyExists(url, "fwreinit")) {
+  if (structKeyExists(server, "lucee")) {
+    pagePoolClear();
+  }
+  // ormReload();
+  request.coldBoxVirtualApp.restart();
+  // SEED DATABSE HERE
+  seedDatabase();
 }
 
 // If hitting the runner or specs, prep our virtual app
-if ( getBaseTemplatePath().replace( expandPath( "/tests" ), "" ).reFindNoCase( "(runner|specs)" ) ) {
-    request.coldBoxVirtualApp.startup();
-    // IT USED TO BE HERE
+if (
+  getBaseTemplatePath()
+    .replace(expandPath("/tests"), "")
+    .reFindNoCase("(runner|specs)")
+) {
+  request.coldBoxVirtualApp.startup();
+  // IT USED TO BE HERE
 }
 ```
 
 ## BDD
 
-Now, let's do some BDD as we have to build the CRUD for rants.  Our stories will be done as we progress.
+Now, let's do some BDD as we have to build the CRUD for rants. Our stories will be done as we progress.
 
 ```bash
-coldbox create resources rants
+coldbox create resource rants
 # delete the unused views
 delete views/rants/create.cfm,views/rants/edit.cfm,views/rants/delete.cfm --force
 ```
@@ -217,7 +221,7 @@ component extends="tests.resources.BaseIntegrationSpec" {
 Add the rants resources in the `Router.cfc` file
 
 ```js
-resources( "rants" );
+resources("rants");
 ```
 
 ## Event Handler: `rants`
@@ -254,7 +258,7 @@ component extends="coldbox.system.EventHandler" {
 	 * Create a rant
 	 */
 	function create( event, rc, prc ){
-		prc.oRant = populateModel( "Rant" ).setUserId( auth().getUserId() );
+		prc.oRant = populateModel( "Rants" ).setUserId( auth().getUserId() );
 
 		validate( prc.oRant )
 			.onSuccess( ( result ) => {
@@ -317,7 +321,7 @@ component extends="coldbox.system.EventHandler" {
 }
 ```
 
-## Model: `Rant`
+## Model: `Rants`
 
 Let's open the model and modify it a bit:
 
@@ -358,7 +362,7 @@ component accessors="true" {
 	/**
 	 * Constructor
 	 */
-	Rant function init(){
+	Rants function init(){
 		variables.createdDate = now();
 		return this;
 	}
@@ -389,7 +393,7 @@ Work on the unit test, what will you test?
  * and then create it, prepare it for mocking and then place it in the variables scope as 'model'. It is your
  * responsibility to update the model annotation instantiation path and init your model.
  */
-component extends="coldbox.system.testing.BaseModelTest" model="models.Rant" {
+component extends="coldbox.system.testing.BaseModelTest" model="models.Rants" {
 
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
@@ -428,9 +432,9 @@ component extends="coldbox.system.testing.BaseModelTest" model="models.Rant" {
 }
 ```
 
-## Model: `RantService`
+## Model: `RantsService`
 
-Let's work on our rant service now:
+Let's work on our rants service now:
 
 ```js
 /**
@@ -449,9 +453,9 @@ component singleton accessors="true" {
 	}
 
 	/**
-	 * Provider of Rant objects
+	 * Provider of Rants objects
 	 */
-	Rant function new() provider="Rant"{
+	Rants function new() provider="Rants"{
 	}
 
 	/**
@@ -481,7 +485,7 @@ component singleton accessors="true" {
 	 *
 	 * @rant The rant to save
 	 */
-	Rant function update( required rant ){
+	Rants function update( required rant ){
 		arguments.rant.setModifiedDate( now() );
 		queryExecute(
 			"
@@ -523,7 +527,7 @@ component singleton accessors="true" {
 	 *
 	 * @return A persisted rant by ID or a new rant
 	 */
-	Rant function get( required rantId ){
+	Rants function get( required rantId ){
 		return queryExecute(
 			"SELECT * FROM `rants` where id = :id",
 			{ id : arguments.rantId },
@@ -538,12 +542,10 @@ component singleton accessors="true" {
 Now the unit test:
 
 ```js
-describe( "RantService Suite", function(){
-
-    it( "can be created", function(){
-        expect( model ).toBeComponent();
-    });
-
+describe("RantsService Suite", function () {
+  it("can be created", function () {
+    expect(model).toBeComponent();
+  });
 });
 ```
 
@@ -631,7 +633,7 @@ We want our rants to be the homepage instead of the default one.
 //config/ColdBox.cfc
 // inside the coldbox struct
 coldbox = {
-    defaultEvent = "rants.index",
+    defaultEvent : "rants.index",
     ...
 };
 ```
@@ -642,41 +644,39 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 
 ```html
 <cfoutput>
-<div class="container">
-	<div class="card">
+  <div class="container">
+    <div class="card">
+      <div class="card-header">
+        <h4>Start a Rant</h4>
+      </div>
 
-		<div class="card-header">
-			<h4>Start a Rant</h4>
-		</div>
+      <div class="card-body">
+        #html.startForm( action : "rants" )# #html.textarea( name : "body",
+        class : "form-control", rows : 10, placeholder : "What's on your mind?",
+        groupWrapper : "div class='mb-3'", value : prc.oRant.getBody() )#
 
-		<div class="card-body">
-			#html.startForm( action : "rants" )#
+        <div class="d-flex justify-content-end">
+          <a
+            href="#event.buildLink( 'rants' )#"
+            class="btn btn-outline-secondary"
+            >Cancel</a
+          >
+          <button type="submit" class="btn btn-outline-success ms-auto">
+            Rant it!
+          </button>
+        </div>
 
-				#html.textarea(
-					name : "body",
-					class : "form-control",
-					rows : 10,
-					placeholder : "What's on your mind?",
-					groupWrapper : "div class='mb-3'",
-					value : rc.body
-				)#
-
-				<div class="d-flex justify-content-end">
-					<a href="#event.buildLink( 'rants' )#" class="btn btn-outline-secondary">Cancel</a>
-					<button type="submit" class="btn btn-outline-success ms-auto">Rant it!</button>
-				</div>
-
-			#html.endForm()#
-		</div>
-	</div>
-</div>
+        #html.endForm()#
+      </div>
+    </div>
+  </div>
 </cfoutput>
-
 ```
 
-## Update the Main Layout
+## Update the Main Layout's Navigation include
 
 ```html
+// /views/partials/navigation.cfm
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
 	<div class="container-fluid">
 
@@ -703,6 +703,7 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 			<!--- Left Aligned --->
 			<ul class="navbar-nav me-auto mb-2 mb-lg-0">
 				<!--- Logged In --->
+				<cfif cbsecure().guest()>
 					<li class="nav-item">
 						<a
 							class="nav-link #event.urlMatches( "registration/new" ) ? 'active' : ''#"
@@ -719,9 +720,11 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 							Log in
 						</a>
 					</li>
+				<cfelse>
 					<li class="nav-item">
 						<a href="#event.buildLink( "rants.new" )#" class="btn btn-outline-info">Start a Rant</a>
 					</li>
+				</cfif>
 			</ul>
 
 			<!--- Right Aligned --->
@@ -736,10 +739,12 @@ Hit http://127.0.0.1:42518/ and you'll see the `main.index` with the dump. ColdB
 						</a>
 					</li>
 				</ul>
-                <form method="POST" action="#event.buildLink( "logout" )#">
-                    <input type="hidden" name="_method" value="DELETE" />
-                    <button class="btn btn-outline-success" type="submit">Log Out</button>
-                </form>
+                 <cfif cbsecure().isLoggedIn()>
+					<form method="POST" action="#event.buildLink( "logout" )#">
+						<input type="hidden" name="_method" value="DELETE" />
+						<button class="btn btn-outline-success" type="submit">Log Out</button>
+					</form>
+				</cfif>
 			</div>
 		</div>
 	</div>

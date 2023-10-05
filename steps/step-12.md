@@ -12,6 +12,14 @@ coldbox create handler name="users" actions="show"
 
 And let's work on the BDD for it:
 
+First make sure the test extends our Base Integration Test
+
+```
+component extends="tests.resources.BaseIntegrationSpec" {
+```
+
+Then update the tests
+
 ```js
 feature( "User Rants Page", function(){
     beforeEach( function( currentSpec ){
@@ -71,21 +79,21 @@ component {
 
 ## Model `User.cfc` updates
 
-To be able to pull the rants for a user, we need to update our User object, to be able to access the Rant Service. Start by injecting the `rantService`
+To be able to pull the rants for a user, we need to update our User object, to be able to access the Rants Service. Start by injecting the `rantsService`
 
 ```js
-property name="rantService" inject;
+property name="rantsService" inject;
 ```
 
 Then create a `getRants()` function
 
 ```js
 function getRants() {
-    return rantService.getForUserId( variables.id );
+  return rantsService.getForUserId(variables.id);
 }
 ```
 
-## Model `RantService` retrieve for a user
+## Model `RantsService` retrieve for a user
 
 Now let's update the rant service to get rants for a specific user via a `findByUser` function:
 
@@ -112,14 +120,12 @@ Run the following command: `coldbox create view 404` to create the view
 
 ```html
 <div class="d-flex align-items-center justify-content-center vh-100">
-	<div class="text-center">
-		<h1 class="display-1 fw-bold">404</h1>
-		<p class="fs-3"> <span class="text-danger">Opps!</span> Page not found.</p>
-		<p class="lead">
-			The page you’re looking for doesn’t exist.
-		  </p>
-		<a href="index.html" class="btn btn-primary">Go Home</a>
-	</div>
+  <div class="text-center">
+    <h1 class="display-1 fw-bold">404</h1>
+    <p class="fs-3"><span class="text-danger">Opps!</span> Page not found.</p>
+    <p class="lead">The page you’re looking for doesn’t exist.</p>
+    <a href="/" class="btn btn-primary">Go Home</a>
+  </div>
 </div>
 ```
 
@@ -127,22 +133,23 @@ Run the following command: `coldbox create view 404` to create the view
 
 ```html
 <cfoutput>
-<div class="container mt-4">
-	<h1 class="mb-4 d-flex align-items-center">#prc.oUser.getName()#
-		<span
-			class="ms-2 fs-6 badge text-bg-primary"
-			title="Total Rants"
-			data-bs-toggle="tooltip"
-			>
-			#prc.oUser.getRants().len()#
-		</span>
-	</h1>
-	<ul>
-		<cfloop array="#prc.oUser.getRants()#" item="rant">
-			#view( "partials/rant", { rant = rant } )#
-		</cfloop>
-	</ul>
-</div>
+  <div class="container mt-4">
+    <h1 class="mb-4 d-flex align-items-center">
+      #prc.oUser.getName()#
+      <span
+        class="ms-2 fs-6 badge text-bg-primary"
+        title="Total Rants"
+        data-bs-toggle="tooltip"
+      >
+        #prc.oUser.getRants().len()#
+      </span>
+    </h1>
+    <ul>
+      <cfloop array="#prc.oUser.getRants()#" item="rant">
+        #view( "partials/rant", { rant = rant } )#
+      </cfloop>
+    </ul>
+  </div>
 </cfoutput>
 ```
 
@@ -197,7 +204,7 @@ Run the following command: `coldbox create view 404` to create the view
 
 ## Update the `rants/index` View
 
-Update the `views/rants/index.cfm` file and replace the content of the loop to render the `_partials/_rant` view
+Update the `views/rants/index.cfm` file and replace the content of the loop to render the `partials/rant` view
 
 ```html
 <cfloop array="#prc.aRants#" item="rant">
@@ -244,3 +251,7 @@ array function getRants(){
     return variables.rants;
 }
 ```
+
+FYI - The firewall does not have the User profile whitelisted, so only logged in users can see a user profile.
+
+Challenge: Can you update the filewall to let users profiles be visible for logged in and guest users?
